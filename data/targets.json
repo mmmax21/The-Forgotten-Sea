@@ -4,31 +4,57 @@
       "id": "fisher",
       "kind": "person",
       "name": "老渔夫",
-      "avatar": "渔"
+      "avatar": "渔",
+      "facts": [
+        {"id":"identity","field":"identity","text":"在镇区认识的老渔夫。"},
+        {"id":"met","field":"status","text":"初次见面，尚未谈及他的往事。"},
+        {"id":"cooperation","field":"cooperation","text":"尚未商定合作。"},
+        {"id":"talked","field":"status","text":"已有一次初步交流；尚未获得合作承诺。"}
+      ]
     },
     {
       "id": "widow",
       "kind": "person",
       "name": "盐嫂",
-      "avatar": "盐"
+      "avatar": "盐",
+      "facts": [
+        {"id":"identity","field":"identity","text":"在镇区认识的盐嫂。"},
+        {"id":"met","field":"status","text":"初次见面，尚未了解她的生活处境。"},
+        {"id":"cooperation","field":"cooperation","text":"尚未商定合作。"},
+        {"id":"talked","field":"status","text":"已有一次初步交流；尚未商定后续帮助。"}
+      ]
     },
     {
       "id": "child",
       "kind": "person",
       "name": "螺螺",
-      "avatar": "螺"
+      "avatar": "螺",
+      "facts": [
+        {"id":"identity","field":"identity","text":"在镇区认识的孩子，名叫螺螺。"},
+        {"id":"met","field":"status","text":"初次见面，对来访者显得好奇。"},
+        {"id":"cooperation","field":"cooperation","text":"尚未商定合作。"},
+        {"id":"talked","field":"status","text":"与你有过交流；尚未安排参与任何行动。"}
+      ]
     },
     {
       "id": "craftsman",
       "kind": "person",
       "name": "哑伯",
-      "avatar": "木"
+      "avatar": "木",
+      "facts": [
+        {"id":"identity","field":"identity","text":"在镇区认识的年老工匠，不能正常说话。"},
+        {"id":"met","field":"status","text":"用手势和指认与你打招呼。"},
+        {"id":"cooperation","field":"cooperation","text":"尚未商定合作。"},
+        {"id":"communication","field":"communication","text":"通过手势、指认和刻木交流；需要耐心观察。"},
+        {"id":"talked","field":"status","text":"与你通过手势交流过；尚未示意进一步合作。"}
+      ]
     },
     {
       "id": "town",
       "kind": "place",
       "name": "镇区",
-      "avatar": "镇"
+      "avatar": "镇",
+      "facts": [{"id":"identity","field":"identity","text":"第四天上午抵达的镇区。"}]
     },
     {
       "id": "ruins",

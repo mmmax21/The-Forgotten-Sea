@@ -26,7 +26,7 @@ func click(control: Control):
 func capture(name: String):
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://previews/stage7-%s-%d.png" % [name,root.size.x])
+		root.get_texture().get_image().save_png("res://previews/town-update-%s-%d.png" % [name,root.size.x])
 func queue_investigation(main: Control, target: String):
 	for button in main.get_node("%MarkerNodes").get_children():
 		if button.get_meta("target_id", "") == target:
@@ -50,7 +50,7 @@ func _run():
 	var baseline = ui.knowledge.get_snapshot()
 	for day in range(1,11):
 		check(main.state.get_day()==day,"calendar day %d" % day)
-		if day <= 3:
+		if day <= 4:
 			check(n.overlay.visible and c.plan.event_blocked,"event priority day %d" % day)
 			for attempt in range(6):
 				if n.overlay.page >= n.overlay.event.pages.size()-1: break
@@ -73,11 +73,13 @@ func _run():
 			check(c.plan.entries().size()==1,"mouse composer queues ordinary action")
 		if day == 2:
 			await queue_investigation(main,"ruin_record")
-		if day == 10:
-			# Leave a real, already-discovered object until day ten to prove final
-			# summary contains the last night's actual committed discovery.
+		if day == 3:
 			await queue_investigation(main,"unknown_object")
-			check(c.plan.entries().size()==1,"real investigation on final day")
+		if day == 10:
+			ui.select_target("craftsman")
+			ui._select_behavior("talk")
+			c._queue()
+			check(c.plan.entries().size()==1,"real town conversation on final day")
 		await click(main.get_node("%EndDayButton"))
 		check(main.get_node("%SubmitConfirm").visible,"unused AP confirmation day %d" % day)
 		main.get_node("%SubmitConfirm").get_ok_button().pressed.emit()
@@ -91,7 +93,7 @@ func _run():
 		check(c.settlement.history().size()==day,"duplicate end click deduplicated day %d" % day)
 		if day == 10:
 			check(c.settlement.receipt(token).steps.size()==8,"all eight final-night stages recorded")
-			check(ui.knowledge.get_snapshot().journal_entries.object.title.contains("已记录"),"final-night investigation committed before summary")
+			check(ui.knowledge.get_snapshot().journal_entries["town_talk:craftsman"].text.contains("第 10 天"),"final-night conversation committed before summary")
 			check(not summary.visible,"summary cannot precede final review")
 			await capture("final-night")
 		await click(review.next_day)
@@ -100,7 +102,7 @@ func _run():
 	check(main.state.is_finished() and main.state.get_day()==10,"finished with no eleventh day")
 	check(summary.visible and summary.snapshot.night_complete,"real completed summary displayed")
 	check(str(summary.snapshot.sections[0]).contains("玛瑞斯"),"summary reads discovered Maris record")
-	check(not str(summary.snapshot.sections[1]).contains("老渔夫"),"unmet NPC ending withheld")
+	check(str(summary.snapshot.sections[1]).contains("老渔夫") and str(summary.snapshot.sections[1]).contains("哑伯"),"day four known NPCs included in summary")
 	check(str(summary.snapshot.sections[2]).contains("尚无"),"no invented water change")
 	check(not str(summary.snapshot.sections[4]).contains("物件 · 待查"),"last-night investigation removed pending journal item")
 	check(str(summary.snapshot.sections[4]).contains("用途尚未辨明"),"unanswered discovered question preserved after investigation")

@@ -81,7 +81,9 @@ func _run():
 	check(c.plan.is_resolved(),"empty day still settles")
 	c._next_day()
 	await frames()
-	check(main.state.get_day()==4 and not c.plan.event_blocked and not n.overlay.visible,"day four free planning")
+	check(main.state.get_day()==4 and c.plan.event_blocked and n.overlay.visible,"day four arrival before planning")
+	await finish_event(n)
+	check(ui.knowledge.current_location_id()=="town" and not c.plan.event_blocked,"town arrival opens planning")
 	before = ui.knowledge.get_snapshot()
 	before.known_targets.child = {"fact_ids":[]}
 	before.event_signals = {"child_threat_reported":true}
