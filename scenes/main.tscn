@@ -1,0 +1,169 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[sub_resource type="SystemFont" id="SystemFont_ui"]
+font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
+
+[sub_resource type="Theme" id="Theme_ui"]
+default_font = SubResource("SystemFont_ui")
+default_font_size = 28
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_ui")
+script = ExtResource("1_main")
+
+[node name="GameScreen" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_top = 56
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 56
+
+[node name="Layout" type="VBoxContainer" parent="GameScreen"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="Title" type="Label" parent="GameScreen/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "回合进度"
+
+[node name="Separator" type="HSeparator" parent="GameScreen/Layout"]
+layout_mode = 2
+
+[node name="Content" type="CenterContainer" parent="GameScreen/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Status" type="VBoxContainer" parent="GameScreen/Layout/Content"]
+custom_minimum_size = Vector2(880, 0)
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="DayLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "第 1 天 / 共 10 天"
+horizontal_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "当前时间：上午"
+horizontal_alignment = 1
+
+[node name="Sequence" type="Label" parent="GameScreen/Layout/Content/Status"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.7, 0.74, 1)
+text = "上午 → 下午 → 晚上"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="GameScreen/Layout/Content/Status"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ProgressLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "时间进度 1 / 30"
+horizontal_alignment = 1
+
+[node name="TimeProgress" type="ProgressBar" parent="GameScreen/Layout/Content/Status"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+max_value = 30.0
+value = 1.0
+show_percentage = false
+
+[node name="Footer" type="VBoxContainer" parent="GameScreen/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="LastDayHint" type="Label" parent="GameScreen/Layout/Footer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "已是最后一天"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="GameScreen/Layout/Footer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="SkipButton" type="Button" parent="GameScreen/Layout/Footer/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+text = "后一天"
+
+[node name="NextButton" type="Button" parent="GameScreen/Layout/Footer/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+text = "下个时间节点"
+
+[node name="SettlementScreen" type="CenterContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="SettlementScreen"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Title" type="Label" parent="SettlementScreen/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "游戏结束"
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="SettlementScreen/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "已完成全部 10 天"
+horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="SettlementScreen/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "重新开始"
+
+[node name="SkipDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "跳过当天"
+size = Vector2i(820, 240)
+exclusive = true
+transient = true
+unresizable = true
+theme = SubResource("Theme_ui")
+dialog_text = "确定跳过当天剩余时间，进入第 2 天上午吗？"
+dialog_hide_on_ok = false
+dialog_close_on_escape = true
+ok_button_text = "确定"
+cancel_button_text = "取消"
