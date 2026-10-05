@@ -93,7 +93,7 @@ func target_view(target_id: String) -> Dictionary:
 		"id": target_id, "kind": definition.kind, "kind_name": KIND_NAMES.get(definition.kind, "目标"),
 		"name": definition.name, "avatar": definition.get("avatar", "◇"),
 		"identity": "身份尚未了解" if definition.kind == "person" else "暂无已知说明",
-		"attitude": "尚未了解", "belief": "尚未了解", "cooperation": "尚未了解",
+		"safety": "尚无已知安全状态", "attitude": "尚未了解", "belief": "尚未了解", "cooperation": "尚未了解",
 		"description": "", "communication": "", "latest_status": "暂无新的已知状态", "issues": [], "clues": [],
 		"has_lead": false, "marker_requires_lead": definition.get("marker_requires_lead", false), "location_id": "", "location_label": "当前位置未知", "place_status": "",
 	}
@@ -105,7 +105,7 @@ func target_view(target_id: String) -> Dictionary:
 			view[fact.field].append(fact.text)
 			if fact.field == "clues" and fact.get("investigable", false):
 				view.has_lead = true
-		elif fact.field in ["identity", "attitude", "belief", "cooperation", "description", "communication"]:
+		elif fact.field in ["identity", "attitude", "belief", "cooperation", "description", "communication", "safety"]:
 			view[fact.field] = fact.text
 		if record.get("latest_fact_id", "") == fact.id:
 			view.latest_status = fact.text

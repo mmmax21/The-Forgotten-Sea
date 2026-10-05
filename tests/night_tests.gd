@@ -79,7 +79,7 @@ func payload(id: String, entries: Array=[]) -> Dictionary:
 	return {"request_id":id,"day":1,"preview_only":false,"entries":entries,"initial_location":"town","budget":3}
 
 func _run():
-	root.size=Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
+	root.size=Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1600,900) if "--medium" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
 	var s=Service.new()
 	install(s)
 	var initial=fixture()

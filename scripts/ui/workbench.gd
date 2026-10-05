@@ -136,6 +136,7 @@ func _add_person_button(entry: Dictionary) -> void:
 	row.add_child(content)
 	var name_label := Label.new()
 	name_label.text = entry.name
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override("font_size", 19)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(name_label)
@@ -151,9 +152,10 @@ func _add_person_button(entry: Dictionary) -> void:
 func _add_target_button(entry: Dictionary, host: Container, place: bool = false) -> void:
 	var button := Button.new()
 	button.text = entry.name
+	button.clip_text = true
 	if place:
 		button.text += "\n" + entry.place_status.replace("已知 · ", "") + (" · 线索" if entry.has_lead else "")
-	button.tooltip_text = "%s · %s" % [entry.kind_name, entry.location_label]
+	button.tooltip_text = "%s · %s · %s" % [entry.name, entry.kind_name, entry.location_label]
 	if place:
 		button.tooltip_text += "\n" + knowledge.known_route_reason(entry.id)
 	button.toggle_mode = true

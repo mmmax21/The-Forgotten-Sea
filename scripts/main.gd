@@ -4,6 +4,9 @@ const GameState = preload("res://scripts/game_state.gd")
 var state := GameState.new()
 var live_state = state
 var preview_state := GameState.new()
+var main_menu: CenterContainer
+var menu_active := false
+var restarting := false
 
 @onready var game_screen: MarginContainer = %GameScreen
 @onready var settlement_screen: CenterContainer = %SettlementScreen
@@ -37,14 +40,17 @@ func _ready() -> void:
 	var narrative = preload("res://scripts/ui/narrative_controller.gd").new()
 	narrative.name = "NarrativeController"
 	add_child(narrative)
+	_build_menu()
+	settlement_screen.records_requested.connect(func(): game_screen.narrative.open_journal())
+	settlement_screen.menu_requested.connect(_return_menu)
 	%NotesButton.grab_focus()
 
 
 func _refresh() -> void:
 	%PlanningController.sync_day(state.get_day())
 	var finished: bool = state.is_finished()
-	game_screen.visible = not finished
-	settlement_screen.visible = finished
+	game_screen.visible = not finished and not menu_active
+	settlement_screen.visible = finished and not menu_active
 	day_label.text = "第 %d 天 / 共 %d 天" % [state.get_day(), GameState.TOTAL_DAYS]
 	time_label.text = "当前时间：%s" % state.get_slot_name()
 	# 仅映射旧时间节点的显示，不修改上午/下午/晚上的状态规则。
@@ -56,6 +62,7 @@ func _refresh() -> void:
 	_refresh_buttons()
 	if finished:
 		debug_panel.hide()
+		settlement_screen.present(preload("res://scripts/demo_summary.gd").build(game_screen.knowledge, %PlanningController.settlement.history(game_screen.knowledge.preview_enabled)))
 		restart_button.grab_focus()
 
 
@@ -92,8 +99,16 @@ func _confirm_skip() -> void:
 
 
 func _restart() -> void:
+	if restarting: return
+	restarting = true
+	set_deferred("restarting", false)
+	menu_active = false
+	settlement_screen.snapshot.clear()
+	if main_menu != null: main_menu.hide()
 	skip_dialog.hide()
 	debug_panel.hide()
+	%SubmitConfirm.hide()
+	%InfoDialog.hide()
 	%PlanningController.restart_plan()
 	if game_screen.narrative != null:
 		game_screen.narrative.restart()
@@ -116,6 +131,7 @@ func _on_debug_input(event: InputEvent) -> void:
 
 
 func _toggle_debug() -> void:
+	if menu_active: return
 	if game_screen.narrative != null and game_screen.narrative.overlay.visible:
 		return
 	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible or %SubmitConfirm.visible or %NightReview.visible:
@@ -137,3 +153,39 @@ func _switch_profile(preview: bool) -> void:
 func _finish_planned_day() -> void:
 	if %PlanningController.plan.is_resolved() and not state.is_finished():
 		state.finish_day()
+
+func _build_menu() -> void:
+	main_menu = CenterContainer.new()
+	main_menu.name = "MainMenu"
+	main_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(main_menu)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size.x = 400
+	main_menu.add_child(box)
+	var title := Label.new()
+	title.text = "涌现 · 十日 Demo"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 32)
+	box.add_child(title)
+	for caption in ["开始新一局", "返回本局总结"]:
+		var button := Button.new()
+		button.text = caption
+		button.custom_minimum_size.y = 48
+		box.add_child(button)
+		if caption == "开始新一局":
+			button.pressed.connect(func(): if menu_active: _restart())
+		else:
+			button.pressed.connect(func():
+				if not menu_active: return
+				menu_active = false
+				main_menu.hide()
+				_refresh())
+	main_menu.hide()
+
+func _return_menu() -> void:
+	if not state.is_finished(): return
+	game_screen.narrative.journal.hide()
+	menu_active = true
+	game_screen.hide()
+	settlement_screen.hide()
+	main_menu.show()

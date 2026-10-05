@@ -85,6 +85,7 @@ func _button(text: String, host: Node) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.add_theme_font_size_override("font_size", 14)
+	button.custom_minimum_size.y = 36
 	host.add_child(button)
 	return button
 
@@ -104,7 +105,7 @@ func show_report(receipt: Dictionary, entries: Array = [], history_mode := false
 	history_choice.visible = historical
 	next_day.visible = not historical
 	next_day.disabled = not can_advance
-	next_day.text = "完成第 10 天" if report.get("day", 1) == 10 else "进入第 %d 天" % (report.get("day", 1) + 1)
+	next_day.text = "查看总结" if report.get("day", 1) == 10 else "进入第 %d 天" % (report.get("day", 1) + 1)
 	show()
 	_render()
 

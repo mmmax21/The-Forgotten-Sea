@@ -10,7 +10,7 @@ func check(ok:bool,label:String):
 		failures+=1
 		push_error(label)
 func run():
-	root.size=Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
+	root.size=Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1600,900) if "--medium" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
 	var main=load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame

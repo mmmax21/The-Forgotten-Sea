@@ -1,0 +1,25 @@
+第 7 阶段实际执行记录
+环境：Godot 4.7.2 / macOS / Compatibility / Apple M3 Max
+尺寸：1280×720、1600×900
+
+每种尺寸：
+run_tests.gd        328 checks, 0 failures
+planning_tests.gd    89 checks, 0 failures
+night_tests.gd       65 checks, 0 failures
+feedback_tests.gd    60 checks, 0 failures
+narrative_tests.gd   38 checks, 0 failures
+demo_tests.gd        99 checks, 0 failures
+合计：679 checks / 尺寸，0 failures。
+
+前五套为 headless 执行，demo_tests 在两个尺寸均使用原生图形窗口执行。
+截图包括实际第 10 天夜间、真实正式总结、独立长记录测试、开发预览长姓名测试。
+已查看截图并核对主要按钮在屏幕内、文字局部滚动、底部操作没有被挤走。
+
+确认弹窗的确定按钮采用 pressed 信号驱动，不计为实际桌面鼠标点击验证。
+第一次向原生子窗口注入鼠标输入的测试失败，已改为明确的按钮信号方式。
+一次图形重跑未继续收到输入，已停止并加入有界等待；最终重跑 99 项通过。
+未通过或中断的尝试不计为通过。
+
+14 项测试映射和剩余问题详见 docs/demo_delivery.md。
+尚未运行：Windows/Linux、高 DPI/多屏原生弹窗焦点、触控、用户试玩。
+现有正式路线可不用 DEBUG 完成 10 天；未接入的 NPC/传播/现实等规则没有被伪造。

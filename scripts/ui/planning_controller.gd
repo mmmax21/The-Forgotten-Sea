@@ -80,6 +80,10 @@ func restart_plan() -> void:
 		ui.knowledge.apply_settled_snapshot(_run_initial_world[profile])
 		_run_initial_world.erase(profile)
 	_morning_message = ""
+	_applied_mornings.clear()
+	_confirm_fingerprint = ""
+	selected_scale = "personal"
+	plan.event_blocked = false
 	_last_receipt.clear()
 	%NightReview.close_review()
 	_day_handoff = false
@@ -322,6 +326,10 @@ func _next_day() -> void:
 		return
 	_day_handoff = true
 	if plan.day == 10:
+		var final_receipt: Dictionary = settlement.receipt(plan.request_id())
+		if final_receipt.get("status", "") != "complete" or final_receipt.get("day", 0) != 10:
+			_day_handoff = false
+			return
 		%NightReview.close_review()
 		next_day_requested.emit()
 		return

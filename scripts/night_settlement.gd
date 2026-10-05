@@ -52,6 +52,7 @@ func submit(payload: Dictionary, preview_config: Dictionary = {}, world: Diction
 	return true
 
 func _run(token: String) -> void:
+	if not _jobs.has(token): return
 	var job: Dictionary = _jobs[token]
 	if job.status != "queued":
 		return
@@ -195,6 +196,14 @@ func history(preview := false) -> Array:
 
 func clear_history(preview := false) -> void:
 	_history[_profile(preview)].clear()
+	# Drop all old-run jobs as well as their public history. Deferred callbacks
+	# check membership before running, so a restart cannot revive old effects.
+	for token in _requests.keys():
+		if _requests[token].preview_only == preview:
+			_requests.erase(token)
+			_jobs.erase(token)
+			_receipts.erase(token)
+			_morning.erase(token)
 
 func committed_world(token: String, morning := false) -> Dictionary:
 	if morning:
@@ -209,6 +218,7 @@ func begin_next_day(token: String) -> bool:
 	return true
 
 func _run_morning(token: String) -> void:
+	if not _morning.has(token) or not _jobs.has(token): return
 	if _morning[token].status != "queued":
 		return
 	_morning[token].status = "running"

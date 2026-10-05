@@ -6,11 +6,12 @@ func configure(idea_name: String, belief: Dictionary, usage: Dictionary) -> void
 	text = "%s\n当地信念：%s  |  %s" % [idea_name, belief.label, usage.label]
 	alignment = HORIZONTAL_ALIGNMENT_LEFT
 	add_theme_font_size_override("font_size", 14)
-	var style: StyleBox = get_theme_stylebox("normal").duplicate()
-	style.content_margin_left = 62
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	for state in ["normal", "hover", "pressed", "focus"]:
+	autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var style: StyleBox = get_theme_stylebox(state).duplicate()
+		style.content_margin_left = 62
+		style.content_margin_top = 8
+		style.content_margin_bottom = 8
 		add_theme_stylebox_override(state, style)
 	custom_minimum_size.y = 64
 	tooltip_text = usage.reason + "\n牌面纹样：" + {"fragment":"残缺", "emerging":"纹样浮现", "complete":"完整", "unknown":"尚未知晓"}[pattern] + "；仅表示当地信念，与证据数量、每日使用无关。"

@@ -15,10 +15,10 @@ static func run(context: Dictionary) -> Dictionary:
 			target.investigation_open = false
 			if entry.target_id == "ruin_record":
 				text = "你在残缺文字中辨认出玛瑞斯的名字。文字仍不完整，其余含义有待进一步线索。"
-				world.journal_entries.record = {"category":0,"title":"玛瑞斯 · 残文中的名字","text":text}
+				world.journal_entries.record = {"category":0,"title":"玛瑞斯 · 残文中的名字","text":text,"open_question":"残文其余含义尚未辨明，仍需进一步线索。"}
 			else:
 				text = "你检查并记录了不明物件。它的用途仍未辨明，尚不能据此使用它。"
-				world.journal_entries.object = {"category":1,"title":"不明物件 · 已记录","text":text}
+				world.journal_entries.object = {"category":1,"title":"不明物件 · 已记录","text":text,"open_question":"物件用途尚未辨明，目前没有开放继续调查的条件。"}
 		else:
 			return {"status":"pending","message":"此行动的正式判定尚未接入。保留锁定计划，等待规则适配器；没有用教学文本替代结果。"}
 		records.append({"category":"actions","action_index":i,"visibility":"known","title":entry.target_name + " · " + entry.behavior_name,"happened":{"visibility":"known","text":text},"reason":{"visibility":"known","text":"依据本次安排完成现场交流或观察。"},"direction":{"visibility":"known","text":"可在手记复查已知记录；新的调查仍须安排计划。"}})

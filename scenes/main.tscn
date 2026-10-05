@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://scripts/ui/law_card.gd" id="6_law"]
 [ext_resource type="Script" path="res://scripts/ui/canal_scene.gd" id="7_canal"]
 [ext_resource type="Script" path="res://scripts/ui/feedback_controller.gd" id="8_feedback"]
+
+[ext_resource type="Script" path="res://scripts/ui/demo_summary_screen.gd" id="9_summary"]
 
 [sub_resource type="SystemFont" id="Font"]
 font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
@@ -667,6 +669,7 @@ custom_minimum_size = Vector2(180, 44)
 tooltip_text = "白天规划与夜间结算尚未开放；本阶段不消耗 AP"
 
 [node name="SettlementScreen" type="CenterContainer" parent="."]
+script = ExtResource("9_summary")
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

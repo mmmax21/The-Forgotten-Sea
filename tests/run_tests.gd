@@ -21,7 +21,7 @@ func check(condition: bool, description: String) -> void:
 
 
 func _run() -> void:
-	root.size = Vector2i(1280, 720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1920, 1080)
+	root.size = Vector2i(1280, 720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1600,900) if "--medium" in OS.get_cmdline_user_args() else Vector2i(1920, 1080)
 	print("TEST WINDOW: ", root.size)
 	_test_state()
 	TargetTests.new().test_model(self)

@@ -18,10 +18,14 @@ func _ready() -> void:
 	title_label.add_theme_font_size_override("font_size", 17)
 	box.add_child(title_label)
 	summary_label = Label.new()
-	summary_label.custom_minimum_size.y = 57
 	summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary_label.add_theme_font_size_override("font_size", 14)
-	box.add_child(summary_label)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size.y = 64
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(scroll)
+	scroll.add_child(summary_label)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 4)
 	box.add_child(buttons)
@@ -30,6 +34,7 @@ func _ready() -> void:
 		var button := Button.new()
 		button.text = caption
 		button.add_theme_font_size_override("font_size", 14)
+		button.custom_minimum_size.y = 36
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		buttons.add_child(button)
 		created.append(button)
@@ -62,6 +67,9 @@ func display(slot: int, item: Dictionary, entry: Dictionary, locked: bool, count
 				summary_label.text += "\n依赖前面的移动成功"
 		tooltip_text = "\n".join(item.errors) + "\n" + item.dependency
 		remove_button.tooltip_text = "删除整个行动（%d AP），包括连续占位。" % entry.ap_cost
+	summary_label.tooltip_text = summary_label.text
+	up_button.tooltip_text = "将完整行动前移一位"
+	down_button.tooltip_text = "将完整行动后移一位"
 	edit_button.disabled = locked or owner_index < 0
 	remove_button.disabled = locked or owner_index < 0
 	up_button.disabled = locked or owner_index <= 0

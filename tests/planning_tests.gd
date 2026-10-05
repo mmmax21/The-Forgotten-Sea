@@ -15,11 +15,15 @@ func check(ok: bool, text: String):
 func entry(id: String, action := "talk", card := "") -> Dictionary:
 	return {"target_id": id, "target_name": id, "behavior": action, "behavior_name": P.ACTION_NAMES[action], "scale": "personal", "scale_name": "个人", "idea_id": card, "idea_name": card if card != "" else "无卡"}
 func _run():
-	root.size = Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
+	root.size = Vector2i(1280,720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1600,900) if "--medium" in OS.get_cmdline_user_args() else Vector2i(1920,1080)
 	var k = K.new()
 	k.set_preview(true)
 	var original = k.get_snapshot()
 	var p = P.new(k,"preview")
+	for id in ["fisher", "widow", "fisher"]:
+		check(p.put(entry(id)).valid,"three ordinary actions without cards")
+	check(p.remaining_ap()==0 and p.entries().size()==3 and not p.is_locked(),"3 ordinary actions reserve all AP without results")
+	p.start_day(1,true)
 	check(p.put(entry("widow","talk","sea")).valid,"add card action")
 	check(not p.put(entry("fisher","talk","sea")).valid,"duplicate card denied")
 	check(p.remaining_ap()==2,"duplicate doesn't spend")
