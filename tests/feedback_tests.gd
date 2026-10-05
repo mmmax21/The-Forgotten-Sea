@@ -2,6 +2,7 @@ extends SceneTree
 var checks:=0
 var failures:=0
 func _initialize():
+	root.set_meta("skip_intro", true)
 	run.call_deferred()
 func check(ok:bool,label:String):
 	checks+=1

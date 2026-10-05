@@ -8,6 +8,7 @@ var calls: Array = []
 var morning_calls := 0
 
 func _initialize():
+	root.set_meta("skip_intro", true)
 	_run.call_deferred()
 
 func check(ok: bool, description: String):
@@ -192,8 +193,9 @@ func test_ui():
 		review.close_review()
 		c._end_day()
 		ui._show_notes()
-	check(review.historical and not review.next_day.visible,"notes read-only history has no next-day action")
-	c._next_day()
+	check(ui.narrative.journal.visible,"notes drawer opens read-only history")
+	ui.narrative.journal.category = 3
+	ui.narrative.journal.render()
 	check(main.state.get_day()==1 and calls.size()==8 and ui.knowledge.get_snapshot()==saved,"history reopen cannot recalculate or advance")
 	review.close_review()
 	c._end_day()
@@ -208,7 +210,7 @@ func test_ui():
 	check(main.state.get_day()==2 and ui.knowledge.get_snapshot().test_morning_done and not c.plan.is_locked(),"apply mandatory events then open new day")
 	check(morning_calls==1 and c.plan.remaining_ap()==3,"one morning, new AP budget")
 	ui._show_notes()
-	check(review.historical and review.report.day==1 and main.state.get_day()==2,"history date distinct from current date")
+	check(ui.narrative.journal.entries.any(func(e): return e.category == 3 and e.title.contains("1")) and main.state.get_day()==2,"history date distinct from current date")
 	review.close_review()
 	main._restart()
 	check(c.settlement.history().is_empty(),"restart clears current run history")

@@ -2,6 +2,7 @@ extends MarginContainer
 ## 选择与显示只消费已知资料投影，不执行移动、揭示事实或消耗 AP。
 
 signal profile_changed(preview: bool)
+var narrative: Node
 var planning: Node
 var visual_feedback: Node
 var feedback = preload("res://scripts/world_feedback.gd").new()
@@ -277,6 +278,9 @@ func _apply_responsive_layout() -> void:
 
 
 func _show_notes() -> void:
+	if narrative != null:
+		narrative.open_journal()
+		return
 	if planning != null:
 		planning.show_history()
 		return

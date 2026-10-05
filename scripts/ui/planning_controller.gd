@@ -57,10 +57,10 @@ func _switch_profile(preview: bool) -> void:
 	_on_plan_changed()
 
 func can_switch_profile() -> bool:
-	return plan == null or not plan.is_locked()
+	return plan == null or not plan.is_locked() and not plan.event_blocked
 
 func can_debug_advance() -> bool:
-	return plan != null and not plan.is_locked() and plan.entries().is_empty()
+	return plan != null and not plan.is_locked() and not plan.event_blocked and plan.entries().is_empty()
 
 func is_locked() -> bool:
 	return plan != null and plan.is_locked()
@@ -112,7 +112,7 @@ func refresh_composer() -> void:
 	if plan == null:
 		return
 	var options := behavior_options()
-	var locked: bool = plan.is_locked()
+	var locked: bool = plan.is_locked() or plan.event_blocked
 	var reasons: Array[String] = []
 	for action in ui._action_buttons:
 		var button: Button = ui._action_buttons[action]
@@ -157,6 +157,7 @@ func refresh_composer() -> void:
 	%QueueAction.text = "替换今日计划" if editing_index >= 0 else "加入今日计划"
 	%CancelReplace.visible = editing_index >= 0
 	%CancelReplace.disabled = locked
+	if ui.narrative != null: ui.narrative.update_hint()
 
 func _set_scale(scale: String) -> void:
 	if plan.is_locked() or (scale == "group" and not plan.group_access().get("unlocked", false)):
@@ -222,14 +223,15 @@ func _on_plan_changed() -> void:
 				owner = item
 				entry = entries[item.index]
 				break
-		slots[slot].display(slot, owner, entry, plan.is_locked(), entries.size())
+		slots[slot].display(slot, owner, entry, plan.is_locked() or plan.event_blocked, entries.size())
 	%APLabel.text = "剩余 AP  %d / 3" % plan.remaining_ap()
 	%PlanStatus.text = "夜间计划已锁定" if plan.is_locked() else "计划有效 · 可继续检查与修改" if validation.valid else "需修正：" + "；".join(validation.errors)
 	%PlanStatus.tooltip_text = "\n".join(validation.errors)
 	%EndDayButton.disabled = not validation.valid and not plan.is_locked()
 	%EndDayButton.text = "查看夜间结算" if plan.is_locked() else "结束今日行动"
 	%EndDayButton.tooltip_text = "整份计划一次提交；AP 未用完会提醒。"
-	%PreviewToggle.disabled = plan.is_locked()
+	%PreviewToggle.disabled = plan.is_locked() or plan.event_blocked
+	%EndDayButton.disabled = %EndDayButton.disabled or plan.event_blocked
 	for child in %IdeasRow.get_children():
 		%IdeasRow.remove_child(child)
 		child.queue_free()
@@ -251,6 +253,7 @@ func _inspect_idea(idea_id: String) -> void:
 	%InfoDialog.popup_centered(Vector2i(700, 220))
 
 func _end_day() -> void:
+	if plan.event_blocked: return
 	if plan.is_locked():
 		_show_night()
 		return
@@ -339,4 +342,5 @@ func _on_morning(receipt: Dictionary) -> void:
 	ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id, true), "morning:" + receipt.request_id)
 	ui.refresh_known_targets()
 	%NightReview.close_review()
+	if ui.narrative != null: ui.narrative.prepare_day(plan.day + 1)
 	next_day_requested.emit()

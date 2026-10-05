@@ -34,6 +34,9 @@ func _ready() -> void:
 	skip_dialog.visibility_changed.connect(_refresh_buttons)
 	debug_panel.window_input.connect(_on_debug_input)
 	_refresh()
+	var narrative = preload("res://scripts/ui/narrative_controller.gd").new()
+	narrative.name = "NarrativeController"
+	add_child(narrative)
 	%NotesButton.grab_focus()
 
 
@@ -92,6 +95,8 @@ func _restart() -> void:
 	skip_dialog.hide()
 	debug_panel.hide()
 	%PlanningController.restart_plan()
+	if game_screen.narrative != null:
+		game_screen.narrative.restart()
 	if game_screen.knowledge.preview_enabled:
 		game_screen.knowledge.reset_preview()
 	game_screen.refresh_known_targets()
@@ -111,6 +116,8 @@ func _on_debug_input(event: InputEvent) -> void:
 
 
 func _toggle_debug() -> void:
+	if game_screen.narrative != null and game_screen.narrative.overlay.visible:
+		return
 	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible or %SubmitConfirm.visible or %NightReview.visible:
 		return
 	if debug_panel.visible:

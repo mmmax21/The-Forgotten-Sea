@@ -10,6 +10,7 @@ var day: int = 1
 var knowledge: RefCounted
 var _entries: Array[Dictionary] = []
 var _used_ideas: Array[String] = []
+var event_blocked := false
 var _locked := false
 var _resolved := false
 var _serial := 0
@@ -173,7 +174,7 @@ func validate(plan_entries: Variant = null) -> Dictionary:
 
 
 func candidate(draft: Dictionary, replace_index: int = -1) -> Dictionary:
-	if _locked:
+	if _locked or event_blocked:
 		return {"valid": false, "errors": ["今日计划已锁定。"]}
 	var entry := draft.duplicate(true)
 	entry["ap_cost"] = cost_for(entry)
@@ -206,7 +207,7 @@ func put(draft: Dictionary, replace_index: int = -1) -> Dictionary:
 
 
 func remove(index: int) -> bool:
-	if _locked or index < 0 or index >= _entries.size():
+	if event_blocked or _locked or index < 0 or index >= _entries.size():
 		return false
 	_entries.remove_at(index)
 	# 可以留下因删除前置移动而失效的计划，但必须重新校验并禁止提交。
@@ -216,7 +217,7 @@ func remove(index: int) -> bool:
 
 func reorder(index: int, offset: int) -> bool:
 	var destination := index + offset
-	if _locked or index < 0 or index >= _entries.size() or destination < 0 or destination >= _entries.size():
+	if event_blocked or _locked or index < 0 or index >= _entries.size() or destination < 0 or destination >= _entries.size():
 		return false
 	var entry := _entries[index]
 	_entries.remove_at(index)
@@ -227,7 +228,7 @@ func reorder(index: int, offset: int) -> bool:
 
 func submit() -> Dictionary:
 	var checked := validate()
-	if _locked or not checked.valid:
+	if event_blocked or _locked or not checked.valid:
 		return {}
 	_locked_validation = checked.duplicate(true)
 	_locked = true

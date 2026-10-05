@@ -41,6 +41,67 @@
       "kind": "place",
       "name": "区域边界",
       "avatar": "界"
+    },
+    {
+      "id": "teacher",
+      "kind": "person",
+      "name": "老师",
+      "avatar": "师",
+      "facts": [
+        {
+          "id": "identity",
+          "field": "identity",
+          "text": "带领你调查遗迹的老师"
+        },
+        {
+          "id": "present",
+          "field": "cooperation",
+          "text": "可以就眼前的调查交流。"
+        },
+        {
+          "id": "dead",
+          "field": "description",
+          "text": "已经遇害，无法再与你交谈。"
+        }
+      ]
+    },
+    {
+      "id": "ruin_record",
+      "kind": "object",
+      "name": "遗迹残文",
+      "avatar": "文",
+      "facts": [
+        {
+          "id": "lead",
+          "field": "clues",
+          "text": "发现一处残缺文字。",
+          "investigable": true
+        },
+        {
+          "id": "found",
+          "field": "description",
+          "text": "残文中辨认出“玛瑞斯”的名字，其余文字尚不完整。"
+        }
+      ]
+    },
+    {
+      "id": "unknown_object",
+      "kind": "object",
+      "name": "不明物件",
+      "avatar": "物",
+      "facts": [
+        {
+          "id": "lead",
+          "field": "clues",
+          "text": "遗迹中用途不明的物件。",
+          "investigable": true
+        },
+        {
+          "id": "found",
+          "field": "description",
+          "text": "已记录物件；用途尚未辨明。"
+        }
+      ]
     }
   ]
 }

@@ -183,6 +183,12 @@ func action_options(target_id: String, planned_location: String = "@actual") -> 
 			options.move = {"eligible": route.get("reachable", false) == true, "reason": known_route_reason(target_id, location)}
 			if route.has("from_ids") and location not in route.from_ids:
 				options.move = {"eligible": false, "reason": "从计划位置尚无已知可达路线"}
+	var record: Dictionary = _snapshot().known_targets[target_id]
+	if record.has("allowed_actions"):
+		for action in ACTIONS:
+			if action not in record.allowed_actions:
+				options[action] = {"eligible": false, "reason": "当前人物状态不允许此行动。"}
+
 	return options
 
 

@@ -1,0 +1,22 @@
+第 6 阶段验证 / Godot 4.7.2 / macOS Compatibility
+
+1280×720 与 1920×1080：
+- narrative_tests.gd: 38 checks, 0 failures
+- run_tests.gd: 328 checks, 0 failures
+- planning_tests.gd: 85 checks, 0 failures
+- night_tests.gd: 65 checks, 0 failures
+- feedback_tests.gd: 60 checks, 0 failures
+每种尺寸 576 项检查。
+
+1280×720 原生图形运行并检查实际截图：
+previews/stage6-event.png（实际第 3 天剧情）
+previews/stage6-journal.png（当前局人物手记）
+
+覆盖：必读事件模型与按钮屏障、分页零写入、一次性选择与配置效果、
+初始无赠卡、先规划后结算、真实调查产生记录、手记/说明只读、已读标记、
+老师遇害后的交谈限制、空计划推进、无日期群体解锁、已知条件危机、
+危机不免费保护、不扣 AP、未知人物不公开、重开清账、10 天最终边界、
+前三天空行动不卡住、跳过调查不发答案、侧栏两种窗口尺寸边界。
+
+原回归夹具明确跳过开场事件；新叙事套件使用默认正式启动全流程。
+未验证：其他系统平台、未来剧情卡牌节点、后续正式玩法适配、磁盘读档。

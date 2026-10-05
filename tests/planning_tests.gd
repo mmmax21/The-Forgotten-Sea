@@ -5,6 +5,7 @@ const S = preload("res://scripts/night_settlement.gd")
 var checks := 0
 var failures := 0
 func _initialize():
+	root.set_meta("skip_intro", true)
 	_run.call_deferred()
 func check(ok: bool, text: String):
 	checks += 1

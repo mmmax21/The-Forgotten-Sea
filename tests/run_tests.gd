@@ -9,6 +9,7 @@ var failures: int = 0
 
 
 func _initialize() -> void:
+	root.set_meta("skip_intro", true)
 	_run.call_deferred()
 
 
@@ -218,6 +219,10 @@ func _test_navigation() -> void:
 	for name in ["NotesButton", "MenuButton", "Law1", "Law2", "Law3"]:
 		_click_control(main.get_node("%" + name))
 		await process_frame
+		if name == "NotesButton":
+			check(ui.narrative.journal.visible, "notes drawer opens")
+			ui.narrative.journal.hide()
+			continue
 		var dialog: AcceptDialog = main.get_node("%InfoDialog")
 		check(dialog.visible and not dialog.dialog_text.is_empty(), "基础导航有反馈：" + name)
 		if name.begins_with("Law"):
