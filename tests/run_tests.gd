@@ -2,6 +2,7 @@ extends SceneTree
 ## 无插件依赖的状态及真实场景集成测试；失败返回非零退出码。
 
 const State = preload("res://scripts/game_state.gd")
+const TargetTests = preload("res://tests/target_tests.gd")
 const MainScene = preload("res://scenes/main.tscn")
 var checks: int = 0
 var failures: int = 0
@@ -22,6 +23,8 @@ func _run() -> void:
 	root.size = Vector2i(1280, 720) if "--small" in OS.get_cmdline_user_args() else Vector2i(1920, 1080)
 	print("TEST WINDOW: ", root.size)
 	_test_state()
+	TargetTests.new().test_model(self)
+	await TargetTests.new().test_ui(self)
 	await _test_navigation()
 	await _test_scene()
 	print("RESULT: %d checks, %d failures" % [checks, failures])
@@ -60,6 +63,7 @@ func _test_scene() -> void:
 	var main = MainScene.instantiate()
 	root.add_child(main)
 	await process_frame
+	main.game_screen.set_development_preview(true)
 	await capture("01-main")
 	check(main.day_label.text == "第 1 天 / 共 10 天", "初始天数")
 	check(main.time_label.text == "当前时间：上午", "初始时间")
@@ -150,7 +154,7 @@ func capture(file_name: String) -> void:
 	await RenderingServer.frame_post_draw
 	DirAccess.make_dir_recursive_absolute("res://previews")
 	var suffix := "1280" if "--small" in OS.get_cmdline_user_args() else "1920"
-	var error := root.get_texture().get_image().save_png("res://previews/stage1-%s-%s.png" % [file_name, suffix])
+	var error := root.get_texture().get_image().save_png("res://previews/stage2-%s-%s.png" % [file_name, suffix])
 	check(error == OK, "保存实际渲染预览")
 
 
@@ -178,12 +182,15 @@ func _test_navigation() -> void:
 	check(not main.debug_panel.visible, "正式界面默认隐藏 DEBUG")
 	check(not main.progress_label.is_visible_in_tree(), "正式界面隐藏 30 节点进度")
 	var ui = main.game_screen
+	ui.set_development_preview(true)
+	for frame in range(4):
+		await process_frame
 	var before: int = main.state.get_progress()
 	var people: VBoxContainer = main.get_node("%PeopleList")
 	_click_control(people.get_child(0))
 	await process_frame
 	check(ui.selected_id == "fisher", "鼠标点击人物选择目标")
-	check(main.get_node("%TargetTitle").text == "潮叔", "人物详情同步")
+	check(main.get_node("%TargetTitle").text == "老渔夫", "人物详情同步")
 	check(main.get_node("%RelationshipStatus").visible, "独立展示信任、思想信念和合作意愿")
 	await capture("person")
 	var footer_rect: Rect2 = main.get_node("%BottomPanel").get_global_rect()
@@ -193,15 +200,15 @@ func _test_navigation() -> void:
 	main.get_node("%DetailsScroll").scroll_vertical = 0
 	_click_control(main.get_node("%PlaceNodes").get_child(1))
 	await process_frame
-	check(ui.selected_id == "channel", "鼠标点击地点选择目标")
+	check(ui.selected_id == "ruins", "鼠标点击地点选择目标")
 	check(not main.get_node("%RelationshipStatus").visible, "地点不显示人物关系")
 	_click_control(main.get_node("%MarkerNodes").get_child(0))
 	await process_frame
-	check(ui.selected_id == "trace", "鼠标点击线索标记")
+	check(ui.selected_id == "shell", "鼠标点击线索标记")
 	_click_at(main.get_node("%ScenePlaceholder").get_global_rect().position + Vector2(8, 8))
 	await process_frame
-	check(ui.selected_id == "trace" and main.state.get_progress() == before, "空白区域不改变目标或时间")
-	for name in ["TalkAction", "InvestigateAction", "ConcealAction", "MoveAction", "PersonalScale", "GroupScale", "QueueAction", "EndDayButton"]:
+	check(ui.selected_id == "shell" and main.state.get_progress() == before, "空白区域不改变目标或时间")
+	for name in ["TalkAction", "ConcealAction", "MoveAction", "PersonalScale", "GroupScale", "QueueAction", "EndDayButton"]:
 		var control: Button = main.get_node("%" + name)
 		check(control.disabled, "未接入功能明确禁用：" + name)
 	check(main.get_node("%APLabel").text == "剩余 AP  — / 3", "未伪造 AP 状态")
@@ -235,7 +242,7 @@ func _test_navigation() -> void:
 		var resized_bounds := Rect2(Vector2.ZERO, Vector2(window_size))
 		for name in ["TopBar", "LawBar", "LeftPanel", "CenterPanel", "RightPanel", "BottomPanel"]:
 			check(resized_bounds.encloses(main.get_node("%" + name).get_global_rect()), "动态缩放保持区域可见：" + name)
-		check(ui.selected_id == "trace" and main.state.get_progress() == before, "动态缩放保留选择及日期")
+		check(ui.selected_id == "shell" and main.state.get_progress() == before, "动态缩放保留选择及日期")
 	await capture("navigation")
 	ui.reset_navigation()
 	var f3 := InputEventKey.new()

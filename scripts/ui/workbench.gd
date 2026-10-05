@@ -1,15 +1,14 @@
 extends MarginContainer
-## 阶段一导航视图。预览数据只存在此 UI 中，不写入 GameState 或存档。
+## 选择与显示只消费已知资料投影，不执行移动、揭示事实或消耗 AP。
 
-const PREVIEW_PATH := "res://preview_data/workbench.json"
-const LAWS: Array[String] = [
-	"大海从不存在。",
-	"未经允许禁止使用特定物品。",
-	"未经允许禁止跨越区域。",
-]
+const Knowledge = preload("res://scripts/target_knowledge.gd")
+const LAWS: Array[String] = ["大海从不存在。", "未经允许禁止使用特定物品。", "未经允许禁止跨越区域。"]
+const ACTION_NAMES := {"talk": "交谈", "investigate": "调查", "conceal": "隐匿", "move": "移动"}
+var knowledge := Knowledge.new()
 var selected_id: String = ""
-var _entries: Dictionary = {}
+var selected_behavior: String = ""
 var _target_buttons: Array[Button] = []
+var _action_buttons: Dictionary = {}
 
 
 func _ready() -> void:
@@ -19,64 +18,210 @@ func _ready() -> void:
 		var button: Button = get_node("%Law" + str(index + 1))
 		button.tooltip_text = LAWS[index]
 		button.pressed.connect(_show_law.bind(index))
-	_load_navigation_preview()
+	_action_buttons = {"talk": %TalkAction, "investigate": %InvestigateAction, "conceal": %ConcealAction, "move": %MoveAction}
+	for action in _action_buttons:
+		var button: Button = _action_buttons[action]
+		button.toggle_mode = true
+		button.pressed.connect(_select_behavior.bind(action))
+	%PreviewToggle.toggled.connect(set_development_preview)
+	knowledge.set_preview("--preview-targets" in OS.get_cmdline_user_args())
+	%PreviewToggle.set_pressed_no_signal(knowledge.preview_enabled)
+	refresh_known_targets()
 	resized.connect(_apply_responsive_layout)
 	_apply_responsive_layout()
 
 
-func _load_navigation_preview() -> void:
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(PREVIEW_PATH))
-	if not parsed is Dictionary or parsed.get("preview_only") != true:
-		%RegionTitle.text = "地区场景 · 未载入"
-		return
-	%RegionTitle.text = parsed.get("region_title", "地区场景 · 未载入")
-	%ObjectiveText.text = parsed.get("objective", "暂无目标")
-	for section in ["people", "places", "markers"]:
-		var host: Container = %PeopleList if section == "people" else (%PlaceNodes if section == "places" else %MarkerNodes)
-		for entry in parsed.get(section, []):
-			_entries[entry.id] = entry
-			_add_target_button(entry, host)
-	# 同一个人物标记与左侧条目绑定同一条预览数据。
-	if _entries.has("fisher"):
-		_add_target_button(_entries.fisher, %MarkerNodes)
+func set_development_preview(enabled: bool) -> void:
+	knowledge.set_preview(enabled)
+	%PreviewToggle.set_pressed_no_signal(enabled)
+	refresh_known_targets()
 
 
-func _add_target_button(entry: Dictionary, host: Container) -> void:
+func set_known_world(definitions: Array, snapshot: Dictionary) -> bool:
+	if not knowledge.set_live_data(definitions, snapshot):
+		return false
+	refresh_known_targets()
+	return true
+
+
+func refresh_known_targets() -> void:
+	# 全量重建已知列表，避免正式/预览切换时保留旧节点或隐藏目标选择。
+	for host in [%PeopleList, %PlaceNodes, %MarkerNodes]:
+		for child in host.get_children():
+			host.remove_child(child)
+			child.queue_free()
+	_target_buttons.clear()
+	%PreviewNotice.text = "开发预览 · 独立资料" if knowledge.preview_enabled else "正式资料 · 仅显示已知内容"
+	%PeopleHint.text = "演示相识与位置，非正式记录" if knowledge.preview_enabled else "只显示已经认识的人物"
+	%LocationLabel.text = "地区：" + knowledge.current_location_name()
+	%LocationLabel.tooltip_text = "开发预览位置，不写入正式流程" if knowledge.preview_enabled else "来自正式资料的位置记录"
+	%RegionTitle.text = knowledge.current_location_name() + (" · 开发预览" if knowledge.preview_enabled else " · 地区资料")
+	%ObjectiveText.text = knowledge.objective()
+	%SceneHint.text = "预览位置可替换；选择只查看，不移动。" if knowledge.preview_enabled else "选择只查看已知资料，不会移动或获得新情报。"
+	var people: Array[Dictionary] = knowledge.visible_targets("person")
+	for entry in people:
+		_add_person_button(entry)
+	if people.is_empty():
+		_add_empty(%PeopleList, "尚无已接入的相识记录")
+	var places: Array[Dictionary] = knowledge.visible_targets("place")
+	for entry in places:
+		_add_target_button(entry, %PlaceNodes, true)
+	if places.is_empty():
+		_add_empty(%PlaceNodes, "尚无已发现地点")
+	for entry in knowledge.visible_targets():
+		if entry.kind in ["object", "anomaly"]:
+			_add_target_button(entry, %MarkerNodes)
+	if %MarkerNodes.get_child_count() == 0:
+		_add_empty(%MarkerNodes, "尚无已发现的物件或异常")
+	reset_navigation()
+
+
+func _add_empty(host: Container, message: String) -> void:
+	var label := Label.new()
+	label.text = message
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_font_size_override("font_size", 16)
+	host.add_child(label)
+
+
+func _add_person_button(entry: Dictionary) -> void:
 	var button := Button.new()
-	button.text = entry.name
-	button.tooltip_text = "%s · 导航预览，仅查看详情" % entry.kind
-	button.toggle_mode = true
+	button.custom_minimum_size.y = 106
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.custom_minimum_size.y = 42
+	button.toggle_mode = true
+	button.tooltip_text = "%s\n%s\n位置：%s" % [entry.name, entry.latest_status, entry.location_label]
 	button.set_meta("target_id", entry.id)
 	button.pressed.connect(select_target.bind(entry.id))
+	%PeopleList.add_child(button)
+	# 文本与占位头像放在容器中，事件交给整个人物条目。
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 8)
+	button.add_child(margin)
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+	var avatar := Label.new()
+	avatar.text = entry.avatar
+	avatar.custom_minimum_size.x = 32
+	avatar.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	avatar.add_theme_font_size_override("font_size", 26)
+	avatar.add_theme_color_override("font_color", Color(0.57, 0.78, 0.73))
+	avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(avatar)
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 4)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(content)
+	var name_label := Label.new()
+	name_label.text = entry.name
+	name_label.add_theme_font_size_override("font_size", 19)
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(name_label)
+	var status := Label.new()
+	status.text = entry.latest_status
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status.add_theme_font_size_override("font_size", 14)
+	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(status)
+	_target_buttons.append(button)
+
+
+func _add_target_button(entry: Dictionary, host: Container, place: bool = false) -> void:
+	var button := Button.new()
+	button.text = entry.name
+	if place:
+		button.text += "\n" + entry.place_status.replace("已知 · ", "") + (" · 线索" if entry.has_lead else "")
+	button.tooltip_text = "%s · %s" % [entry.kind_name, entry.location_label]
+	if place:
+		button.tooltip_text += "\n" + knowledge.known_route_reason(entry.id)
+	button.toggle_mode = true
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.custom_minimum_size.y = 44
+	button.set_meta("target_id", entry.id)
+	button.pressed.connect(select_target.bind(entry.id))
+	if place and entry.id == knowledge.current_location_id():
+		button.add_theme_color_override("font_color", Color(0.57, 0.78, 0.73))
 	host.add_child(button)
 	_target_buttons.append(button)
 
 
 func select_target(target_id: String) -> void:
-	if not _entries.has(target_id):
+	var entry: Dictionary = knowledge.target_view(target_id)
+	if entry.is_empty():
 		return
 	selected_id = target_id
-	var entry: Dictionary = _entries[target_id]
-	%TargetKind.text = "%s / 导航预览" % entry.kind
+	selected_behavior = ""
+	%DetailsScroll.scroll_vertical = 0
+	%TargetKind.text = entry.kind_name + (" / 开发预览" if knowledge.preview_enabled else " / 已知资料")
 	%TargetTitle.text = entry.name
-	%TargetSummary.text = entry.summary
+	%TargetSummary.text = entry.identity
 	%TargetDescription.text = entry.description
-	%RelationshipStatus.visible = entry.kind == "人物"
+	%TargetDescription.visible = not entry.description.is_empty()
+	%TargetPortrait.visible = entry.kind == "person"
+	%PortraitText.text = "%s   立绘占位" % entry.avatar
+	%RelationshipStatus.visible = entry.kind == "person"
+	%AttitudeText.text = "对玩家的已知态度\n" + entry.attitude
+	%BeliefText.text = "对“海”的已知看法\n" + entry.belief
+	%CooperationText.text = "当前合作范围\n" + entry.cooperation
+	var observations: Array = entry.issues + entry.clues
+	%KnownIssues.text = "已发现的问题或线索\n" + ("\n".join(observations) if not observations.is_empty() else "暂无已记录的信息")
+	%KnownIssues.show()
+	%TargetLocation.text = "当前位置：" + entry.location_label
+	%TargetLocation.show()
+	%Reachability.visible = entry.kind == "place"
+	%Reachability.text = entry.place_status
+	if entry.kind == "place" and entry.id != knowledge.current_location_id():
+		%Reachability.text += "\n" + knowledge.known_route_reason(entry.id)
 	for button in _target_buttons:
 		button.set_pressed_no_signal(button.get_meta("target_id") == target_id)
+	_refresh_actions()
+
+
+func _refresh_actions() -> void:
+	var options: Dictionary = knowledge.action_options(selected_id)
+	var lines: Array[String] = []
+	for action in _action_buttons:
+		var button: Button = _action_buttons[action]
+		button.disabled = not options[action].eligible
+		button.set_pressed_no_signal(selected_behavior == action)
+		button.tooltip_text = options[action].reason
+		lines.append(ACTION_NAMES[action] + "：" + options[action].reason)
+	%ActionAvailability.text = "\n".join(lines)
+	%ActionHint.text = "选择行为仅配置意图，不执行。" if selected_behavior.is_empty() else "已选：%s · 未加入计划" % ACTION_NAMES[selected_behavior]
+	var entry: Dictionary = knowledge.target_view(selected_id)
+	if selected_behavior == "talk" and not entry.get("communication", "").is_empty():
+		%ActionHint.text = "已选交流：" + entry.communication
+
+
+func _select_behavior(action: String) -> void:
+	# 重新验证，阻止过期按钮事件在切换目标后保留不合法行为。
+	var options: Dictionary = knowledge.action_options(selected_id)
+	if not options.has(action) or not options[action].eligible:
+		return
+	selected_behavior = action
+	_refresh_actions()
 
 
 func reset_navigation() -> void:
 	selected_id = ""
+	selected_behavior = ""
 	%TargetKind.text = "目标详情"
 	%TargetTitle.text = "尚未选择目标"
 	%TargetSummary.text = "从人物列表或地区节点选择。"
-	%TargetDescription.text = "选择仅用于查看，不会执行行动。"
-	%RelationshipStatus.hide()
+	%TargetDescription.text = "查看仅复述已知资料，不会获得新情报。"
+	%TargetDescription.show()
+	for control in [%RelationshipStatus, %TargetPortrait, %KnownIssues, %TargetLocation, %Reachability]:
+		control.hide()
 	for button in _target_buttons:
 		button.set_pressed_no_signal(false)
+	%DetailsScroll.scroll_vertical = 0
+	_refresh_actions()
 
 
 func _apply_responsive_layout() -> void:
@@ -92,13 +237,13 @@ func _apply_responsive_layout() -> void:
 
 func _show_notes() -> void:
 	%InfoDialog.title = "手记"
-	%InfoDialog.dialog_text = "尚无已接入的手记。\n调查记录、人物笔记与已发现线索将在此整理。"
+	%InfoDialog.dialog_text = "详细手记尚未开放。\n当前目标详情只显示已有的相识与发现记录。"
 	%InfoDialog.popup_centered(Vector2i(680, 220))
 
 
 func _show_menu() -> void:
 	%InfoDialog.title = "菜单"
-	%InfoDialog.dialog_text = "当前为界面与导航阶段。\n设置与存档功能尚未开放。"
+	%InfoDialog.dialog_text = "当前为目标资料与基础导航阶段。\n行动排程、设置与存档功能尚未开放。"
 	%InfoDialog.popup_centered(Vector2i(680, 220))
 
 

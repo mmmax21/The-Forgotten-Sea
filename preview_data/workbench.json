@@ -1,19 +1,394 @@
 {
   "preview_only": true,
-  "region_title": "遗迹周边 · 导航预览",
+  "current_location_id": "town",
   "objective": "调查古代遗迹，整理关于玛瑞斯的痕迹。",
-  "people": [
-    {"id": "fisher", "name": "潮叔", "kind": "人物", "summary": "一位年长的渔夫。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
-    {"id": "widow", "name": "盐嫂", "kind": "人物", "summary": "镇上的居民。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
-    {"id": "child", "name": "螺螺", "kind": "人物", "summary": "一个好奇的孩子。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
-    {"id": "craftsman", "name": "哑伯", "kind": "人物", "summary": "一位年老的工匠。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"}
-  ],
-  "places": [
-    {"id": "ruins", "name": "古代遗迹", "kind": "地点", "summary": "调查起点的场景占位。", "description": "这里只展示地点选择与详情切换。选择地点不会移动角色，也不会推进时间。"},
-    {"id": "channel", "name": "石渠", "kind": "地点", "summary": "可替换的地点节点示例。", "description": "未配置水位与涨退事件，不代表每局必然出现的剧情。"},
-    {"id": "entrance", "name": "镇口", "kind": "地点", "summary": "可替换的地点节点示例。", "description": "尚未配置路线、跨区条件或移动消耗。点击仅查看此处说明。"}
-  ],
-  "markers": [
-    {"id": "trace", "name": "刻痕标记", "kind": "线索", "summary": "线索标记的界面占位。", "description": "尚未载入发现记录或可调查内容，不会因查看而获得线索。"}
+  "known_targets": {
+    "fisher": {
+      "fact_ids": [
+        "f_identity",
+        "f_attitude",
+        "f_belief",
+        "f_cooperation",
+        "f_status",
+        "f_song"
+      ],
+      "latest_fact_id": "f_status",
+      "known_location": {
+        "place_id": "town",
+        "detail": "旧屋前"
+      }
+    },
+    "widow": {
+      "fact_ids": [
+        "w_identity",
+        "w_attitude",
+        "w_belief",
+        "w_cooperation",
+        "w_status",
+        "w_livelihood"
+      ],
+      "latest_fact_id": "w_status",
+      "known_location": {
+        "place_id": "town",
+        "detail": "住处"
+      }
+    },
+    "child": {
+      "fact_ids": [
+        "c_identity",
+        "c_attitude",
+        "c_belief",
+        "c_cooperation",
+        "c_status",
+        "c_risk"
+      ],
+      "latest_fact_id": "c_status",
+      "known_location": {
+        "place_id": "ruins",
+        "detail": "遗迹外侧"
+      }
+    },
+    "craftsman": {
+      "fact_ids": [
+        "a_identity",
+        "a_attitude",
+        "a_belief",
+        "a_cooperation",
+        "a_status",
+        "a_carving",
+        "a_communication"
+      ],
+      "latest_fact_id": "a_status",
+      "known_location": {
+        "place_id": "town",
+        "detail": "工棚"
+      }
+    },
+    "town": {
+      "fact_ids": [
+        "t_identity",
+        "t_description"
+      ]
+    },
+    "ruins": {
+      "fact_ids": [
+        "r_identity",
+        "r_description",
+        "r_marks"
+      ]
+    },
+    "boundary": {
+      "fact_ids": [
+        "b_identity",
+        "b_description"
+      ]
+    },
+    "shell": {
+      "fact_ids": [
+        "s_identity",
+        "s_description",
+        "s_lines"
+      ],
+      "known_location": {
+        "place_id": "town",
+        "detail": "临时陈列处"
+      }
+    },
+    "mark": {
+      "fact_ids": [
+        "m_identity",
+        "m_description",
+        "m_observation"
+      ],
+      "known_location": {
+        "place_id": "ruins",
+        "detail": "外墙"
+      }
+    }
+  },
+  "known_routes": {
+    "ruins": {
+      "reachable": true,
+      "reason": "已知小路可到达遗迹外侧。"
+    },
+    "boundary": {
+      "reachable": false,
+      "reason": "第三法则仍在生效，当前无法跨越。"
+    }
+  },
+  "note": "仅供开发预览：已发现事实、人物位置、可达性均为隔离快照；不作为正式剧情或存档。",
+  "targets": [
+    {
+      "id": "fisher",
+      "kind": "person",
+      "name": "老渔夫",
+      "avatar": "渔",
+      "facts": [
+        {
+          "id": "f_identity",
+          "field": "identity",
+          "text": "年长的渔夫，以往的生活记忆仍留在他身上。"
+        },
+        {
+          "id": "f_attitude",
+          "field": "attitude",
+          "text": "愿意让你坐下听他讲，但对公开谈论仍很谨慎。"
+        },
+        {
+          "id": "f_belief",
+          "field": "belief",
+          "text": "记得与海有关的旧歌与片段；这不代表他愿意公开作证。"
+        },
+        {
+          "id": "f_cooperation",
+          "field": "cooperation",
+          "text": "愿意私下分享片段，尚未同意公开作证。"
+        },
+        {
+          "id": "f_status",
+          "field": "status",
+          "text": "愿意私下讲述一段旧歌。"
+        },
+        {
+          "id": "f_grandson",
+          "field": "issues",
+          "text": "已得知他担心孙子的安全；孙子不是螺螺。"
+        },
+        {
+          "id": "f_song",
+          "field": "clues",
+          "text": "记下的旧歌片段有几处陌生地名。",
+          "investigable": true
+        }
+      ]
+    },
+    {
+      "id": "widow",
+      "kind": "person",
+      "name": "盐嫂",
+      "avatar": "盐",
+      "facts": [
+        {
+          "id": "w_identity",
+          "field": "identity",
+          "text": "镇上的寡妇；你已得知她的丈夫因触及相关禁忌被处决。"
+        },
+        {
+          "id": "w_attitude",
+          "field": "attitude",
+          "text": "对王权怀有怨恨，但仍保留对你的判断。"
+        },
+        {
+          "id": "w_belief",
+          "field": "belief",
+          "text": "你尚未听到她明确表达对海的看法。"
+        },
+        {
+          "id": "w_cooperation",
+          "field": "cooperation",
+          "text": "眼下只愿私下谈近况；生计未稳、安全未明，尚未答应持续协助。"
+        },
+        {
+          "id": "w_status",
+          "field": "status",
+          "text": "暂不承诺持续协助。"
+        },
+        {
+          "id": "w_livelihood",
+          "field": "issues",
+          "text": "她提到近日生计吃紧；你尚不了解她能承受多少风险。"
+        }
+      ]
+    },
+    {
+      "id": "child",
+      "kind": "person",
+      "name": "螺螺",
+      "avatar": "螺",
+      "facts": [
+        {
+          "id": "c_identity",
+          "field": "identity",
+          "text": "好奇的孩子，喜欢贝壳和海的故事。"
+        },
+        {
+          "id": "c_attitude",
+          "field": "attitude",
+          "text": "愿意亲近你，也愿意分享自己的发现。"
+        },
+        {
+          "id": "c_belief",
+          "field": "belief",
+          "text": "愿意相信海的故事，仍有许多想问的问题。"
+        },
+        {
+          "id": "c_cooperation",
+          "field": "cooperation",
+          "text": "愿意展示贝壳、分享故事；未安排任何对外行动。"
+        },
+        {
+          "id": "c_status",
+          "field": "status",
+          "text": "想把捡到的贝壳拿给你看。"
+        },
+        {
+          "id": "c_risk",
+          "field": "issues",
+          "text": "已观察到的风险：他展示贝壳时引来了旁人的注意。"
+        }
+      ]
+    },
+    {
+      "id": "craftsman",
+      "kind": "person",
+      "name": "哑伯",
+      "avatar": "木",
+      "facts": [
+        {
+          "id": "a_identity",
+          "field": "identity",
+          "text": "年老的工匠，不能正常说话；以手势、指认和刻木交流。"
+        },
+        {
+          "id": "a_attitude",
+          "field": "attitude",
+          "text": "你耐心观察时，他没有收起木片，仍在留意你是否理解。"
+        },
+        {
+          "id": "a_belief",
+          "field": "belief",
+          "text": "目前只见到他的刻木与指认；不能替他归纳尚未表达的看法。"
+        },
+        {
+          "id": "a_cooperation",
+          "field": "cooperation",
+          "text": "他用手势允许你看木片，尚未示意可以复制或带走。"
+        },
+        {
+          "id": "a_status",
+          "field": "status",
+          "text": "用手势指向几处刻木。"
+        },
+        {
+          "id": "a_carving",
+          "field": "clues",
+          "text": "木片上的几组刻痕可以继续比对。",
+          "investigable": true
+        },
+        {
+          "id": "a_communication",
+          "field": "communication",
+          "text": "以手势、指认与刻木沟通。"
+        }
+      ]
+    },
+    {
+      "id": "town",
+      "kind": "place",
+      "name": "镇区",
+      "avatar": "镇",
+      "facts": [
+        {
+          "id": "t_identity",
+          "field": "identity",
+          "text": "一处已知的居民聚居地。"
+        },
+        {
+          "id": "t_description",
+          "field": "description",
+          "text": "普通街巷与建筑不会因查看而自动成为调查对象。"
+        }
+      ]
+    },
+    {
+      "id": "ruins",
+      "kind": "place",
+      "name": "古代遗迹",
+      "avatar": "遗",
+      "facts": [
+        {
+          "id": "r_identity",
+          "field": "identity",
+          "text": "一处可供调查的古代遗迹。"
+        },
+        {
+          "id": "r_description",
+          "field": "description",
+          "text": "已知路线通向遗迹外侧。查看这里不会立即出发。"
+        },
+        {
+          "id": "r_marks",
+          "field": "clues",
+          "text": "墙面有一组已经发现、尚待辨认的刻痕。",
+          "investigable": true
+        }
+      ]
+    },
+    {
+      "id": "boundary",
+      "kind": "place",
+      "name": "区域边界",
+      "avatar": "界",
+      "facts": [
+        {
+          "id": "b_identity",
+          "field": "identity",
+          "text": "通往另一片区域的边界。"
+        },
+        {
+          "id": "b_description",
+          "field": "description",
+          "text": "当前只能查看已知的边界资料。"
+        }
+      ]
+    },
+    {
+      "id": "shell",
+      "kind": "object",
+      "name": "贝壳",
+      "avatar": "贝",
+      "facts": [
+        {
+          "id": "s_identity",
+          "field": "identity",
+          "text": "一枚已见过的贝壳。"
+        },
+        {
+          "id": "s_description",
+          "field": "description",
+          "text": "此处仅复述已经记录的外观，不会因打开详情而完成调查。"
+        },
+        {
+          "id": "s_lines",
+          "field": "clues",
+          "text": "表面的纹路值得进一步观察。",
+          "investigable": true
+        }
+      ]
+    },
+    {
+      "id": "mark",
+      "kind": "anomaly",
+      "name": "墙面异纹",
+      "avatar": "纹",
+      "facts": [
+        {
+          "id": "m_identity",
+          "field": "identity",
+          "text": "遗迹墙面上已被记录的一组异纹。"
+        },
+        {
+          "id": "m_description",
+          "field": "description",
+          "text": "独立开发预览中的可替换异常示例，不绑定必然事件。"
+        },
+        {
+          "id": "m_observation",
+          "field": "clues",
+          "text": "纹路与周围石面不同，已有明确观察记录。",
+          "investigable": true
+        }
+      ]
+    }
   ]
 }

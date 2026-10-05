@@ -257,6 +257,7 @@ text = "当前目标"
 theme_override_font_sizes/font_size = 22
 
 [node name="PreviewNotice" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "导航预览 · 非任务记录"
 autowrap_mode = 3
@@ -278,6 +279,7 @@ text = "已认识人物"
 theme_override_font_sizes/font_size = 22
 
 [node name="PeopleHint" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "示例条目，尚未接入相识记录"
 autowrap_mode = 3
@@ -328,6 +330,7 @@ text = "地区场景占位"
 theme_override_font_sizes/font_size = 22
 
 [node name="SceneHint" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "选择下方节点查看详情，不执行移动。"
 autowrap_mode = 3
@@ -337,11 +340,11 @@ theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
 [node name="PlaceNodes" type="GridContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-columns = 2
+columns = 3
 
 [node name="MarkerTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 layout_mode = 2
-text = "人物与线索标记 · 预览"
+text = "已发现的物件与异常"
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
 
@@ -377,6 +380,13 @@ text = "尚未选择目标"
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 24
 
+[node name="TargetLocation" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "当前位置未知"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
 [node name="TargetSummary" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -391,13 +401,59 @@ autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.66, 0.69, 0.69, 1)
 
-[node name="RelationshipStatus" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetPortrait" type="PanelContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "信任：未接入\n思想信念：未接入\n合作意愿：未接入"
+visible = false
+custom_minimum_size = Vector2(0, 64)
+theme_override_styles/panel = SubResource("Inset")
+
+[node name="PortraitText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/TargetPortrait"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "立绘占位"
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
+
+[node name="RelationshipStatus" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
 visible = false
+
+[node name="AttitudeText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "对玩家的已知态度"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="BeliefText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "对海的已知看法"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="CooperationText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "当前合作范围"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="KnownIssues" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "已发现的问题或线索"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="Reachability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "可达性未知"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
 
 [node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 layout_mode = 2
@@ -408,8 +464,10 @@ text = "行动配置"
 theme_override_font_sizes/font_size = 22
 
 [node name="ActionHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "行动系统尚未开放"
+text = "选择行为仅配置意图，不执行。"
+autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.70, 0.61, 0.59, 1)
 
@@ -449,6 +507,13 @@ text = "移动"
 disabled = true
 size_flags_horizontal = 3
 tooltip_text = "行动系统尚未开放"
+
+[node name="ActionAvailability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "请先选择已知目标"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
 
 [node name="Scale" type="HBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 layout_mode = 2
@@ -649,6 +714,12 @@ layout_mode = 2
 text = "仅用于测试原有回合；这里的推进会改变当前日期。"
 autowrap_mode = 0
 theme_override_font_sizes/font_size = 16
+
+[node name="PreviewToggle" type="CheckButton" parent="DebugPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "开发预览（隔离相识、发现与位置）"
+tooltip_text = "仅切换资料来源，不改变正式知识、日期或 AP"
 
 [node name="TimeLabel" type="Label" parent="DebugPanel/Content"]
 unique_name_in_owner = true

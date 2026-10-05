@@ -1,0 +1,46 @@
+{
+  "targets": [
+    {
+      "id": "fisher",
+      "kind": "person",
+      "name": "老渔夫",
+      "avatar": "渔"
+    },
+    {
+      "id": "widow",
+      "kind": "person",
+      "name": "盐嫂",
+      "avatar": "盐"
+    },
+    {
+      "id": "child",
+      "kind": "person",
+      "name": "螺螺",
+      "avatar": "螺"
+    },
+    {
+      "id": "craftsman",
+      "kind": "person",
+      "name": "哑伯",
+      "avatar": "木"
+    },
+    {
+      "id": "town",
+      "kind": "place",
+      "name": "镇区",
+      "avatar": "镇"
+    },
+    {
+      "id": "ruins",
+      "kind": "place",
+      "name": "古代遗迹",
+      "avatar": "遗"
+    },
+    {
+      "id": "boundary",
+      "kind": "place",
+      "name": "区域边界",
+      "avatar": "界"
+    }
+  ]
+}
