@@ -111,7 +111,7 @@ func _on_debug_input(event: InputEvent) -> void:
 
 
 func _toggle_debug() -> void:
-	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible or %SubmitConfirm.visible or %NightDialog.visible:
+	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible or %SubmitConfirm.visible or %NightReview.visible:
 		return
 	if debug_panel.visible:
 		debug_panel.hide()

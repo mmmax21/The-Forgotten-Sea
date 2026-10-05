@@ -13,6 +13,10 @@ var selected_idea := ""
 var editing_index := -1
 var _last_receipt: Dictionary = {}
 var _confirm_fingerprint := ""
+var _day_handoff := false
+var _applied_mornings: Dictionary = {}
+var _run_initial_world: Dictionary = {}
+var _morning_message := ""
 
 func _ready() -> void:
 	ui = get_node("%GameScreen")
@@ -31,7 +35,9 @@ func _ready() -> void:
 	%CancelReplace.pressed.connect(_cancel_replace)
 	%EndDayButton.pressed.connect(_end_day)
 	%SubmitConfirm.confirmed.connect(_confirm_submit)
-	%NextDayButton.pressed.connect(_next_day)
+	%NightReview.advance_requested.connect(_next_day)
+	%NightReview.history_selected.connect(_show_history_entry)
+	settlement.morning_ready.connect(_on_morning)
 	settlement.batch_ready.connect(_on_receipt)
 	for slot in [%ActionSlot1, %ActionSlot2, %ActionSlot3]:
 		slot.edit_requested.connect(_edit)
@@ -40,6 +46,8 @@ func _ready() -> void:
 	_on_plan_changed()
 
 func _switch_profile(preview: bool) -> void:
+	%NightReview.close_review()
+	_day_handoff = false
 	plan = _profiles["preview" if preview else "formal"]
 	editing_index = -1
 	selected_idea = ""
@@ -58,12 +66,21 @@ func is_locked() -> bool:
 
 func sync_day(current_day: int) -> void:
 	if current_day > plan.day:
+		_day_handoff = false
+		_morning_message = ""
 		plan.start_day(current_day)
 	_on_plan_changed()
 
 func restart_plan() -> void:
+	var profile: String = "preview" if ui.knowledge.preview_enabled else "formal"
+	if _run_initial_world.has(profile):
+		ui.knowledge.apply_settled_snapshot(_run_initial_world[profile])
+		_run_initial_world.erase(profile)
+	_morning_message = ""
 	_last_receipt.clear()
-	%NightDialog.hide()
+	%NightReview.close_review()
+	_day_handoff = false
+	settlement.clear_history(ui.knowledge.preview_enabled)
 	plan.start_day(1, true)
 	_cancel_replace()
 
@@ -255,9 +272,12 @@ func _confirm_submit() -> void:
 		plan.submit()
 
 func _on_submitted(payload: Dictionary) -> void:
+	var profile: String = "preview" if payload.preview_only else "formal"
+	if not _run_initial_world.has(profile):
+		_run_initial_world[profile] = ui.knowledge.get_snapshot()
 	_last_receipt.clear()
 	night_started.emit()
-	settlement.submit(payload, ui.knowledge.get_snapshot().get("preview_settlement", {}) if payload.preview_only else {})
+	settlement.submit(payload, ui.knowledge.get_snapshot().get("preview_settlement", {}) if payload.preview_only else {}, ui.knowledge.get_snapshot())
 	_show_night()
 
 func _on_receipt(receipt: Dictionary) -> void:
@@ -266,21 +286,58 @@ func _on_receipt(receipt: Dictionary) -> void:
 	_last_receipt = receipt
 	if receipt.status == "complete":
 		if plan.mark_resolved(receipt.request_id, receipt.get("consumed_ideas", [])):
-			var position: String = receipt.get("final_location", "")
-			if not position.is_empty():
-				ui.knowledge.apply_resolved_location(position)
+			ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id))
 			ui.refresh_known_targets()
+			_on_plan_changed()
 	_show_night()
 
 func _show_night() -> void:
-	%NightDialog.title = "夜间结算 · 开发预览" if ui.knowledge.preview_enabled else "夜间结算"
-	%NightText.text = _last_receipt.get("message", "今日计划已锁定并交给统一结算入口。\n正式行动效果尚未接入，等待整批回执；不会逐项揭晓后再允许修改。")
-	%NextDayButton.disabled = not plan.is_resolved()
-	%NextDayButton.text = "完成第 10 天" if plan.day == 10 else "进入下一天"
-	%NightDialog.popup_centered(Vector2i(820, 360))
+	var view := _last_receipt.duplicate(true)
+	if view.is_empty():
+		view = {"request_id": plan.request_id(), "day": plan.day, "preview_only": ui.knowledge.preview_enabled, "status": "pending", "message": "正在按固定顺序处理整份计划。"}
+	if not _morning_message.is_empty():
+		view.status = "needs_rule"
+		view.message = _morning_message
+	%NightReview.show_report(view, [], false, plan.is_resolved() and not _day_handoff)
+
+func show_history() -> void:
+	var entries: Array = settlement.history(ui.knowledge.preview_enabled)
+	if entries.is_empty():
+		%InfoDialog.title = "手记"
+		%InfoDialog.dialog_text = "尚无已完成的夜间回顾。正式与开发预览记录分别保存。"
+		%InfoDialog.popup_centered(Vector2i(680, 220))
+		return
+	%NightReview.show_report(entries.back(), entries, true)
+
+func _show_history_entry(token: String) -> void:
+	for entry in settlement.history(ui.knowledge.preview_enabled):
+		if entry.request_id == token:
+			%NightReview.show_report(entry, settlement.history(ui.knowledge.preview_enabled), true)
+			return
 
 func _next_day() -> void:
-	if not plan.is_resolved():
+	if not plan.is_resolved() or _day_handoff or %NightReview.historical:
 		return
-	%NightDialog.hide()
+	_day_handoff = true
+	if plan.day == 10:
+		%NightReview.close_review()
+		next_day_requested.emit()
+		return
+	%NightReview.next_day.disabled = true
+	settlement.begin_next_day(plan.request_id())
+
+func _on_morning(receipt: Dictionary) -> void:
+	if receipt.request_id != plan.request_id() or _applied_mornings.has(receipt.request_id):
+		return
+	if receipt.status != "complete":
+		_morning_message = receipt.message
+		var view := _last_receipt.duplicate(true)
+		view.status = "needs_rule"
+		view.message = receipt.message
+		%NightReview.show_report(view)
+		return
+	_applied_mornings[receipt.request_id] = true
+	ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id, true))
+	ui.refresh_known_targets()
+	%NightReview.close_review()
 	next_day_requested.emit()

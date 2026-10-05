@@ -185,3 +185,14 @@ func apply_resolved_location(location_id: String) -> bool:
 
 func reset_preview() -> void:
 	_preview_snapshot = _read("res://preview_data/workbench.json")
+
+
+func apply_settled_snapshot(snapshot: Dictionary) -> bool:
+	# 仅供结算/次日适配层提交完整快照，不能由回顾视图调用。
+	if snapshot.is_empty() or snapshot.get("preview_only", false) != preview_enabled:
+		return false
+	if preview_enabled:
+		_preview_snapshot = snapshot.duplicate(true)
+	else:
+		_live_snapshot = snapshot.duplicate(true)
+	return true

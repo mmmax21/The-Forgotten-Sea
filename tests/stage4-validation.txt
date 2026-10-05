@@ -1,0 +1,32 @@
+2026-10-05 · Godot 4.7.2 · macOS · Compatibility / Apple M3 Max
+
+图形模式，1280×720 和 1920×1080 分别运行：
+--script tests/night_tests.gd [-- --small]
+NIGHT: 65 checks, 0 failures
+--script tests/planning_tests.gd [-- --small]
+PLANNING: 85 checks, 0 failures
+--script tests/run_tests.gd [-- --small]
+RESULT: 328 checks, 0 failures
+
+最终结算适配器修正后复核：
+--headless --script tests/night_tests.gd -- --small
+NIGHT: 65 checks, 0 failures
+
+新增验收覆盖：
+- 连点提交只调用一次完整八步；空计划也处理全部步骤。
+- 执行顺序固定；未完成时不提交部分世界；恢复不重复已完成步骤。
+- NPC 自主反应与玩家行动分别归类；玩家行动按锁定计划顺序展示。
+- 未发现原因、隐藏事件与内部数值不进入公开回执。
+- 回执和历史是深拷贝，翻页、切栏目、重复打开、手记回看不改变状态和日期。
+- 次日事件处理前保持夜间及计划锁；完成后才打开新日；重复点击不重复处理。
+- 正式/预览隔离，默认预览不编造自主行动、世界变化或王国回应。
+- 重开清空本局历史并恢复本局初始世界。
+- 真实鼠标切栏目和翻页；两尺寸回顾、页码、按钮和日期不出界。
+
+回归覆盖原预算、卡牌、连续移动、无效顺序、完整10天结束/重开、日期推进、跳天确认/取消/关闭/Esc、人物知识过滤、导航与缩放。
+
+截图：
+previews/stage4-preview-{1280,1920}.png：正常开发预览。
+previews/stage4-review-{1280,1920}.png：测试文件注入规则，用来验证自主反应栏目，不是正式游戏事件。
+
+限制：正式效果规则尚未接入；完整系统效果仅验证适配协议，未验证未来实现。未验证其他OS、引擎版本或存档。历史为当前运行内存记录。

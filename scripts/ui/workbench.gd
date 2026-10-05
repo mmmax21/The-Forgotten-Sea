@@ -62,6 +62,7 @@ func refresh_known_targets() -> void:
 	_target_buttons.clear()
 	%PreviewNotice.text = "开发预览 · 独立资料" if knowledge.preview_enabled else "正式资料 · 仅显示已知内容"
 	%PeopleHint.text = "演示相识与位置，非正式记录" if knowledge.preview_enabled else "只显示已经认识的人物"
+	%AlertLabel.text = "警戒：" + str(knowledge.get_snapshot().get("known_alert", "未接入"))
 	%LocationLabel.text = "地区：" + knowledge.current_location_name()
 	%LocationLabel.tooltip_text = "开发预览位置，不写入正式流程" if knowledge.preview_enabled else "来自正式资料的位置记录"
 	%RegionTitle.text = knowledge.current_location_name() + (" · 开发预览" if knowledge.preview_enabled else " · 地区资料")
@@ -260,6 +261,9 @@ func _apply_responsive_layout() -> void:
 
 
 func _show_notes() -> void:
+	if planning != null:
+		planning.show_history()
+		return
 	%InfoDialog.title = "手记"
 	%InfoDialog.dialog_text = "详细手记尚未开放。\n当前目标详情只显示已有的相识与发现记录。"
 	%InfoDialog.popup_centered(Vector2i(680, 220))

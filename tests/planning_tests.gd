@@ -85,9 +85,9 @@ func _run():
 	for name in ["TopBar","LawBar","LeftPanel","CenterPanel","RightPanel","BottomPanel","EndDayButton","ActionSlot1","ActionSlot2","ActionSlot3"]:
 		var rect:Rect2=main.get_node("%"+name).get_global_rect()
 		check(Rect2(Vector2.ZERO,Vector2(root.size)).encloses(rect),"layout bounds "+name)
-	if DisplayServer.get_name()!="headless":
+	if DisplayServer.get_name()!="headless" and "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://previews/stage3-plan-%d.png"%root.size.x)
+		root.get_texture().get_image().save_png("res://previews/stage4-planning-plan-%d.png"%root.size.x)
 	c._end_day()
 	check(c.plan.is_locked() and main.state.get_slot()==2 and not c.plan.is_resolved(),"submit enters night before deferred batch")
 	c._end_day()
@@ -95,6 +95,7 @@ func _run():
 	check(c.plan.is_resolved() and ui.knowledge.current_location_id()=="ruins" and c.plan.idea_status("sea").state=="used","batch changes position and usage only after full resolution")
 	check(not c.plan.remove(0),"resolved plan remains locked")
 	c._next_day()
+	await process_frame
 	check(main.state.get_day()==2 and c.plan.remaining_ap()==3 and c.plan.idea_status("sea").state=="available","next day reset")
 	ui.set_development_preview(false)
 	check(main.state.get_day()==1 and ui.knowledge.visible_targets().is_empty(),"preview date and knowledge isolated")
@@ -109,6 +110,7 @@ func _run():
 		await process_frame
 		check(c.plan.is_resolved() and not main.state.is_finished(),"night doesn't finish early")
 		c._next_day()
+		await process_frame
 	check(main.state.is_finished() and main.state.get_day()==10,"final settlement without day11")
 	main._restart()
 	check(main.state.get_day()==1 and c.plan.remaining_ap()==3 and not c.plan.is_locked(),"restart clears plan")
@@ -135,9 +137,9 @@ func _run():
 	main.get_node("%DetailsScroll").ensure_control_visible(main.get_node("%QueueAction"))
 	await process_frame
 	await process_frame
-	if DisplayServer.get_name()!="headless":
+	if DisplayServer.get_name()!="headless" and "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://previews/stage3-composer-%d.png"%root.size.x)
+		root.get_texture().get_image().save_png("res://previews/stage4-planning-composer-%d.png"%root.size.x)
 	click(main.get_node("%QueueAction"))
 	check(c.plan.entries().size()==1 and c.plan.remaining_ap()==2,"real pointer queues without executing")
 	c._queue()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
@@ -6,6 +6,8 @@
 
 [ext_resource type="Script" path="res://scripts/ui/plan_slot.gd" id="3_slot"]
 [ext_resource type="Script" path="res://scripts/ui/planning_controller.gd" id="4_planning"]
+
+[ext_resource type="Script" path="res://scripts/ui/night_review.gd" id="5_review"]
 
 [sub_resource type="SystemFont" id="Font"]
 font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
@@ -355,6 +357,13 @@ theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
 [node name="MarkerNodes" type="HBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="NightReview" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+script = ExtResource("5_review")
+theme_override_styles/panel = SubResource("Inset")
 
 [node name="RightPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
 unique_name_in_owner = true
@@ -794,25 +803,6 @@ dialog_hide_on_ok = false
 dialog_autowrap = true
 ok_button_text = "确定"
 cancel_button_text = "取消"
-
-[node name="NightDialog" type="AcceptDialog" parent="."]
-unique_name_in_owner = true
-title = "夜间结算"
-exclusive = true
-theme = SubResource("Theme")
-ok_button_text = "返回查看计划"
-
-[node name="Content" type="VBoxContainer" parent="NightDialog"]
-
-[node name="NightText" type="Label" parent="NightDialog/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(760, 0)
-autowrap_mode = 3
-
-[node name="NextDayButton" type="Button" parent="NightDialog/Content"]
-unique_name_in_owner = true
-text = "进入下一天"
-disabled = true
 
 [node name="PlanningController" type="Node" parent="."]
 unique_name_in_owner = true
