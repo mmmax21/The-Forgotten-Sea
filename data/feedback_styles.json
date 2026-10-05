@@ -1,0 +1,16 @@
+{
+  "laws": {
+    "stable": {"label": "稳固", "pattern": "whole"},
+    "questioned": {"label": "受到怀疑", "pattern": "hairline"},
+    "wavering": {"label": "明显动摇", "pattern": "split"},
+    "ineffective": {"label": "失去效力", "pattern": "broken"},
+    "unknown": {"label": "状态未知", "pattern": "unknown"}
+  },
+  "belief_patterns": {"微弱": "fragment", "零散": "fragment", "渐强": "emerging", "共识较强": "complete", "受压制": "fragment"},
+  "scenes": {
+    "dry": {"label": "干涸", "layers": ["masonry", "dry"], "notice": "石渠的异常表现减退。"},
+    "signs": {"label": "出现异常征兆", "layers": ["masonry", "dry", "signs"], "notice": "石渠出现了新的异常。"},
+    "shallow": {"label": "出现浅水", "layers": ["masonry", "water"], "notice": "石渠中出现了浅水。"},
+    "tidal": {"label": "可观察的涨退", "layers": ["masonry", "water", "tide"], "notice": "石渠中出现了可观察的涨退。"}
+  }
+}

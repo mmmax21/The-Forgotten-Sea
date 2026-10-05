@@ -2,6 +2,7 @@ extends Node
 ## 将现有目标视图绑定到唯一计划模型；所有修改通过模型再次校验。
 signal night_started
 signal next_day_requested
+const IdeaCard = preload("res://scripts/ui/idea_card.gd")
 const Plan = preload("res://scripts/daily_plan.gd")
 const Settlement = preload("res://scripts/night_settlement.gd")
 var ui: MarginContainer
@@ -72,6 +73,8 @@ func sync_day(current_day: int) -> void:
 	_on_plan_changed()
 
 func restart_plan() -> void:
+	if ui.visual_feedback != null:
+		ui.visual_feedback.clear_run()
 	var profile: String = "preview" if ui.knowledge.preview_enabled else "formal"
 	if _run_initial_world.has(profile):
 		ui.knowledge.apply_settled_snapshot(_run_initial_world[profile])
@@ -231,17 +234,13 @@ func _on_plan_changed() -> void:
 		%IdeasRow.remove_child(child)
 		child.queue_free()
 	for idea in plan.obtained_ideas():
-		var button := Button.new()
-		var status: Dictionary = plan.idea_status(idea.id)
-		var belief: String = plan.local_belief(idea.id)
-		button.text = "%s\n当地信念：%s  |  %s" % [idea.name, belief, status.label]
-		button.add_theme_font_size_override("font_size", 14)
-		# 信念颜色只取决于信念；使用状态单独写在牌面与提示中。
-		button.add_theme_color_override("font_color", Color(0.62, 0.85, 0.79) if belief == "渐强" else Color(0.48, 0.68, 0.65))
-		button.tooltip_text = status.reason + "\n信念强度与每日使用状态分别显示。"
+		var button := IdeaCard.new()
+		%IdeasRow.add_child(button)
+		button.configure(idea.name, ui.feedback.idea(ui.knowledge.get_snapshot(),idea.id),plan.idea_status(idea.id))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_inspect_idea.bind(idea.id))
-		%IdeasRow.add_child(button)
+	if ui.visual_feedback != null:
+		ui.visual_feedback.refresh()
 	%CardsEmpty.visible = plan.obtained_ideas().is_empty()
 	if get_parent().is_node_ready():
 		get_parent()._refresh_buttons()
@@ -286,7 +285,7 @@ func _on_receipt(receipt: Dictionary) -> void:
 	_last_receipt = receipt
 	if receipt.status == "complete":
 		if plan.mark_resolved(receipt.request_id, receipt.get("consumed_ideas", [])):
-			ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id))
+			ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id), receipt.request_id)
 			ui.refresh_known_targets()
 			_on_plan_changed()
 	_show_night()
@@ -337,7 +336,7 @@ func _on_morning(receipt: Dictionary) -> void:
 		%NightReview.show_report(view)
 		return
 	_applied_mornings[receipt.request_id] = true
-	ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id, true))
+	ui.knowledge.apply_settled_snapshot(settlement.committed_world(receipt.request_id, true), "morning:" + receipt.request_id)
 	ui.refresh_known_targets()
 	%NightReview.close_review()
 	next_day_requested.emit()

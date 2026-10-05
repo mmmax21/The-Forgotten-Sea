@@ -1,0 +1,17 @@
+2026-10-05 · Godot 4.7.2 · macOS · Compatibility / Apple M3 Max
+
+1280×720 / 1920×1080 图形模式：
+--script tests/feedback_tests.gd [-- --small]
+FEEDBACK: 60 checks, 0 failures
+--script tests/night_tests.gd [-- --small]
+NIGHT: 65 checks, 0 failures
+--script tests/planning_tests.gd [-- --small]
+PLANNING: 85 checks, 0 failures
+--script tests/run_tests.gd [-- --small]
+RESULT: 328 checks, 0 failures
+最终出发地显示调整后，额外无图形复核小窗口原回归：328 checks, 0 failures。
+
+反馈覆盖：正式空数据未知、预览隔离、无初始大海、三条法则独立、未开放调查的异常背景、浅水/涨退/干涸可逆层、卡面与证据独立、用卡与纹样独立、计划位置不切换、实际到达后切换、路线许可优先于裂纹、路线文字与实际出发地一致、线索回退保留知识但关闭调查、变化提示仅定位、重复刷新/回执去重、次日无变化保留提示、控件及中央标记边界。
+
+截图：previews/stage5-{normal,partial,consensus,suppressed}-{1280,1920}.png。
+预览测试快照不是正式规则；未验证未来阈值判定、正式剧情接入、其他平台或引擎版本。没有新增动画、音效或持久化存档。

@@ -104,6 +104,15 @@
         "place_id": "ruins",
         "detail": "外墙"
       }
+    },
+    "canal": {
+      "fact_ids": [
+        "canal_description"
+      ],
+      "known_location": {
+        "place_id": "town"
+      },
+      "investigation_open": false
     }
   },
   "known_routes": {
@@ -401,6 +410,26 @@
           "investigable": true
         }
       ]
+    },
+    {
+      "id": "canal",
+      "kind": "anomaly",
+      "name": "石渠",
+      "avatar": "渠",
+      "marker_requires_lead": true,
+      "facts": [
+        {
+          "id": "canal_description",
+          "field": "description",
+          "text": "一段可观察的石渠。外观变化不等于已经开放调查。"
+        },
+        {
+          "id": "canal_trace",
+          "field": "clues",
+          "text": "已开放的石渠观察记录，可继续调查当前痕迹。",
+          "investigable": true
+        }
+      ]
     }
   ],
   "acquired_ideas": [
@@ -451,5 +480,73 @@
   "preview_settlement": {
     "enabled": true,
     "movement_outcome": "success"
+  },
+  "regional_feedback": {
+    "town": {
+      "laws": {
+        "sea": {
+          "state": "stable",
+          "known": true,
+          "known_effects": [
+            "当地仍遵循第一法则。"
+          ],
+          "target_id": "canal"
+        },
+        "items": {
+          "state": "stable",
+          "known": true,
+          "known_effects": [
+            "特定物品仍受限制。"
+          ],
+          "target_id": ""
+        },
+        "travel": {
+          "state": "stable",
+          "known": true,
+          "known_effects": [
+            "第三法则仍在生效，当前无法跨越。"
+          ],
+          "target_id": "boundary"
+        }
+      },
+      "scene": {
+        "kind": "canal",
+        "state": "dry",
+        "known": true,
+        "target_id": "canal"
+      },
+      "idea_targets": {
+        "sea": "canal",
+        "boundary_idea": "boundary"
+      }
+    },
+    "ruins": {
+      "laws": {
+        "sea": {
+          "state": "questioned",
+          "known": true,
+          "known_effects": [
+            "仅此地区出现对第一法则的怀疑。"
+          ],
+          "target_id": ""
+        },
+        "items": {
+          "state": "stable",
+          "known": true,
+          "known_effects": [
+            "物品限制仍在生效。"
+          ],
+          "target_id": ""
+        },
+        "travel": {
+          "state": "stable",
+          "known": true,
+          "known_effects": [
+            "跨区仍需许可。"
+          ],
+          "target_id": "boundary"
+        }
+      }
+    }
   }
 }

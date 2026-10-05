@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
@@ -8,6 +8,10 @@
 [ext_resource type="Script" path="res://scripts/ui/planning_controller.gd" id="4_planning"]
 
 [ext_resource type="Script" path="res://scripts/ui/night_review.gd" id="5_review"]
+
+[ext_resource type="Script" path="res://scripts/ui/law_card.gd" id="6_law"]
+[ext_resource type="Script" path="res://scripts/ui/canal_scene.gd" id="7_canal"]
+[ext_resource type="Script" path="res://scripts/ui/feedback_controller.gd" id="8_feedback"]
 
 [sub_resource type="SystemFont" id="Font"]
 font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
@@ -215,6 +219,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 46)
 
 [node name="Law1" type="Button" parent="GameScreen/Layout/LawBar"]
+script = ExtResource("6_law")
 unique_name_in_owner = true
 layout_mode = 2
 text = "01   大海从不存在"
@@ -223,6 +228,7 @@ size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("LawStyle")
 
 [node name="Law2" type="Button" parent="GameScreen/Layout/LawBar"]
+script = ExtResource("6_law")
 unique_name_in_owner = true
 layout_mode = 2
 text = "02   特定物品受限"
@@ -231,6 +237,7 @@ size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("LawStyle")
 
 [node name="Law3" type="Button" parent="GameScreen/Layout/LawBar"]
+script = ExtResource("6_law")
 unique_name_in_owner = true
 layout_mode = 2
 text = "03   未经允许禁止跨区"
@@ -312,27 +319,14 @@ theme_override_font_sizes/font_size = 22
 [node name="ScenePlaceholder" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 120)
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("Inset")
 
-[node name="Center" type="CenterContainer" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder"]
+[node name="SceneCanvas" type="Control" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder"]
+unique_name_in_owner = true
 layout_mode = 2
-
-[node name="Description" type="VBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center"]
-layout_mode = 2
-
-[node name="SceneGlyph" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center/Description"]
-visible = false
-layout_mode = 2
-text = "◇  ─  ◇"
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.35, 0.52, 0.51, 1)
-
-[node name="SceneText" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center/Description"]
-layout_mode = 2
-text = "地区场景占位"
-theme_override_font_sizes/font_size = 22
+script = ExtResource("7_canal")
 
 [node name="SceneHint" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
@@ -739,6 +733,21 @@ layout_mode = 2
 text = "开发预览（资料、日期、计划独立）"
 tooltip_text = "预览拥有独立日期和预算；已提交的计划完成前不能切换"
 
+[node name="FeedbackTools" type="HBoxContainer" parent="DebugPanel/Content"]
+layout_mode = 2
+
+[node name="FeedbackPreset" type="OptionButton" parent="DebugPanel/Content/FeedbackTools"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+fit_to_longest_item = false
+
+[node name="ApplyFeedback" type="Button" parent="DebugPanel/Content/FeedbackTools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用测试快照"
+tooltip_text = "仅开发预览可用：独立测试结算，不推进日期或扣 AP。"
+
 [node name="TimeLabel" type="Label" parent="DebugPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -807,3 +816,7 @@ cancel_button_text = "取消"
 [node name="PlanningController" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("4_planning")
+
+[node name="FeedbackController" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("8_feedback")

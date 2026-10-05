@@ -3,6 +3,8 @@ extends MarginContainer
 
 signal profile_changed(preview: bool)
 var planning: Node
+var visual_feedback: Node
+var feedback = preload("res://scripts/world_feedback.gd").new()
 
 const Knowledge = preload("res://scripts/target_knowledge.gd")
 const LAWS: Array[String] = ["大海从不存在。", "未经允许禁止使用特定物品。", "未经允许禁止跨越区域。"]
@@ -79,11 +81,14 @@ func refresh_known_targets() -> void:
 	if places.is_empty():
 		_add_empty(%PlaceNodes, "尚无已发现地点")
 	for entry in knowledge.visible_targets():
-		if entry.kind in ["object", "anomaly"]:
+		if entry.kind in ["object", "anomaly"] and (not entry.marker_requires_lead or entry.has_lead):
 			_add_target_button(entry, %MarkerNodes)
 	if %MarkerNodes.get_child_count() == 0:
 		_add_empty(%MarkerNodes, "尚无已发现的物件或异常")
 	reset_navigation()
+	_apply_responsive_layout()
+	if visual_feedback != null:
+		visual_feedback.refresh()
 
 
 func _add_empty(host: Container, message: String) -> void:
@@ -251,6 +256,17 @@ func _apply_responsive_layout() -> void:
 	%PeopleHint.visible = not compact
 	%ObjectiveText.add_theme_font_size_override("font_size", 14 if compact else 20)
 	%PeopleList.get_parent().add_theme_constant_override("separation", 4 if compact else 12)
+	%ScenePlaceholder.get_parent().add_theme_constant_override("separation", 4 if compact else 12)
+	%RegionTitle.add_theme_font_size_override("font_size", 18 if compact else 22)
+	var panel: StyleBox = %CenterPanel.get_theme_stylebox("panel").duplicate()
+	for side in ["left", "top", "right", "bottom"]:
+		panel.set("content_margin_" + side, 8 if compact else 16)
+	%CenterPanel.add_theme_stylebox_override("panel", panel)
+	for host in [%PlaceNodes, %MarkerNodes]:
+		for button in host.get_children():
+			if button is Button:
+				button.add_theme_font_size_override("font_size", 14 if compact else 20)
+				button.custom_minimum_size.y = 36 if compact else 44
 	%SceneHint.visible = not compact
 	%MarkerTitle.visible = not compact
 	get_parent().theme.default_font_size = 18 if compact else 20
@@ -277,5 +293,5 @@ func _show_menu() -> void:
 
 func _show_law(index: int) -> void:
 	%InfoDialog.title = "王国法则 · %d" % (index + 1)
-	%InfoDialog.dialog_text = LAWS[index]
+	%InfoDialog.dialog_text = get_node("%Law"+str(index+1)).tooltip_text
 	%InfoDialog.popup_centered(Vector2i(680, 180))

@@ -185,9 +185,9 @@ func test_ui():
 	for node in [review,review.next_day,review.tabs[3],main.get_node("%BottomPanel"),main.get_node("%DayLabel"),main.get_node("%PhaseLabel")]:
 		check(bounds.encloses(node.get_global_rect()),"review bounds at requested resolution")
 	check(main.get_node("%CenterPanel").get_global_rect().encloses(review.get_global_rect()),"review covers central region")
-	if DisplayServer.get_name()!="headless":
+	if DisplayServer.get_name()!="headless" and "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://previews/stage4-review-%d.png"%root.size.x)
+		root.get_texture().get_image().save_png("res://previews/stage5-night-review-%d.png"%root.size.x)
 	for repeat in range(5):
 		review.close_review()
 		c._end_day()
@@ -224,9 +224,9 @@ func test_ui():
 	check(ui.knowledge.current_location_id()=="ruins" and c.plan.local_belief("sea")=="渐强","preview move applied only at whole batch completion")
 	for frame in range(4):
 		await process_frame
-	if DisplayServer.get_name()!="headless":
+	if DisplayServer.get_name()!="headless" and "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://previews/stage4-preview-%d.png"%root.size.x)
+		root.get_texture().get_image().save_png("res://previews/stage5-night-preview-%d.png"%root.size.x)
 	main.queue_free()
 	await process_frame
 

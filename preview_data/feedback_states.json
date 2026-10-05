@@ -1,0 +1,283 @@
+{
+  "preview_only": true,
+  "region_id": "town",
+  "target_id": "canal",
+  "clue_id": "canal_trace",
+  "profiles": [
+    {
+      "id": "normal",
+      "label": "普通 / 干涸",
+      "region": {
+        "laws": {
+          "sea": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "这是独立测试快照的已知第一法则状态。"
+            ],
+            "target_id": "canal"
+          },
+          "items": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "特定物品仍受限制。"
+            ],
+            "target_id": ""
+          },
+          "travel": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "当前路线仍不可跨越；裂纹不代表通行许可。"
+            ],
+            "target_id": "boundary"
+          }
+        },
+        "scene": {
+          "kind": "canal",
+          "state": "dry",
+          "known": true,
+          "target_id": "canal"
+        },
+        "idea_targets": {
+          "sea": "canal",
+          "boundary_idea": "boundary"
+        }
+      },
+      "beliefs": {
+        "sea": "微弱",
+        "boundary_idea": "零散"
+      },
+      "investigation_open": false,
+      "boundary_route": {
+        "reachable": false,
+        "reason": "第三法则仍在生效，当前无法跨越。",
+        "ap_cost": 3,
+        "from_ids": [
+          "town"
+        ]
+      }
+    },
+    {
+      "id": "signs",
+      "label": "异常征兆 / 尚未开放调查",
+      "region": {
+        "laws": {
+          "sea": {
+            "state": "questioned",
+            "known": true,
+            "known_effects": [
+              "这是独立测试快照的已知第一法则状态。"
+            ],
+            "target_id": "canal"
+          },
+          "items": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "特定物品仍受限制。"
+            ],
+            "target_id": ""
+          },
+          "travel": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "当前路线仍不可跨越；裂纹不代表通行许可。"
+            ],
+            "target_id": "boundary"
+          }
+        },
+        "scene": {
+          "kind": "canal",
+          "state": "signs",
+          "known": true,
+          "target_id": "canal"
+        },
+        "idea_targets": {
+          "sea": "canal",
+          "boundary_idea": "boundary"
+        }
+      },
+      "beliefs": {
+        "sea": "渐强",
+        "boundary_idea": "零散"
+      },
+      "investigation_open": false,
+      "boundary_route": {
+        "reachable": false,
+        "reason": "第三法则仍在生效，当前无法跨越。",
+        "ap_cost": 3,
+        "from_ids": [
+          "town"
+        ]
+      }
+    },
+    {
+      "id": "partial",
+      "label": "部分进展 / 浅水",
+      "region": {
+        "laws": {
+          "sea": {
+            "state": "wavering",
+            "known": true,
+            "known_effects": [
+              "这是独立测试快照的已知第一法则状态。"
+            ],
+            "target_id": "canal"
+          },
+          "items": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "特定物品仍受限制。"
+            ],
+            "target_id": ""
+          },
+          "travel": {
+            "state": "questioned",
+            "known": true,
+            "known_effects": [
+              "当前路线仍不可跨越；裂纹不代表通行许可。"
+            ],
+            "target_id": "boundary"
+          }
+        },
+        "scene": {
+          "kind": "canal",
+          "state": "shallow",
+          "known": true,
+          "target_id": "canal"
+        },
+        "idea_targets": {
+          "sea": "canal",
+          "boundary_idea": "boundary"
+        }
+      },
+      "beliefs": {
+        "sea": "渐强",
+        "boundary_idea": "零散"
+      },
+      "investigation_open": true,
+      "boundary_route": {
+        "reachable": false,
+        "reason": "第三法则仍在生效，当前无法跨越。",
+        "ap_cost": 3,
+        "from_ids": [
+          "town"
+        ]
+      }
+    },
+    {
+      "id": "consensus",
+      "label": "较强共识 / 涨退 / 通行已获许可",
+      "region": {
+        "laws": {
+          "sea": {
+            "state": "ineffective",
+            "known": true,
+            "known_effects": [
+              "这是独立测试快照的已知第一法则状态。"
+            ],
+            "target_id": "canal"
+          },
+          "items": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "特定物品仍受限制。"
+            ],
+            "target_id": ""
+          },
+          "travel": {
+            "state": "ineffective",
+            "known": true,
+            "known_effects": [
+              "测试路线已由底层配置许可。"
+            ],
+            "target_id": "boundary"
+          }
+        },
+        "scene": {
+          "kind": "canal",
+          "state": "tidal",
+          "known": true,
+          "target_id": "canal"
+        },
+        "idea_targets": {
+          "sea": "canal",
+          "boundary_idea": "boundary"
+        }
+      },
+      "beliefs": {
+        "sea": "共识较强",
+        "boundary_idea": "共识较强"
+      },
+      "investigation_open": true,
+      "boundary_route": {
+        "reachable": true,
+        "reason": "独立测试路线已许可。",
+        "ap_cost": 3,
+        "from_ids": [
+          "town"
+        ]
+      }
+    },
+    {
+      "id": "suppressed",
+      "label": "受压制回退 / 干涸",
+      "region": {
+        "laws": {
+          "sea": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "这是独立测试快照的已知第一法则状态。"
+            ],
+            "target_id": "canal"
+          },
+          "items": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "特定物品仍受限制。"
+            ],
+            "target_id": ""
+          },
+          "travel": {
+            "state": "stable",
+            "known": true,
+            "known_effects": [
+              "当前路线仍不可跨越；裂纹不代表通行许可。"
+            ],
+            "target_id": "boundary"
+          }
+        },
+        "scene": {
+          "kind": "canal",
+          "state": "dry",
+          "known": true,
+          "target_id": "canal"
+        },
+        "idea_targets": {
+          "sea": "canal",
+          "boundary_idea": "boundary"
+        }
+      },
+      "beliefs": {
+        "sea": "受压制",
+        "boundary_idea": "零散"
+      },
+      "investigation_open": false,
+      "boundary_route": {
+        "reachable": false,
+        "reason": "第三法则仍在生效，当前无法跨越。",
+        "ap_cost": 3,
+        "from_ids": [
+          "town"
+        ]
+      }
+    }
+  ]
+}

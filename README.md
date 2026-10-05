@@ -1,8 +1,36 @@
 # 涌现 · 每日行动工作台
 
-## 第 4 阶段：夜间统一结算与回顾
+## 第 5 阶段：思想、法则与场景反馈
 
-沿用 Godot 4 / GDScript 原工程、五区布局、每日计划和日期控制器。本阶段新增八步固定顺序结算适配层、中央四栏回顾、只读历史，以及次日必须事件处理屏障。没有新增基础行为、玩法公式、固定剧情或存档系统。
+沿用 Godot 4 / GDScript 原工程、每日计划和八步夜间结算。本阶段把三张法则牌、思想卡纹样和分层石渠绑定到实际地区快照。没有新增数值阈值、基础行为、固定日期剧情或存档系统。
+
+三条法则分别读取状态，以完整图案/裂纹及明确文字区分；思想卡以残缺、浮现、完整纹样表达当地信念，每日使用状态单独显示。石渠分为干涸、异常征兆、浅水、涨退，支持受压制后回退。变化提示点击只查看目标，不能免费调查。
+
+### 第 5 阶段开发验收
+
+F5 运行 → F3 打开 DEBUG → 勾选开发预览 → 选择测试状态 → 点击“应用测试快照” → 关闭 DEBUG。可依次查看普通、异常征兆、部分进展、较强共识、受压制回退。只有未排计划、未提交时可应用；测试执行一次独立结算，不推进日期、不花 AP、不写正式资料。
+
+五个快照在 `preview_data/feedback_states.json`，只作开发测试。正式状态需要既有规则通过完整结算快照提供；未接入时显示未知，不把开发样例当成正式剧情。首次加载没有完整大海，涨退也仅表现为石渠内的水线。
+
+通行仍以 `known_routes` 的许可和出发地区为准，裂纹不会打开路线。调查要求已发现线索且当前开放；背景出现异常不自动开放调查。回退后保留已知线索文字，但可关闭继续调查条件。
+
+### 第 5 阶段文件
+
+| 文件 | 改动 |
+| --- | --- |
+| `data/feedback_styles.json` | 离散状态到文字/图案的映射，不含玩法阈值 |
+| `preview_data/workbench.json`、`preview_data/feedback_states.json` | 预览地区状态、石渠与独立测试快照 |
+| `scripts/world_feedback.gd` | 当前地区的只读反馈投影与变化比较 |
+| `scripts/ui/law_card.gd`、`idea_card.gd` | 独立法则裂纹、塔罗式思想纹样与文字状态 |
+| `scripts/ui/canal_scene.gd`、`canal_layer.gd` | 可逆场景层、已开放线索标记、可定位提示 |
+| `scripts/ui/feedback_controller.gd` | 结算提交监听、提示去重、隔离 DEBUG 测试入口 |
+| `scripts/ui/workbench.gd`、`planning_controller.gd` | 状态同步、卡牌绑定与紧凑布局 |
+| `scripts/target_knowledge.gd` | 提交信号、调查开放条件及实际出发地检查 |
+| `scenes/main.tscn` | 沿用主场景，接入卡牌和场景组件、DEBUG 控件 |
+| `tests/feedback_tests.gd`、`tests/stage5-validation.txt` | 本阶段验收与记录 |
+| `tests/night_tests.gd` | 截图改为显式 `--capture`，避免覆盖旧版本截图 |
+
+数据格式、去重与规则边界详见 [世界反馈接入说明](docs/world_feedback.md)。未加入声音或首次发现动画，反馈使用静态可逆图案和只触发一次的变化提示。
 
 ## 打开与运行
 
@@ -45,7 +73,7 @@ godot --path /path/to/taptap -- --preview-targets
 
 历史目前保存在内存，退出程序不持久保存。没有新增存档、完整地图、立绘、经济系统或复杂动画。
 
-## 文件职责与本阶段改动
+## 继续沿用的结算结构
 
 | 文件 | 职责 |
 | --- | --- |
@@ -69,6 +97,8 @@ godot --path /path/to/taptap -- --preview-targets
 ## 验证
 
 ```sh
+godot --path /path/to/taptap --script tests/feedback_tests.gd -- --small
+godot --path /path/to/taptap --script tests/feedback_tests.gd
 godot --path /path/to/taptap --script tests/night_tests.gd -- --small
 godot --path /path/to/taptap --script tests/night_tests.gd
 godot --path /path/to/taptap --script tests/planning_tests.gd -- --small
@@ -77,7 +107,7 @@ godot --path /path/to/taptap --script tests/run_tests.gd -- --small
 godot --path /path/to/taptap --script tests/run_tests.gd
 ```
 
-可增加 `--headless` 做无图形检查。截图使用图形模式。Godot 4.7.2 / macOS / Compatibility 下，两种尺寸各通过 65 项夜间检查、85 项计划检查和 328 项原功能检查，0 失败。
+可增加 `--headless` 做无图形检查。Godot 4.7.2 / macOS / Compatibility 下，两种尺寸各通过 60 项反馈检查、65 项夜间检查、85 项计划检查和 328 项原功能检查，0 失败。反馈图形测试生成 `previews/stage5-*.png`；旧夜间测试截图需显式添加 `--capture`。
 
 覆盖固定执行顺序、空计划仍更新、重复点击、只读分页/历史、未知原因过滤、次日事件屏障、挂起恢复、正式/预览隔离，以及原来的预算、卡牌、移动依赖、10 天结束、重开、导航、缩放和跳日确认。
 
@@ -87,6 +117,6 @@ godot --path /path/to/taptap --script tests/run_tests.gd
 
 - `v0.1`：原基础回合界面。
 - `4290e8c`：第 1 阶段；`0045f1b`：第 2 阶段；`3cb0dde`：第 3 阶段。
-- 第 4 阶段保存在 `codex/night-review` 分支，完整项目包为 `taptap-stage4.zip`。
+- 第 4 阶段为 `abf10aa`，项目包 `taptap-stage4.zip` 保留。第 5 阶段在 `codex/world-feedback` 分支，完整项目包为 `taptap-stage5.zip`。
 - 前三阶段与 v0.1 的旧项目包保留，解压出来的旧工程不改动。
 - 可以要求“恢复到第 3 阶段，同时保留当前版本”，避免覆盖唯一副本。
