@@ -14,6 +14,8 @@ var state := GameState.new()
 @onready var last_day_hint: Label = %LastDayHint
 @onready var restart_button: Button = %RestartButton
 @onready var skip_dialog: ConfirmationDialog = %SkipDialog
+@onready var debug_panel: AcceptDialog = %DebugPanel
+@onready var phase_label: Label = %PhaseLabel
 
 
 func _ready() -> void:
@@ -24,8 +26,9 @@ func _ready() -> void:
 	skip_dialog.confirmed.connect(_confirm_skip)
 	# 取消、关闭、Esc 都由原生弹窗隐藏；任何隐藏路径都会恢复按钮。
 	skip_dialog.visibility_changed.connect(_refresh_buttons)
+	debug_panel.window_input.connect(_on_debug_input)
 	_refresh()
-	next_button.grab_focus()
+	%NotesButton.grab_focus()
 
 
 func _refresh() -> void:
@@ -34,11 +37,15 @@ func _refresh() -> void:
 	settlement_screen.visible = finished
 	day_label.text = "第 %d 天 / 共 %d 天" % [state.get_day(), GameState.TOTAL_DAYS]
 	time_label.text = "当前时间：%s" % state.get_slot_name()
+	# 仅映射旧时间节点的显示，不修改上午/下午/晚上的状态规则。
+	phase_label.text = "阶段：夜间结算" if state.get_slot() == 2 else "阶段：白天规划"
+	phase_label.tooltip_text = "按原有时间节点显示；行动规划与夜间演算尚未接入。"
 	progress_label.text = "时间进度 %d / %d" % [state.get_progress(), GameState.TOTAL_SLOTS]
 	progress_bar.value = state.get_progress()
 	last_day_hint.visible = state.get_day() == GameState.TOTAL_DAYS
 	_refresh_buttons()
 	if finished:
+		debug_panel.hide()
 		restart_button.grab_focus()
 
 
@@ -47,18 +54,18 @@ func _refresh_buttons() -> void:
 	skip_button.disabled = locked or not state.can_skip_day()
 	next_button.disabled = locked
 	skip_button.tooltip_text = "已是最后一天" if state.get_day() == GameState.TOTAL_DAYS else "跳过当天剩余时间"
-	if not locked:
+	if not locked and debug_panel.visible:
 		next_button.grab_focus()
 
 
 func _advance() -> void:
-	if skip_dialog.visible or state.is_finished():
+	if not debug_panel.visible or skip_dialog.visible or state.is_finished():
 		return
 	state.advance()
 
 
 func _request_skip() -> void:
-	if skip_dialog.visible or not state.can_skip_day():
+	if not debug_panel.visible or skip_dialog.visible or not state.can_skip_day():
 		return
 	skip_dialog.dialog_text = "确定跳过当天剩余时间，进入第 %d 天上午吗？" % (state.get_day() + 1)
 	skip_dialog.popup_centered(Vector2i(820, 240))
@@ -76,4 +83,28 @@ func _confirm_skip() -> void:
 
 func _restart() -> void:
 	skip_dialog.hide()
+	debug_panel.hide()
+	game_screen.reset_navigation()
 	state.restart()
+	%NotesButton.grab_focus()
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
+		_toggle_debug()
+		get_viewport().set_input_as_handled()
+
+
+func _on_debug_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
+		_toggle_debug()
+
+
+func _toggle_debug() -> void:
+	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible:
+		return
+	if debug_panel.visible:
+		debug_panel.hide()
+	else:
+		debug_panel.popup_centered(Vector2i(620, 300))
+		_refresh_buttons()

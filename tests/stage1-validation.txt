@@ -1,0 +1,20 @@
+图形测试 1920
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 88 - Compatibility - Using Device: Apple - Apple M3 Max
+
+TEST WINDOW: (1920, 1080)
+PASS: 状态正常推进、跨天、所有节点跳天、结算边界、重置
+PASS: 工作台鼠标导航、占位禁用、五区布局、F3 与状态隔离
+PASS: 场景按钮、原生取消/关闭/Esc、模态锁定、显示同步及重新开始
+RESULT: 273 checks, 0 failures
+
+
+图形测试 1280
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 88 - Compatibility - Using Device: Apple - Apple M3 Max
+
+TEST WINDOW: (1280, 720)
+PASS: 状态正常推进、跨天、所有节点跳天、结算边界、重置
+PASS: 工作台鼠标导航、占位禁用、五区布局、F3 与状态隔离
+PASS: 场景按钮、原生取消/关闭/Esc、模态锁定、显示同步及重新开始
+RESULT: 273 checks, 0 failures

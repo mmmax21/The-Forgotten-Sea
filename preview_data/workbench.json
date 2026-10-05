@@ -1,0 +1,19 @@
+{
+  "preview_only": true,
+  "region_title": "遗迹周边 · 导航预览",
+  "objective": "调查古代遗迹，整理关于玛瑞斯的痕迹。",
+  "people": [
+    {"id": "fisher", "name": "潮叔", "kind": "人物", "summary": "一位年长的渔夫。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
+    {"id": "widow", "name": "盐嫂", "kind": "人物", "summary": "镇上的居民。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
+    {"id": "child", "name": "螺螺", "kind": "人物", "summary": "一个好奇的孩子。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"},
+    {"id": "craftsman", "name": "哑伯", "kind": "人物", "summary": "一位年老的工匠。", "description": "人物条目的布局示例。正式相识记录与对话内容尚未接入。"}
+  ],
+  "places": [
+    {"id": "ruins", "name": "古代遗迹", "kind": "地点", "summary": "调查起点的场景占位。", "description": "这里只展示地点选择与详情切换。选择地点不会移动角色，也不会推进时间。"},
+    {"id": "channel", "name": "石渠", "kind": "地点", "summary": "可替换的地点节点示例。", "description": "未配置水位与涨退事件，不代表每局必然出现的剧情。"},
+    {"id": "entrance", "name": "镇口", "kind": "地点", "summary": "可替换的地点节点示例。", "description": "尚未配置路线、跨区条件或移动消耗。点击仅查看此处说明。"}
+  ],
+  "markers": [
+    {"id": "trace", "name": "刻痕标记", "kind": "线索", "summary": "线索标记的界面占位。", "description": "尚未载入发现记录或可调查内容，不会因查看而获得线索。"}
+  ]
+}

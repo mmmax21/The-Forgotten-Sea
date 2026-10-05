@@ -1,13 +1,137 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
-[sub_resource type="SystemFont" id="SystemFont_ui"]
+[ext_resource type="Script" path="res://scripts/ui/workbench.gd" id="2_ui"]
+
+[sub_resource type="SystemFont" id="Font"]
 font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
 
-[sub_resource type="Theme" id="Theme_ui"]
-default_font = SubResource("SystemFont_ui")
-default_font_size = 28
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.14, 0.16, 0.18, 1)
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="StyleBoxFlat" id="Inset"]
+bg_color = Color(0.10, 0.12, 0.14, 1)
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="StyleBoxFlat" id="Normal"]
+bg_color = Color(0.18, 0.21, 0.23, 1)
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="StyleBoxFlat" id="Hover"]
+bg_color = Color(0.22, 0.28, 0.29, 1)
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+bg_color = Color(0.14, 0.29, 0.29, 1)
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.63, 0.60, 1)
+
+
+[sub_resource type="StyleBoxFlat" id="Disabled"]
+bg_color = Color(0.13, 0.15, 0.17, 1)
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="StyleBoxFlat" id="Focus"]
+bg_color = Color(0, 0, 0, 0)
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.75, 0.69, 1)
+
+
+[sub_resource type="StyleBoxFlat" id="LawStyle"]
+bg_color = Color(0.20, 0.19, 0.19, 1)
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+
+[sub_resource type="Theme" id="Theme"]
+default_font = SubResource("Font")
+default_font_size = 20
+Label/colors/font_color = Color(0.89, 0.88, 0.83, 1)
+Button/colors/font_color = Color(0.89, 0.88, 0.83, 1)
+Button/colors/font_hover_color = Color(1, 0.98, 0.91, 1)
+Button/colors/font_pressed_color = Color(0.70, 0.91, 0.83, 1)
+Button/colors/font_disabled_color = Color(0.43, 0.47, 0.48, 1)
+Button/styles/normal = SubResource("Normal")
+Button/styles/hover = SubResource("Hover")
+Button/styles/pressed = SubResource("Pressed")
+Button/styles/disabled = SubResource("Disabled")
+Button/styles/focus = SubResource("Focus")
+PanelContainer/styles/panel = SubResource("Panel")
+VBoxContainer/constants/separation = 12
+HBoxContainer/constants/separation = 16
+GridContainer/constants/h_separation = 10
+GridContainer/constants/v_separation = 10
+
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -16,7 +140,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_ui")
+theme = SubResource("Theme")
 script = ExtResource("1_main")
 
 [node name="GameScreen" type="MarginContainer" parent="."]
@@ -27,98 +151,443 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 80
-theme_override_constants/margin_top = 56
-theme_override_constants/margin_right = 80
-theme_override_constants/margin_bottom = 56
+script = ExtResource("2_ui")
 
 [node name="Layout" type="VBoxContainer" parent="GameScreen"]
 layout_mode = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="GameScreen/Layout"]
+[node name="TopBar" type="HBoxContainer" parent="GameScreen/Layout"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "回合进度"
+custom_minimum_size = Vector2(0, 48)
 
-[node name="Separator" type="HSeparator" parent="GameScreen/Layout"]
+[node name="DayLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
 layout_mode = 2
+text = "第 1 天 / 共 10 天"
+theme_override_font_sizes/font_size = 24
 
-[node name="Content" type="CenterContainer" parent="GameScreen/Layout"]
+[node name="PhaseLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "阶段：白天规划"
+theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+
+[node name="LocationLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "地区：未载入"
+
+[node name="AlertLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "警戒：未接入"
+theme_override_colors/font_color = Color(0.70, 0.61, 0.59, 1)
+
+[node name="FlexibleSpace" type="Control" parent="GameScreen/Layout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="NotesButton" type="Button" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "手记"
+disabled = false
+custom_minimum_size = Vector2(76, 0)
+
+[node name="MenuButton" type="Button" parent="GameScreen/Layout/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "菜单"
+disabled = false
+custom_minimum_size = Vector2(76, 0)
+
+[node name="LawBar" type="HBoxContainer" parent="GameScreen/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 46)
+
+[node name="Law1" type="Button" parent="GameScreen/Layout/LawBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "01   大海从不存在"
+disabled = false
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("LawStyle")
+
+[node name="Law2" type="Button" parent="GameScreen/Layout/LawBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "02   特定物品受限"
+disabled = false
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("LawStyle")
+
+[node name="Law3" type="Button" parent="GameScreen/Layout/LawBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "03   未经允许禁止跨区"
+disabled = false
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("LawStyle")
+
+[node name="Body" type="HBoxContainer" parent="GameScreen/Layout"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Status" type="VBoxContainer" parent="GameScreen/Layout/Content"]
-custom_minimum_size = Vector2(880, 0)
-layout_mode = 2
-theme_override_constants/separation = 30
-
-[node name="DayLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+[node name="LeftPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "第 1 天 / 共 10 天"
-horizontal_alignment = 1
+custom_minimum_size = Vector2(240, 0)
 
-[node name="TimeLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+[node name="Scroll" type="ScrollContainer" parent="GameScreen/Layout/Body/LeftPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GoalTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+layout_mode = 2
+text = "当前目标"
+theme_override_font_sizes/font_size = 22
+
+[node name="PreviewNotice" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+layout_mode = 2
+text = "导航预览 · 非任务记录"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.51, 0.67, 0.65, 1)
+
+[node name="ObjectiveText" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
-text = "当前时间：上午"
-horizontal_alignment = 1
+text = "暂无目标"
+autowrap_mode = 3
 
-[node name="Sequence" type="Label" parent="GameScreen/Layout/Content/Status"]
+[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.68, 0.7, 0.74, 1)
-text = "上午 → 下午 → 晚上"
-horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="GameScreen/Layout/Content/Status"]
-custom_minimum_size = Vector2(0, 20)
+[node name="PeopleTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
 layout_mode = 2
-mouse_filter = 2
+text = "已认识人物"
+theme_override_font_sizes/font_size = 22
 
-[node name="ProgressLabel" type="Label" parent="GameScreen/Layout/Content/Status"]
+[node name="PeopleHint" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+layout_mode = 2
+text = "示例条目，尚未接入相识记录"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+
+[node name="PeopleList" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "时间进度 1 / 30"
-horizontal_alignment = 1
 
-[node name="TimeProgress" type="ProgressBar" parent="GameScreen/Layout/Content/Status"]
+[node name="CenterPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-max_value = 30.0
-value = 1.0
-show_percentage = false
+size_flags_horizontal = 3
 
-[node name="Footer" type="VBoxContainer" parent="GameScreen/Layout"]
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/CenterPanel"]
 layout_mode = 2
-theme_override_constants/separation = 20
 
-[node name="LastDayHint" type="Label" parent="GameScreen/Layout/Footer"]
+[node name="RegionTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
+layout_mode = 2
+text = "地区场景 · 未载入"
+theme_override_font_sizes/font_size = 22
+
+[node name="ScenePlaceholder" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 72)
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Inset")
+
+[node name="Center" type="CenterContainer" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder"]
+layout_mode = 2
+
+[node name="Description" type="VBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center"]
+layout_mode = 2
+
+[node name="SceneGlyph" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center/Description"]
 visible = false
 layout_mode = 2
-text = "已是最后一天"
-horizontal_alignment = 1
+text = "◇  ─  ◇"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.35, 0.52, 0.51, 1)
 
-[node name="Buttons" type="HBoxContainer" parent="GameScreen/Layout/Footer"]
+[node name="SceneText" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder/Center/Description"]
 layout_mode = 2
-theme_override_constants/separation = 24
-alignment = 1
+text = "地区场景占位"
+theme_override_font_sizes/font_size = 22
 
-[node name="SkipButton" type="Button" parent="GameScreen/Layout/Footer/Buttons"]
+[node name="SceneHint" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+layout_mode = 2
+text = "选择下方节点查看详情，不执行移动。"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+
+[node name="PlaceNodes" type="GridContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
-text = "后一天"
+columns = 2
 
-[node name="NextButton" type="Button" parent="GameScreen/Layout/Footer/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 80)
+[node name="MarkerTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
 layout_mode = 2
-text = "下个时间节点"
+text = "人物与线索标记 · 预览"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+
+[node name="MarkerNodes" type="HBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RightPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(340, 0)
+
+[node name="DetailsScroll" type="ScrollContainer" parent="GameScreen/Layout/Body/RightPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TargetKind" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "目标详情"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+
+[node name="TargetTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "尚未选择目标"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 24
+
+[node name="TargetSummary" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "从人物列表或地区节点选择。"
+autowrap_mode = 3
+
+[node name="TargetDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "选择仅用于查看，不会执行行动。"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.66, 0.69, 0.69, 1)
+
+[node name="RelationshipStatus" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "信任：未接入\n思想信念：未接入\n合作意愿：未接入"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+visible = false
+
+[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+layout_mode = 2
+
+[node name="ActionTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+layout_mode = 2
+text = "行动配置"
+theme_override_font_sizes/font_size = 22
+
+[node name="ActionHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+layout_mode = 2
+text = "行动系统尚未开放"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.70, 0.61, 0.59, 1)
+
+[node name="Behaviors" type="GridContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="TalkAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "交谈"
+disabled = true
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+
+[node name="InvestigateAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "调查"
+disabled = true
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+
+[node name="ConcealAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "隐匿"
+disabled = true
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+
+[node name="MoveAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "移动"
+disabled = true
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+
+[node name="Scale" type="HBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+layout_mode = 2
+
+[node name="ScaleLabel" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+layout_mode = 2
+text = "规模"
+theme_override_font_sizes/font_size = 16
+
+[node name="PersonalScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "个人"
+disabled = true
+size_flags_horizontal = 3
+
+[node name="GroupScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "群体"
+disabled = true
+size_flags_horizontal = 3
+tooltip_text = "需要组织条件；本阶段尚未接入"
+
+[node name="CardParameter" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+layout_mode = 2
+text = "思想卡：可选 · 尚未接入"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="QueueAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "加入行动槽"
+disabled = true
+tooltip_text = "行动排程尚未开放"
+
+[node name="BottomPanel" type="PanelContainer" parent="GameScreen/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel"]
+layout_mode = 2
+
+[node name="Cards" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content"]
+layout_mode = 2
+
+[node name="CardsTitle" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+layout_mode = 2
+text = "已获得的思想卡"
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+
+[node name="CardsEmpty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+layout_mode = 2
+text = "暂无已接入的卡牌"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+
+[node name="PlanRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ActionSlot1" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Inset")
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1/Content"]
+layout_mode = 2
+text = "行动一"
+theme_override_font_sizes/font_size = 18
+
+[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1/Content"]
+layout_mode = 2
+text = "未安排 · 尚未开放"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
+
+[node name="ActionSlot2" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Inset")
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2/Content"]
+layout_mode = 2
+text = "行动二"
+theme_override_font_sizes/font_size = 18
+
+[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2/Content"]
+layout_mode = 2
+text = "未安排 · 尚未开放"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
+
+[node name="ActionSlot3" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Inset")
+
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3/Content"]
+layout_mode = 2
+text = "行动三"
+theme_override_font_sizes/font_size = 18
+
+[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3/Content"]
+layout_mode = 2
+text = "未安排 · 尚未开放"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
+
+[node name="EndControls" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+layout_mode = 2
+
+[node name="APLabel" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "剩余 AP  — / 3"
+theme_override_font_sizes/font_size = 20
+
+[node name="EndDayButton" type="Button" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "结束今日行动"
+disabled = true
+custom_minimum_size = Vector2(180, 44)
+tooltip_text = "白天规划与夜间结算尚未开放；本阶段不消耗 AP"
 
 [node name="SettlementScreen" type="CenterContainer" parent="."]
 unique_name_in_owner = true
@@ -131,37 +600,105 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Layout" type="VBoxContainer" parent="SettlementScreen"]
-custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
-theme_override_constants/separation = 40
+custom_minimum_size = Vector2(480, 0)
 
 [node name="Title" type="Label" parent="SettlementScreen/Layout"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
 text = "游戏结束"
+theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
 
 [node name="Description" type="Label" parent="SettlementScreen/Layout"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
 text = "已完成全部 10 天"
+theme_override_font_sizes/font_size = 28
 horizontal_alignment = 1
 
 [node name="RestartButton" type="Button" parent="SettlementScreen/Layout"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
-size_flags_horizontal = 4
 text = "重新开始"
+disabled = false
+custom_minimum_size = Vector2(260, 60)
+size_flags_horizontal = 4
 
-[node name="SkipDialog" type="ConfirmationDialog" parent="."]
+[node name="InfoDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "手记"
+size = Vector2i(680, 220)
+exclusive = true
+theme = SubResource("Theme")
+ok_button_text = "返回"
+dialog_autowrap = true
+
+[node name="DebugPanel" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "DEBUG · 回合测试（F3）"
+size = Vector2i(620, 300)
+min_size = Vector2i(620, 300)
+exclusive = true
+theme = SubResource("Theme")
+ok_button_text = "关闭"
+
+[node name="Content" type="VBoxContainer" parent="DebugPanel"]
+layout_mode = 2
+
+[node name="DebugHint" type="Label" parent="DebugPanel/Content"]
+layout_mode = 2
+text = "仅用于测试原有回合；这里的推进会改变当前日期。"
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 16
+
+[node name="TimeLabel" type="Label" parent="DebugPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "当前时间：上午"
+
+[node name="ProgressLabel" type="Label" parent="DebugPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "时间进度 1 / 30"
+
+[node name="TimeProgress" type="ProgressBar" parent="DebugPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+max_value = 30.0
+value = 1.0
+show_percentage = false
+
+[node name="LastDayHint" type="Label" parent="DebugPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "已是最后一天"
+visible = false
+
+[node name="Buttons" type="HBoxContainer" parent="DebugPanel/Content"]
+layout_mode = 2
+
+[node name="SkipButton" type="Button" parent="DebugPanel/Content/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "后一天"
+disabled = false
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="DebugPanel/Content/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "下个时间节点"
+disabled = false
+size_flags_horizontal = 3
+
+[node name="SkipDialog" type="ConfirmationDialog" parent="DebugPanel"]
 unique_name_in_owner = true
 title = "跳过当天"
 size = Vector2i(820, 240)
 exclusive = true
 transient = true
 unresizable = true
-theme = SubResource("Theme_ui")
+theme = SubResource("Theme")
 dialog_text = "确定跳过当天剩余时间，进入第 2 天上午吗？"
 dialog_hide_on_ok = false
 dialog_close_on_escape = true

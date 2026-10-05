@@ -1,123 +1,103 @@
-# 十天回合界面
+# 涌现 · 每日行动工作台
 
-## 版本管理
+## 当前阶段
 
-当前项目已建立独立的本地 Git 仓库，基线标签为 `v0.1`，日常分支为 `codex/main`。该标签保存本次游戏源码、场景、项目设置、测试、预览和当前人物设定文档；引擎缓存与生成的压缩包不纳入 Git。
+阶段 1：在原 Godot 主窗口上改造布局与基础导航。沿用 Godot 4、GDScript、Compatibility 渲染器、原主场景入口及回合状态。
 
-后续修改前先保存当前工作，每个完成且可运行的版本单独提交。保留 `v0.1` 标签，不移动或覆盖。需要回到旧版时，可以直接要求“恢复到 v0.1，并保留当前新版”；恢复前先保存新版，再从旧版创建分支，避免丢失后续工作。
+已实现顶部信息栏、三张法则牌、主体三栏、固定底部操作区，以及默认隐藏的 DEBUG 面板。中央大日期和正式界面的 30 节点进度条已移除。人物、地点与线索可选择并联动右侧详情；手记、菜单、法则按钮有弹窗反馈。点击空白不移动、不推进日期。
 
-独立压缩备份为 `taptap-v0.1.zip`。如需立即查看旧版，可解压到另一个文件夹，在 Godot 中导入其中的 `project.godot`。本地 Git 和同盘压缩包可防止改动难以撤销；防范磁盘损坏还需将备份复制到其他磁盘或云盘。
+设计尺寸为 1920×1080，最小窗口为 1280×720。通过 Control 与 Container 自动排布，中央填充剩余宽度；两侧在窄窗口使用 220/320 的参考宽度，宽窗口使用 240/340。左右栏可以局部滚动，底部操作区不参与滚动。没有整页滚动或手工逐点摆放的地图坐标。
 
-完整 Godot 4 / GDScript 项目。采用 Godot 默认控件风格与系统中文字体，没有外部美术素材、插件或第三方代码依赖。初始窗口与设计分辨率为 1920×1080，最小窗口为 960×540，使用 `canvas_items` 随窗口缩放。
+## 打开与检查
 
-## 打开和运行
+1. 用 Godot 4 导入本目录的 `project.godot`。
+2. 按 **F5** 运行；本机验证版本为 Godot 4.7.2 标准版，无需 .NET。
+3. 点击左侧人物、中央地点或标记，确认右侧内容切换。同一个人物在列表和地图上的选中状态同步。
+4. 点击法则查看完整名称，悬停也会显示全文。手记和菜单打开占位面板；可点击“返回”、关闭窗口或按 Esc 返回。
+5. 缩小窗口至 1280×720，检查顶部导航、三张法则牌与底部操作区仍可见。滚动人物或详情只影响本栏。
+6. 按 **F3**（部分 Mac 键盘需要 **fn + F3**）打开/关闭 DEBUG。这里保留旧版“后一天”“下个时间节点”和“时间进度”；DEBUG 推进会改变当前运行状态。F3 本身不改变日期。
+7. DEBUG 中跳天仍有确认弹窗；取消、关闭与 Esc 保持状态。第 10 天禁用跳天；第 10 天晚上再推进一次才结算；重新开始恢复第 1 天上午。
 
-1. 启动 Godot 4（本项目在本机 Godot 4.7.2 标准版验证）。
-2. 在项目管理器中选择“导入”，选中本目录的 `project.godot`。
-3. 打开项目后按 **F5**，或点击右上角“运行项目”。主场景已配置。
-4. 初始显示第 1 天上午、时间进度 1 / 30。无需安装 .NET，也无需下载素材。
-
-命令行运行（将 `godot` 换成自己的 Godot 可执行文件路径）：
+命令行运行：
 
 ```sh
 godot --path /path/to/taptap
 ```
 
-本机也可以使用：
+本机：
 
 ```sh
 "/Users/maxlou/Downloads/Godot.app/Contents/MacOS/Godot" --path "/Users/maxlou/Documents/ChatGPT/taptap"
 ```
 
-## 文件
+## 文件与职责
+
+| 文件 | 职责 |
+| --- | --- |
+| `project.godot` | 原项目入口；初始 1920×1080、最小 1280×720，以容器响应窗口尺寸 |
+| `scenes/main.tscn` | 原主场景；工作台五区布局、主题、弹窗和原结算界面 |
+| `scripts/main.gd` | 绑定真实日期、旧回合信号；DEBUG 导航；原结算与重新开始 |
+| `scripts/ui/workbench.gd` | 纯 UI 选择、详情、弹窗、响应式调整；不修改游戏状态 |
+| `scripts/game_state.gd` | 原统一状态与回合规则；本阶段没有改动 |
+| `preview_data/workbench.json` | 独立且可替换的导航预览配置，明确标记 `preview_only` |
+| `tests/run_tests.gd` | 原回合回归测试及布局、真实鼠标导航、缩放测试 |
+| `tests/stage1-validation.txt` | 本阶段两种尺寸的引擎验证日志 |
+| `previews/stage1-*.png` | 本阶段实际引擎渲染截图，文件名含尺寸 |
+
+场景结构：
 
 ```text
-project.godot             项目设置及主场景入口
-scenes/main.tscn          可在编辑器中直接查看、编辑的完整 UI 场景
-scripts/game_state.gd    统一状态与所有回合规则
-scripts/main.gd          按钮事件、弹窗与显示同步
-tests/run_tests.gd       状态与场景集成测试
-tests/validation.txt     本次实际运行的验证日志
-previews/               引擎实际渲染的四张 1920×1080 截图
-README.md               本说明
+Main (Control，原入口)
+├── GameScreen (MarginContainer + workbench.gd)
+│   └── Layout (VBoxContainer)
+│       ├── TopBar (HBoxContainer)：日期、阶段、地区、警戒、手记、菜单
+│       ├── LawBar (HBoxContainer)：三个法则按钮
+│       ├── Body (HBoxContainer)
+│       │   ├── LeftPanel：目标、人物列表、局部 ScrollContainer
+│       │   ├── CenterPanel：场景占位、地点 GridContainer、人物与线索标记
+│       │   └── RightPanel：目标详情、行动配置、局部 ScrollContainer
+│       └── BottomPanel：思想卡占位、三个行动槽、AP、结束今日行动
+├── SettlementScreen：原结算与重新开始
+├── InfoDialog (AcceptDialog)：法则、手记、菜单
+└── DebugPanel (AcceptDialog，默认隐藏)
+    ├── Content：旧时间、进度、跳天与推进按钮
+    └── SkipDialog (ConfirmationDialog)：原跳天确认
 ```
 
-`.godot` 是本机导入缓存，不需要分发；解压项目后引擎会自动重新生成。
+## 数据边界与占位
 
-## 场景结构
+- **真实状态**：日期与原时间节点仍来自唯一的 `GameState`。上午/下午仅在顶部显示为“白天规划”，晚上显示为“夜间结算”；这是显示映射，并没有启用新阶段流程或夜间演算。
+- **无存档修改**：现有工程未实现存档系统。本阶段不新增存档，不写入日期，也不把界面预览数据加入状态或结算。
+- **预览配置**：目标、潮叔等人物、古代遗迹/石渠/镇口和刻痕都是 `preview_data/workbench.json` 中的导航示例，界面明确标明预览。它们不代表已经相识、已经发现或每局必然发生的剧情；未设置石渠涨退事件。
+- **地区与警戒**：现有状态没有这些数据，因此显示“未载入/未接入”，不伪造正式数值。
+- **AP 与思想卡**：显示 `剩余 AP — / 3` 和空卡牌状态。行动系统未接入，四种行为、个人/群体规模、加入行动槽和结束今日行动明确禁用。
+- **人物关系**：信任、思想信念、合作意愿分别展示为未接入，不使用单一好感代替三者。
+- 没有新增成功率、信念公式、移动费用、按日期解锁群体或 NPC 隐藏条件；没有新增传播/组织/救助基础行为，也没有国王动机的剧透。
+- 没有实现完整夜间演算、剧情、复杂动画、经济、背包或额外地区内容。
 
-```text
-Main (Control) → scripts/main.gd
-├── GameScreen (MarginContainer)
-│   └── Layout (VBoxContainer)
-│       ├── Title (Label)
-│       ├── Separator (HSeparator)
-│       ├── Content (CenterContainer，纵向扩展)
-│       │   └── Status (VBoxContainer)
-│       │       ├── DayLabel (Label)
-│       │       ├── TimeLabel (Label)
-│       │       ├── Sequence (Label)
-│       │       ├── Spacer (Control)
-│       │       ├── ProgressLabel (Label)
-│       │       └── TimeProgress (ProgressBar)
-│       └── Footer (VBoxContainer)
-│           ├── LastDayHint (Label)
-│           └── Buttons (HBoxContainer)
-│               ├── SkipButton (Button：后一天)
-│               └── NextButton (Button：下个时间节点)
-├── SettlementScreen (CenterContainer，初始隐藏)
-│   └── Layout (VBoxContainer)
-│       ├── Title (Label：游戏结束)
-│       ├── Description (Label：已完成全部 10 天)
-│       └── RestartButton (Button：重新开始)
-└── SkipDialog (ConfirmationDialog，原生模态弹窗)
-```
+## 自动验证
 
-结算通过切换同一场景内的两个界面实现。确认和取消按钮由 `ConfirmationDialog` 自带，无需另外创建节点。
-
-## 统一状态与更新方式
-
-`game_state.gd` 只保存 `_position`（0～29）与 `_finished`。天数、节点、进度由同一位置派生：
-
-- 天数：`floor(_position / 3) + 1`
-- 节点：`_position % 3`，依次对应上午、下午、晚上
-- 进度：`_position + 1`，进度条最大值为 30
-
-两个主按钮调用同一个状态对象的 `advance()` 或 `skip_day()`，没有各自的天数变量。每次状态改变发出 `changed` 信号，由 `_refresh()` 同步更新天数、时间、进度、界面及按钮。弹窗可见性变化也会更新按钮。
-
-进入位置 29 时仍是第 10 天晚上，显示 30 / 30；只有在该位置再次调用 `advance()` 才设置结束标志，位置永远不会增加到第 11 天。`restart()` 重置位置和结束标志。
-
-弹窗仅在确认时调用 `skip_day()`。取消、关闭与 Esc 使用原生取消路径，不修改游戏状态。弹窗为 `exclusive`，打开时两个主按钮都会禁用，按钮处理函数也检查弹窗是否可见。第 10 天另外显示“已是最后一天”，并禁用跳天。
-
-## 验证
-
-运行自动测试：
+无图形测试：
 
 ```sh
-godot --headless --path /path/to/taptap --script res://tests/run_tests.gd
+godot --headless --path /path/to/taptap --script res://tests/run_tests.gd -- --small
 ```
 
-同时验证图形渲染并生成预览（需要图形桌面，不要加 `--headless`）：
+图形测试与截图（需要图形桌面）：
 
 ```sh
 godot --path /path/to/taptap --script res://tests/run_tests.gd -- --capture
+godot --path /path/to/taptap --script res://tests/run_tests.gd -- --small --capture
 ```
 
-2026-10-05 本机验证结果：Godot 4.7.2，macOS / Apple M3 Max，Compatibility 渲染器。无图形测试 **192 项检查，0 失败**；图形测试（含四次截图保存检查）**196 项检查，0 失败**。已查看四张渲染截图，中文、按钮、弹窗和结算均正常显示。
+两组图形测试均覆盖：原 30 节点状态推进、每个节点跳天、模态取消/关闭/Esc、最后一天、最终结算和重开；工作台鼠标选择、禁用按钮、空白点击、手记/菜单/法则、详情滚动、F3；1920×1080 与 1280×720 之间实时缩放时区域仍在窗口内且状态保持。
 
-| 行为 | 验证内容 | 结果 |
-| --- | --- | --- |
-| 正常推进 | 全部 30 个节点的天数、时间、进度 | 通过 |
-| 确认跳天 | 第 1～9 天每个时间节点跳至次日上午；UI 原生确认按钮路径 | 通过 |
-| 取消跳天 | 原生取消按钮、窗口关闭通知及从宿主视口派发 Esc | 通过 |
-| 模态限制 | 弹窗打开时按钮禁用、处理函数拒绝推进 | 通过 |
-| 跨天 | 第 1～9 天晚上推进到第二天上午 | 通过 |
-| 第 10 天 | 跳天禁用、提示可见、状态层拒绝跳天 | 通过 |
-| 结算边界 | 第 10 天晚上保留游戏界面，再推进才结算，永不产生第 11 天 | 通过 |
-| 重新开始 | 恢复第 1 天上午、1 / 30、按钮和主界面 | 通过 |
+本次两组图形测试各 **273 项检查、0 失败**，实际查看了两种尺寸的主界面、人物详情与 DEBUG 截图。本机 macOS / Godot 4.7.2 验证，其他操作系统和 Godot 版本尚未实际运行。中文依赖系统已有的中文字体，无外部美术素材。
 
-测试使用实际场景、按钮信号及原生弹窗输入路径；不是对游戏逻辑的另一份模拟实现。未在其他操作系统或其他 Godot 4 版本逐一执行测试。中文使用系统字体（苹方、微软雅黑或 Noto CJK），系统需具有中文字体。
+## 版本与回退
 
-环境记录：本机 Godot 4.7.2 在一次 `--headless --editor --import --quit` 导入完成后的编辑器退出阶段报告了引擎内部线程退出崩溃。后续独立运行游戏、无图形测试和图形测试均正常完成，测试退出码均为 0；这份项目不需要使用上述编辑器批处理命令来运行。
-
-原生弹窗行为参考：[Godot AcceptDialog 文档](https://docs.godotengine.org/en/4.5/classes/class_acceptdialog.html)。
+- `v0.1`：原基础回合界面，标签保持不变。
+- 本次改造前的提交 `79c6b13` 包含新增 NPC PDF。
+- 阶段 1 在 `codex/workbench-layout` 分支完成；后续每阶段保留独立提交。
+- 要恢复时可要求“恢复到 v0.1，并保留当前新版”。恢复前先保存新版，再从旧版创建分支。
+- `taptap-v0.1.zip` 保留旧版，`taptap-stage1.zip` 为本阶段独立包。`.godot` 为可重新生成的缓存，不纳入 Git 或分发包。
