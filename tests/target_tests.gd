@@ -104,7 +104,7 @@ func test_ui(suite: SceneTree) -> void:
 	await suite.capture("remote-npc")
 	ui.select_target("craftsman")
 	main.get_node("%TalkAction").pressed.emit()
-	suite.check(main.get_node("%ActionHint").text.contains("手势"), "哑伯交流反馈不会使用普通长篇口述")
+	suite.check(main.get_node("%ActionDescription").text.contains("手势"), "哑伯交流反馈不会使用普通长篇口述")
 	# 详情内滚动后仍能真实点击可用行为；底部保持固定。
 	var footer_rect: Rect2 = main.get_node("%BottomPanel").get_global_rect()
 	main.get_node("%DetailsScroll").ensure_control_visible(main.get_node("%TalkAction"))
@@ -127,7 +127,7 @@ func test_ui(suite: SceneTree) -> void:
 	suite.check(ui.selected_id == "boundary", "不能直接选择未发现 ID")
 	suite.check(ui.knowledge.get_snapshot() == before, "全部详情和行为选择不获得情报或移动")
 	suite.check(main.state.get_progress() == before_progress, "查看和配置意图不改变原日期")
-	suite.check(main.get_node("%APLabel").text == "剩余 AP  — / 3" and main.get_node("%QueueAction").disabled, "不提前实现扣点与排程")
+	suite.check(main.get_node("%APLabel").text == "剩余 AP  3 / 3" and main.get_node("%QueueAction").disabled, "查看不占预算，未选行为不能排程")
 	# 列表滚动后四个人物均可选，条目不是只对第一个人物有效。
 	var list: VBoxContainer = main.get_node("%PeopleList")
 	var people_scroll: ScrollContainer = list.get_parent().get_parent()

@@ -3,5 +3,14 @@
   "current_location_id": "",
   "objective": "尚无已接入的目标记录。",
   "known_targets": {},
-  "known_routes": {}
+  "known_routes": {},
+  "acquired_ideas": [],
+  "idea_beliefs": {},
+  "group_access": {
+    "unlocked": false,
+    "known_reason": "尚未得知可参与群体行动的组织条件。"
+  },
+  "planning_rules": {
+    "move_failure_ap_policy": "pending"
+  }
 }

@@ -1,6 +1,9 @@
 extends MarginContainer
 ## 选择与显示只消费已知资料投影，不执行移动、揭示事实或消耗 AP。
 
+signal profile_changed(preview: bool)
+var planning: Node
+
 const Knowledge = preload("res://scripts/target_knowledge.gd")
 const LAWS: Array[String] = ["大海从不存在。", "未经允许禁止使用特定物品。", "未经允许禁止跨越区域。"]
 const ACTION_NAMES := {"talk": "交谈", "investigate": "调查", "conceal": "隐匿", "move": "移动"}
@@ -32,12 +35,18 @@ func _ready() -> void:
 
 
 func set_development_preview(enabled: bool) -> void:
+	if planning != null and not planning.can_switch_profile():
+		%PreviewToggle.set_pressed_no_signal(knowledge.preview_enabled)
+		return
 	knowledge.set_preview(enabled)
 	%PreviewToggle.set_pressed_no_signal(enabled)
 	refresh_known_targets()
+	profile_changed.emit(enabled)
 
 
 func set_known_world(definitions: Array, snapshot: Dictionary) -> bool:
+	if planning != null and planning.is_locked():
+		return false
 	if not knowledge.set_live_data(definitions, snapshot):
 		return false
 	refresh_known_targets()
@@ -155,6 +164,8 @@ func select_target(target_id: String) -> void:
 	var entry: Dictionary = knowledge.target_view(target_id)
 	if entry.is_empty():
 		return
+	if planning != null:
+		planning.target_changed()
 	selected_id = target_id
 	selected_behavior = ""
 	%DetailsScroll.scroll_vertical = 0
@@ -184,6 +195,9 @@ func select_target(target_id: String) -> void:
 
 
 func _refresh_actions() -> void:
+	if planning != null:
+		planning.refresh_composer()
+		return
 	var options: Dictionary = knowledge.action_options(selected_id)
 	var lines: Array[String] = []
 	for action in _action_buttons:
@@ -200,11 +214,15 @@ func _refresh_actions() -> void:
 
 
 func _select_behavior(action: String) -> void:
+	if planning != null and planning.is_locked():
+		return
 	# 重新验证，阻止过期按钮事件在切换目标后保留不合法行为。
-	var options: Dictionary = knowledge.action_options(selected_id)
+	var options: Dictionary = planning.behavior_options() if planning != null else knowledge.action_options(selected_id)
 	if not options.has(action) or not options[action].eligible:
 		return
 	selected_behavior = action
+	if planning != null:
+		planning.behavior_changed()
 	_refresh_actions()
 
 
@@ -228,6 +246,12 @@ func _apply_responsive_layout() -> void:
 	if not is_node_ready():
 		return
 	var compact: bool = size.x < 1500
+	%PreviewNotice.visible = not compact
+	%PeopleHint.visible = not compact
+	%ObjectiveText.add_theme_font_size_override("font_size", 14 if compact else 20)
+	%PeopleList.get_parent().add_theme_constant_override("separation", 4 if compact else 12)
+	%SceneHint.visible = not compact
+	%MarkerTitle.visible = not compact
 	get_parent().theme.default_font_size = 18 if compact else 20
 	%LeftPanel.custom_minimum_size.x = 220 if compact else 240
 	%RightPanel.custom_minimum_size.x = 320 if compact else 340
@@ -243,7 +267,7 @@ func _show_notes() -> void:
 
 func _show_menu() -> void:
 	%InfoDialog.title = "菜单"
-	%InfoDialog.dialog_text = "当前为目标资料与基础导航阶段。\n行动排程、设置与存档功能尚未开放。"
+	%InfoDialog.dialog_text = "当前支持每日行动规划与整批提交。\n设置与存档功能尚未开放；开发预览与正式资料分离。"
 	%InfoDialog.popup_centered(Vector2i(680, 220))
 
 

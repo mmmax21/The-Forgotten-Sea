@@ -141,19 +141,20 @@ func known_route_reason(target_id: String) -> String:
 	return _snapshot().get("known_routes", {}).get(target_id, {}).get("reason", "尚未掌握可达路线")
 
 
-func action_options(target_id: String) -> Dictionary:
+func action_options(target_id: String, planned_location: String = "@actual") -> Dictionary:
 	var options := {}
 	for action in ACTIONS:
 		options[action] = {"eligible": false, "reason": "请先选择已知目标"}
 	var view := target_view(target_id)
 	if view.is_empty():
 		return options
+	var location := current_location_id() if planned_location == "@actual" else planned_location
 	var distance_reason := ""
 	if view.location_id.is_empty():
 		distance_reason = "目标当前位置未知，不能安排现场互动"
-	elif current_location_id().is_empty():
+	elif location.is_empty():
 		distance_reason = "玩家当前位置未接入，不能安排现场互动"
-	elif view.location_id != current_location_id():
+	elif view.location_id != location:
 		distance_reason = "目标在异地，需先到达该地点"
 	options.talk.reason = "交谈只适用于已认识的人物"
 	if view.kind == "person":
@@ -164,9 +165,23 @@ func action_options(target_id: String) -> Dictionary:
 	options.conceal.reason = "隐匿适用条件尚未配置"
 	options.move.reason = "移动仅对地点开放"
 	if view.kind == "place":
-		if target_id == current_location_id():
+		if target_id == location:
 			options.move.reason = "已经在此地"
 		else:
 			var route: Dictionary = _snapshot().get("known_routes", {}).get(target_id, {})
 			options.move = {"eligible": route.get("reachable", false) == true, "reason": known_route_reason(target_id)}
+			if route.has("from_ids") and location not in route.from_ids:
+				options.move = {"eligible": false, "reason": "从计划位置尚无已知可达路线"}
 	return options
+
+
+func apply_resolved_location(location_id: String) -> bool:
+	# 仅供整批结算完成后调用；规划与查看不能调用此入口。
+	if not is_known(location_id) or _definitions()[location_id].kind != "place":
+		return false
+	_snapshot()["current_location_id"] = location_id
+	return true
+
+
+func reset_preview() -> void:
+	_preview_snapshot = _read("res://preview_data/workbench.json")

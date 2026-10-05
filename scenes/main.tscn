@@ -1,8 +1,11 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
 [ext_resource type="Script" path="res://scripts/ui/workbench.gd" id="2_ui"]
+
+[ext_resource type="Script" path="res://scripts/ui/plan_slot.gd" id="3_slot"]
+[ext_resource type="Script" path="res://scripts/ui/planning_controller.gd" id="4_planning"]
 
 [sub_resource type="SystemFont" id="Font"]
 font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
@@ -343,6 +346,7 @@ layout_mode = 2
 columns = 3
 
 [node name="MarkerTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "已发现的物件与异常"
 theme_override_font_sizes/font_size = 16
@@ -508,13 +512,6 @@ disabled = true
 size_flags_horizontal = 3
 tooltip_text = "行动系统尚未开放"
 
-[node name="ActionAvailability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "请先选择已知目标"
-autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-
 [node name="Scale" type="HBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 layout_mode = 2
 
@@ -524,6 +521,7 @@ text = "规模"
 theme_override_font_sizes/font_size = 16
 
 [node name="PersonalScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+toggle_mode = true
 unique_name_in_owner = true
 layout_mode = 2
 text = "个人"
@@ -531,18 +529,42 @@ disabled = true
 size_flags_horizontal = 3
 
 [node name="GroupScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+toggle_mode = true
 unique_name_in_owner = true
 layout_mode = 2
 text = "群体"
 disabled = true
 size_flags_horizontal = 3
-tooltip_text = "需要组织条件；本阶段尚未接入"
+tooltip_text = "需要组织条件"
+
+[node name="ScaleHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
 
 [node name="CardParameter" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 layout_mode = 2
-text = "思想卡：可选 · 尚未接入"
+text = "思想卡（可选）"
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
+
+[node name="CardChoice" type="OptionButton" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+fit_to_longest_item = false
+
+[node name="ActionDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="ActionCost" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 14
 
 [node name="QueueAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
 unique_name_in_owner = true
@@ -550,6 +572,19 @@ layout_mode = 2
 text = "加入行动槽"
 disabled = true
 tooltip_text = "行动排程尚未开放"
+
+[node name="CancelReplace" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "取消替换"
+visible = false
+
+[node name="ActionAvailability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "请先选择已知目标"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
 
 [node name="BottomPanel" type="PanelContainer" parent="GameScreen/Layout"]
 unique_name_in_owner = true
@@ -563,79 +598,53 @@ layout_mode = 2
 
 [node name="CardsTitle" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
 layout_mode = 2
-text = "已获得的思想卡"
+text = "思想卡"
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
 
 [node name="CardsEmpty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "暂无已接入的卡牌"
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+
+[node name="IdeasRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlanStatus" type="Label" parent="GameScreen/Layout/BottomPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+max_lines_visible = 2
+theme_override_font_sizes/font_size = 14
 
 [node name="PlanRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 
 [node name="ActionSlot1" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+script = ExtResource("3_slot")
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Inset")
-
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1/Content"]
-layout_mode = 2
-text = "行动一"
-theme_override_font_sizes/font_size = 18
-
-[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot1/Content"]
-layout_mode = 2
-text = "未安排 · 尚未开放"
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
 
 [node name="ActionSlot2" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+script = ExtResource("3_slot")
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Inset")
-
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2/Content"]
-layout_mode = 2
-text = "行动二"
-theme_override_font_sizes/font_size = 18
-
-[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot2/Content"]
-layout_mode = 2
-text = "未安排 · 尚未开放"
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
 
 [node name="ActionSlot3" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
+script = ExtResource("3_slot")
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Inset")
-
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3/Content"]
-layout_mode = 2
-text = "行动三"
-theme_override_font_sizes/font_size = 18
-
-[node name="Empty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/ActionSlot3/Content"]
-layout_mode = 2
-text = "未安排 · 尚未开放"
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.51, 0.55, 0.56, 1)
 
 [node name="EndControls" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
 layout_mode = 2
@@ -718,8 +727,8 @@ theme_override_font_sizes/font_size = 16
 [node name="PreviewToggle" type="CheckButton" parent="DebugPanel/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "开发预览（隔离相识、发现与位置）"
-tooltip_text = "仅切换资料来源，不改变正式知识、日期或 AP"
+text = "开发预览（资料、日期、计划独立）"
+tooltip_text = "预览拥有独立日期和预算；已提交的计划完成前不能切换"
 
 [node name="TimeLabel" type="Label" parent="DebugPanel/Content"]
 unique_name_in_owner = true
@@ -775,3 +784,36 @@ dialog_hide_on_ok = false
 dialog_close_on_escape = true
 ok_button_text = "确定"
 cancel_button_text = "取消"
+
+[node name="SubmitConfirm" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "确认结束今日行动"
+exclusive = true
+theme = SubResource("Theme")
+dialog_hide_on_ok = false
+dialog_autowrap = true
+ok_button_text = "确定"
+cancel_button_text = "取消"
+
+[node name="NightDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "夜间结算"
+exclusive = true
+theme = SubResource("Theme")
+ok_button_text = "返回查看计划"
+
+[node name="Content" type="VBoxContainer" parent="NightDialog"]
+
+[node name="NightText" type="Label" parent="NightDialog/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(760, 0)
+autowrap_mode = 3
+
+[node name="NextDayButton" type="Button" parent="NightDialog/Content"]
+unique_name_in_owner = true
+text = "进入下一天"
+disabled = true
+
+[node name="PlanningController" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_planning")

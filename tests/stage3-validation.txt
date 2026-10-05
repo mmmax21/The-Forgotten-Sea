@@ -1,0 +1,18 @@
+2026-10-05 · Godot 4.7.2 · macOS · Compatibility / Apple M3 Max
+
+图形模式：
+--script tests/planning_tests.gd -- --small  (1280×720)
+PLANNING: 85 checks, 0 failures
+--script tests/planning_tests.gd             (1920×1080)
+PLANNING: 85 checks, 0 failures
+--script tests/run_tests.gd -- --small       (1280×720)
+RESULT: 328 checks, 0 failures
+--script tests/run_tests.gd                  (1920×1080)
+RESULT: 328 checks, 0 failures
+
+截图：previews/stage3-plan-{1280,1920}.png，stage3-composer-{1280,1920}.png
+覆盖：预算上限、重复思想、替换/删除释放、移动连续占位与原子删除、全量顺序校验、实际/计划位置隔离、未获得卡与未解锁群体禁用、重复提交、整批回执、失败待确认、每日用卡重置、正式/预览日历隔离、空计划确认/取消、完整10天与重开、真实指针选择/配置/加入/替换/删除、两尺寸边界。
+原回归：知识过滤与人物语义、地图和目标详情、点击空白、导航反馈、缩放、原时间推进/跨天、跳日确认/取消/关闭/Esc、第10天禁用、最终结算、重新开始。
+
+未验证：其他OS/引擎版本、未来正式行动效果解析器、剧情/存档接入。
+正式效果尚未定义，因此正式提交等待整批回执；预览模拟只用于生命周期验证。

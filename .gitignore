@@ -2,3 +2,5 @@
 *.tmp
 .DS_Store
 /taptap-*.zip
+
+/previews/*.import

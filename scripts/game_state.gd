@@ -58,3 +58,15 @@ func restart() -> void:
 	_position = 0
 	_finished = false
 	changed.emit()
+
+
+func begin_night() -> void:
+	if _finished:
+		return
+	_position = (get_day() - 1) * SLOTS_PER_DAY + 2
+	changed.emit()
+
+
+func finish_day() -> void:
+	if not _finished and get_slot() == 2:
+		advance()

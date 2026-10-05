@@ -109,11 +109,23 @@
   "known_routes": {
     "ruins": {
       "reachable": true,
-      "reason": "已知小路可到达遗迹外侧。"
+      "reason": "已知小路可到达遗迹外侧。",
+      "ap_cost": 2,
+      "from_ids": [
+        "town"
+      ]
     },
     "boundary": {
       "reachable": false,
       "reason": "第三法则仍在生效，当前无法跨越。"
+    },
+    "town": {
+      "reachable": true,
+      "reason": "已知归路可返回镇区。",
+      "ap_cost": 3,
+      "from_ids": [
+        "ruins"
+      ]
     }
   },
   "note": "仅供开发预览：已发现事实、人物位置、可达性均为隔离快照；不作为正式剧情或存档。",
@@ -390,5 +402,54 @@
         }
       ]
     }
-  ]
+  ],
+  "acquired_ideas": [
+    "sea",
+    "boundary_idea"
+  ],
+  "idea_beliefs": {
+    "town": {
+      "sea": "微弱",
+      "boundary_idea": "零散"
+    },
+    "ruins": {
+      "sea": "渐强",
+      "boundary_idea": "微弱"
+    }
+  },
+  "group_access": {
+    "unlocked": false,
+    "known_reason": "尚未建立可共同参与行动的组织关系。"
+  },
+  "planning_rules": {
+    "preview_only": true,
+    "move_failure_ap_policy": "pending",
+    "conceal_rules": {},
+    "descriptions": [
+      {
+        "target_id": "widow",
+        "behavior": "talk",
+        "scale": "personal",
+        "idea_id": "",
+        "required_fact_ids": [
+          "w_cooperation"
+        ],
+        "text": "了解她目前的生活处境，可能获得人物线索。"
+      },
+      {
+        "target_id": "widow",
+        "behavior": "talk",
+        "scale": "personal",
+        "idea_id": "sea",
+        "required_fact_ids": [
+          "w_identity"
+        ],
+        "text": "围绕海与丈夫留下的记录，尝试争取她的帮助。"
+      }
+    ]
+  },
+  "preview_settlement": {
+    "enabled": true,
+    "movement_outcome": "success"
+  }
 }

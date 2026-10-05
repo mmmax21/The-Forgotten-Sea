@@ -1,0 +1,20 @@
+{
+  "ideas": [
+    {
+      "id": "sea",
+      "name": "海确实存在",
+      "allowed_behaviors": [
+        "talk",
+        "investigate"
+      ]
+    },
+    {
+      "id": "boundary_idea",
+      "name": "区域边界并非不可跨越",
+      "allowed_behaviors": [
+        "talk",
+        "investigate"
+      ]
+    }
+  ]
+}

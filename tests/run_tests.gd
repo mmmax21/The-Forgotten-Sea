@@ -208,12 +208,13 @@ func _test_navigation() -> void:
 	_click_at(main.get_node("%ScenePlaceholder").get_global_rect().position + Vector2(8, 8))
 	await process_frame
 	check(ui.selected_id == "shell" and main.state.get_progress() == before, "空白区域不改变目标或时间")
-	for name in ["TalkAction", "ConcealAction", "MoveAction", "PersonalScale", "GroupScale", "QueueAction", "EndDayButton"]:
+	for name in ["TalkAction", "ConcealAction", "MoveAction", "PersonalScale", "GroupScale", "QueueAction"]:
 		var control: Button = main.get_node("%" + name)
 		check(control.disabled, "未接入功能明确禁用：" + name)
-	check(main.get_node("%APLabel").text == "剩余 AP  — / 3", "未伪造 AP 状态")
+	check(main.get_node("%APLabel").text == "剩余 AP  3 / 3", "初始每日预算为 3 AP")
 	_click_control(main.get_node("%EndDayButton"))
-	check(main.state.get_progress() == before, "禁用结束行动不推进时间")
+	check(main.state.get_progress() == before, "未确认结束行动不推进时间")
+	main.get_node("%SubmitConfirm").hide()
 	for name in ["NotesButton", "MenuButton", "Law1", "Law2", "Law3"]:
 		_click_control(main.get_node("%" + name))
 		await process_frame

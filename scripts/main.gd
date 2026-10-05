@@ -2,6 +2,8 @@ extends Control
 
 const GameState = preload("res://scripts/game_state.gd")
 var state := GameState.new()
+var live_state = state
+var preview_state := GameState.new()
 
 @onready var game_screen: MarginContainer = %GameScreen
 @onready var settlement_screen: CenterContainer = %SettlementScreen
@@ -19,6 +21,10 @@ var state := GameState.new()
 
 
 func _ready() -> void:
+	state = preview_state if game_screen.knowledge.preview_enabled else live_state
+	game_screen.profile_changed.connect(_switch_profile)
+	%PlanningController.night_started.connect(func(): state.begin_night())
+	%PlanningController.next_day_requested.connect(_finish_planned_day)
 	state.changed.connect(_refresh)
 	skip_button.pressed.connect(_request_skip)
 	next_button.pressed.connect(_advance)
@@ -32,6 +38,7 @@ func _ready() -> void:
 
 
 func _refresh() -> void:
+	%PlanningController.sync_day(state.get_day())
 	var finished: bool = state.is_finished()
 	game_screen.visible = not finished
 	settlement_screen.visible = finished
@@ -39,7 +46,7 @@ func _refresh() -> void:
 	time_label.text = "当前时间：%s" % state.get_slot_name()
 	# 仅映射旧时间节点的显示，不修改上午/下午/晚上的状态规则。
 	phase_label.text = "阶段：夜间结算" if state.get_slot() == 2 else "阶段：白天规划"
-	phase_label.tooltip_text = "按原有时间节点显示；行动规划与夜间演算尚未接入。"
+	phase_label.tooltip_text = "整份计划在夜间统一交接，期间不能修改。"
 	progress_label.text = "时间进度 %d / %d" % [state.get_progress(), GameState.TOTAL_SLOTS]
 	progress_bar.value = state.get_progress()
 	last_day_hint.visible = state.get_day() == GameState.TOTAL_DAYS
@@ -50,7 +57,7 @@ func _refresh() -> void:
 
 
 func _refresh_buttons() -> void:
-	var locked: bool = skip_dialog.visible or state.is_finished()
+	var locked: bool = skip_dialog.visible or state.is_finished() or not %PlanningController.can_debug_advance()
 	skip_button.disabled = locked or not state.can_skip_day()
 	next_button.disabled = locked
 	skip_button.tooltip_text = "已是最后一天" if state.get_day() == GameState.TOTAL_DAYS else "跳过当天剩余时间"
@@ -59,13 +66,13 @@ func _refresh_buttons() -> void:
 
 
 func _advance() -> void:
-	if not debug_panel.visible or skip_dialog.visible or state.is_finished():
+	if not debug_panel.visible or skip_dialog.visible or state.is_finished() or not %PlanningController.can_debug_advance():
 		return
 	state.advance()
 
 
 func _request_skip() -> void:
-	if not debug_panel.visible or skip_dialog.visible or not state.can_skip_day():
+	if not debug_panel.visible or skip_dialog.visible or not state.can_skip_day() or not %PlanningController.can_debug_advance():
 		return
 	skip_dialog.dialog_text = "确定跳过当天剩余时间，进入第 %d 天上午吗？" % (state.get_day() + 1)
 	skip_dialog.popup_centered(Vector2i(820, 240))
@@ -84,7 +91,10 @@ func _confirm_skip() -> void:
 func _restart() -> void:
 	skip_dialog.hide()
 	debug_panel.hide()
-	game_screen.reset_navigation()
+	%PlanningController.restart_plan()
+	if game_screen.knowledge.preview_enabled:
+		game_screen.knowledge.reset_preview()
+	game_screen.refresh_known_targets()
 	state.restart()
 	%NotesButton.grab_focus()
 
@@ -101,10 +111,22 @@ func _on_debug_input(event: InputEvent) -> void:
 
 
 func _toggle_debug() -> void:
-	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible:
+	if state.is_finished() or skip_dialog.visible or %InfoDialog.visible or %SubmitConfirm.visible or %NightDialog.visible:
 		return
 	if debug_panel.visible:
 		debug_panel.hide()
 	else:
 		debug_panel.popup_centered(Vector2i(620, 300))
 		_refresh_buttons()
+
+
+func _switch_profile(preview: bool) -> void:
+	state.changed.disconnect(_refresh)
+	state = preview_state if preview else live_state
+	state.changed.connect(_refresh)
+	_refresh()
+
+
+func _finish_planned_day() -> void:
+	if %PlanningController.plan.is_resolved() and not state.is_finished():
+		state.finish_day()
