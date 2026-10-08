@@ -1,0 +1,3 @@
+res://scenes/main.tscn
+res://scenes/ui/journal_book.tscn
+res://scripts/ui/journal_book.gd

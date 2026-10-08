@@ -117,10 +117,12 @@ func _run():
 		check(bounds.encloses(node.get_global_rect()),"summary layout: " + str(node.name))
 	await click(summary.records)
 	check(n.journal.visible,"summary opens current run records")
-	n.journal.category = 3
-	n.journal.render()
-	var old = n.journal.entries.filter(func(item): return item.id.begins_with("night:"))[0]
-	for i in range(8): n.journal._read(old)
+	n.journal.show_day(1)
+	var has_night := false
+	for page in n.journal.pages:
+		if page.entries.any(func(item): return str(item.id).begins_with("night:")):
+			has_night = true
+	check(has_night,"book keeps nightly records on their own days")
 	check(ui.knowledge.get_snapshot()==world and c.settlement.history().size()==10,"old records do not recalculate")
 	n.journal.hide()
 	await click(summary.menu_button)
@@ -133,7 +135,7 @@ func _run():
 	check(c.plan.entries().is_empty() and c.plan.remaining_ap()==3 and c.plan.obtained_ideas().is_empty(),"restart clears actions and cards")
 	check(ui.knowledge.get_snapshot()==baseline,"restart clears NPC temporary state, discoveries and events")
 	check(c.settlement.history().is_empty() and c.settlement.receipt(old_token).is_empty(),"restart drops old receipts and jobs")
-	check(n.journal.entries.is_empty() and n.journal.seen.is_empty(),"restart clears journal and read state")
+	check(n.journal.seen.is_empty() and n.journal.pages.size()==1 and n.journal.pages[0].entries.is_empty(),"restart clears journal and read state")
 	# Isolated preview projection and stress data. Never commit these to formal state.
 	var k = preload("res://scripts/target_knowledge.gd").new()
 	k.set_preview(true)

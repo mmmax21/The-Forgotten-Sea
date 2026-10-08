@@ -12,6 +12,15 @@ func frames():
 	for i in range(8): await process_frame
 func draft(target: String, action: String) -> Dictionary:
 	return {"target_id":target,"behavior":action,"scale":"personal","idea_id":""}
+func _page_text(journal, day: int) -> String:
+	for page in journal.pages:
+		if int(page.day) != day:
+			continue
+		var parts: PackedStringArray = []
+		for entry in page.entries:
+			parts.append(str(entry.title) + "\n" + str(entry.text))
+		return "\n".join(parts)
+	return ""
 func finish_event(n):
 	while n.overlay.page < n.overlay.event.pages.size() - 1:
 		n.overlay.next.pressed.emit()
@@ -48,7 +57,7 @@ func _run():
 	check(main.state.get_day()==2 and n.overlay.visible and c.plan.event_blocked,"day two mandatory before planning")
 	await finish_event(n)
 	check(ui.knowledge.target_view("ruin_record").has_lead,"day two opens actual lead")
-	check(not str(n.journal.entries).contains("辨认出"),"no uninvestigated answer in notes")
+	check(not str(n.journal.pages).contains("辨认出"),"no uninvestigated answer in notes")
 	check(c.plan.put(draft("ruin_record","investigate")).valid,"ruin investigation available")
 	check(c.plan.put(draft("unknown_object","investigate")).valid,"object investigation available")
 	c.plan.submit()
@@ -56,14 +65,16 @@ func _run():
 	check(c.plan.is_resolved(),"both discoveries settle once")
 	check(ui.knowledge.get_snapshot().journal_entries.record.text.contains("玛瑞斯"),"actual investigation discovers Maris")
 	check(not ui.knowledge.target_view("ruin_record").has_lead,"completed investigation not indefinitely farmable")
+	var day_two := _page_text(n.journal, 2)
+	check(day_two.contains("待查") and day_two.contains("辨认出"),"day two page keeps the morning lead and the night discovery")
+	check(_page_text(n.journal, 1).contains("老师与我"),"day one page keeps the opening record")
 	before = ui.knowledge.get_snapshot()
+	check(n.journal.unread(),"new records marked")
 	for i in range(3):
 		ui._show_notes()
-		n.journal.help.pressed.emit()
 		n.journal.hide()
-	check(ui.knowledge.get_snapshot()==before and main.state.get_day()==2,"notes and help read only")
-	check(n.journal.unread(),"new records marked")
-	for entry in n.journal.entries: n.journal._read(entry)
+	check(ui.knowledge.get_snapshot()==before and main.state.get_day()==2,"notes read only")
+	n.journal.show_day(1)
 	check(not n.journal.unread(),"read records cleared")
 	n.refresh_journal()
 	check(not n.journal.unread(),"refresh does not restore read badges")
@@ -113,12 +124,10 @@ func _run():
 	await finish_event(n)
 	n.open_journal()
 	await frames()
-	check(n.journal.get_child(0).get_global_rect().end.x <= root.size.x,"drawer stays inside width")
-	check(n.journal.get_child(0).get_global_rect().end.y <= root.size.y,"drawer stays inside height")
+	var book: Control = n.journal.get_node("Book")
+	check(book.get_global_rect().end.x <= root.size.x,"book stays inside width")
+	check(book.get_global_rect().end.y <= root.size.y,"book stays inside height")
 	if "--capture" in OS.get_cmdline_user_args():
-		n.journal.category = 2
-		n.journal.render()
-		n.journal._read(n.journal.entries[0])
 		await process_frame
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://previews/stage6-journal.png")

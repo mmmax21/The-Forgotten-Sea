@@ -193,9 +193,8 @@ func test_ui():
 		review.close_review()
 		c._end_day()
 		ui._show_notes()
-	check(ui.narrative.journal.visible,"notes drawer opens read-only history")
-	ui.narrative.journal.category = 3
-	ui.narrative.journal.render()
+	check(ui.narrative.journal.visible,"notes book opens read-only history")
+	ui.narrative.journal.show_day(1)
 	check(main.state.get_day()==1 and calls.size()==8 and ui.knowledge.get_snapshot()==saved,"history reopen cannot recalculate or advance")
 	review.close_review()
 	c._end_day()
@@ -210,7 +209,11 @@ func test_ui():
 	check(main.state.get_day()==2 and ui.knowledge.get_snapshot().test_morning_done and not c.plan.is_locked(),"apply mandatory events then open new day")
 	check(morning_calls==1 and c.plan.remaining_ap()==3,"one morning, new AP budget")
 	ui._show_notes()
-	check(ui.narrative.journal.entries.any(func(e): return e.category == 3 and e.title.contains("1")) and main.state.get_day()==2,"history date distinct from current date")
+	var day_one := ""
+	for page in ui.narrative.journal.pages:
+		if int(page.day) == 1:
+			day_one = str(page.entries)
+	check(day_one.contains("夜间回顾") and day_one.contains("1") and main.state.get_day()==2,"history date distinct from current date")
 	review.close_review()
 	main._restart()
 	check(c.settlement.history().is_empty(),"restart clears current run history")

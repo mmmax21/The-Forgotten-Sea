@@ -220,7 +220,7 @@ func _test_navigation() -> void:
 		_click_control(main.get_node("%" + name))
 		await process_frame
 		if name == "NotesButton":
-			check(ui.narrative.journal.visible, "notes drawer opens")
+			check(ui.narrative.journal.visible, "notes book opens")
 			ui.narrative.journal.hide()
 			continue
 		var dialog: AcceptDialog = main.get_node("%InfoDialog")

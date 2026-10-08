@@ -1,150 +1,137 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene format=3 uid="uid://dvbx2x07ehs04"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
-
-[ext_resource type="Script" path="res://scripts/ui/workbench.gd" id="2_ui"]
-
-[ext_resource type="Script" path="res://scripts/ui/plan_slot.gd" id="3_slot"]
-[ext_resource type="Script" path="res://scripts/ui/planning_controller.gd" id="4_planning"]
-
-[ext_resource type="Script" path="res://scripts/ui/night_review.gd" id="5_review"]
-
-[ext_resource type="Script" path="res://scripts/ui/law_card.gd" id="6_law"]
-[ext_resource type="Script" path="res://scripts/ui/canal_scene.gd" id="7_canal"]
-[ext_resource type="Script" path="res://scripts/ui/feedback_controller.gd" id="8_feedback"]
-
-[ext_resource type="Script" path="res://scripts/ui/demo_summary_screen.gd" id="9_summary"]
-
-[sub_resource type="SystemFont" id="Font"]
-font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
-
-[sub_resource type="StyleBoxFlat" id="Panel"]
-bg_color = Color(0.14, 0.16, 0.18, 1)
-content_margin_left = 16.0
-content_margin_top = 16.0
-content_margin_right = 16.0
-content_margin_bottom = 16.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-
-[sub_resource type="StyleBoxFlat" id="Inset"]
-bg_color = Color(0.10, 0.12, 0.14, 1)
-content_margin_left = 12.0
-content_margin_top = 12.0
-content_margin_right = 12.0
-content_margin_bottom = 12.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-
-[sub_resource type="StyleBoxFlat" id="Normal"]
-bg_color = Color(0.18, 0.21, 0.23, 1)
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-
-[sub_resource type="StyleBoxFlat" id="Hover"]
-bg_color = Color(0.22, 0.28, 0.29, 1)
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-
-[sub_resource type="StyleBoxFlat" id="Pressed"]
-bg_color = Color(0.14, 0.29, 0.29, 1)
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.35, 0.63, 0.60, 1)
-
+[ext_resource type="Script" uid="uid://bvsb3ni8vq41i" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://dcdr7emb3tdjd" path="res://scripts/ui/workbench.gd" id="2_ui"]
+[ext_resource type="Script" uid="uid://de57p5ypfo7yx" path="res://scripts/ui/plan_slot.gd" id="3_slot"]
+[ext_resource type="Script" uid="uid://vpf5lata304v" path="res://scripts/ui/planning_controller.gd" id="4_planning"]
+[ext_resource type="Script" uid="uid://fkti4bu3epeq" path="res://scripts/ui/night_review.gd" id="5_review"]
+[ext_resource type="Script" uid="uid://b3a0kcskyeubq" path="res://scripts/ui/law_card.gd" id="6_law"]
+[ext_resource type="Script" uid="uid://df6cuyli7ng5c" path="res://scripts/ui/canal_scene.gd" id="7_canal"]
+[ext_resource type="Script" uid="uid://6bcfg03c8xoy" path="res://scripts/ui/feedback_controller.gd" id="8_feedback"]
+[ext_resource type="Script" uid="uid://cs60lw6cka815" path="res://scripts/ui/demo_summary_screen.gd" id="9_summary"]
 
 [sub_resource type="StyleBoxFlat" id="Disabled"]
-bg_color = Color(0.13, 0.15, 0.17, 1)
 content_margin_left = 12.0
 content_margin_top = 8.0
 content_margin_right = 12.0
 content_margin_bottom = 8.0
+bg_color = Color(0.13, 0.15, 0.17, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
-corner_radius_bottom_left = 6
 corner_radius_bottom_right = 6
-
+corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="Focus"]
-bg_color = Color(0, 0, 0, 0)
 content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
+bg_color = Color(0, 0, 0, 0)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.48, 0.75, 0.69, 1)
-
-
-[sub_resource type="StyleBoxFlat" id="LawStyle"]
-bg_color = Color(0.20, 0.19, 0.19, 1)
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
 corner_radius_top_left = 6
 corner_radius_top_right = 6
-corner_radius_bottom_left = 6
 corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="Hover"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.22, 0.28, 0.29, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="Normal"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.18, 0.21, 0.23, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.14, 0.29, 0.29, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.63, 0.6, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.14, 0.16, 0.18, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="SystemFont" id="Font"]
+font_names = PackedStringArray("PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif")
+subpixel_positioning = 0
 
 [sub_resource type="Theme" id="Theme"]
 default_font = SubResource("Font")
 default_font_size = 20
-Label/colors/font_color = Color(0.89, 0.88, 0.83, 1)
 Button/colors/font_color = Color(0.89, 0.88, 0.83, 1)
-Button/colors/font_hover_color = Color(1, 0.98, 0.91, 1)
-Button/colors/font_pressed_color = Color(0.70, 0.91, 0.83, 1)
 Button/colors/font_disabled_color = Color(0.43, 0.47, 0.48, 1)
-Button/styles/normal = SubResource("Normal")
-Button/styles/hover = SubResource("Hover")
-Button/styles/pressed = SubResource("Pressed")
+Button/colors/font_hover_color = Color(1, 0.98, 0.91, 1)
+Button/colors/font_pressed_color = Color(0.7, 0.91, 0.83, 1)
 Button/styles/disabled = SubResource("Disabled")
 Button/styles/focus = SubResource("Focus")
-PanelContainer/styles/panel = SubResource("Panel")
-VBoxContainer/constants/separation = 12
-HBoxContainer/constants/separation = 16
+Button/styles/hover = SubResource("Hover")
+Button/styles/normal = SubResource("Normal")
+Button/styles/pressed = SubResource("Pressed")
 GridContainer/constants/h_separation = 10
 GridContainer/constants/v_separation = 10
+HBoxContainer/constants/separation = 16
+Label/colors/font_color = Color(0.89, 0.88, 0.83, 1)
+PanelContainer/styles/panel = SubResource("Panel")
+VBoxContainer/constants/separation = 12
 
+[sub_resource type="StyleBoxFlat" id="LawStyle"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.2, 0.19, 0.19, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
-[node name="Main" type="Control"]
+[sub_resource type="StyleBoxFlat" id="Inset"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.1, 0.12, 0.14, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="Main" type="Control" unique_id=958597619]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -154,7 +141,7 @@ grow_vertical = 2
 theme = SubResource("Theme")
 script = ExtResource("1_main")
 
-[node name="GameScreen" type="MarginContainer" parent="."]
+[node name="GameScreen" type="MarginContainer" parent="." unique_id=1332128439]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -164,662 +151,656 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_ui")
 
-[node name="Layout" type="VBoxContainer" parent="GameScreen"]
+[node name="Layout" type="VBoxContainer" parent="GameScreen" unique_id=364170498]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TopBar" type="HBoxContainer" parent="GameScreen/Layout"]
+[node name="TopBar" type="HBoxContainer" parent="GameScreen/Layout" unique_id=117926273]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
 
-[node name="DayLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+[node name="DayLabel" type="Label" parent="GameScreen/Layout/TopBar" unique_id=1667960371]
 unique_name_in_owner = true
 layout_mode = 2
-text = "第 1 天 / 共 10 天"
 theme_override_font_sizes/font_size = 24
+text = "第 1 天 / 共 10 天"
 
-[node name="PhaseLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+[node name="PhaseLabel" type="Label" parent="GameScreen/Layout/TopBar" unique_id=947767005]
 unique_name_in_owner = true
 layout_mode = 2
-text = "阶段：白天规划"
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+text = "阶段：白天规划"
 
-[node name="LocationLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+[node name="LocationLabel" type="Label" parent="GameScreen/Layout/TopBar" unique_id=1105388038]
 unique_name_in_owner = true
 layout_mode = 2
 text = "地区：未载入"
 
-[node name="AlertLabel" type="Label" parent="GameScreen/Layout/TopBar"]
+[node name="AlertLabel" type="Label" parent="GameScreen/Layout/TopBar" unique_id=351437722]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.61, 0.59, 1)
 text = "警戒：未接入"
-theme_override_colors/font_color = Color(0.70, 0.61, 0.59, 1)
 
-[node name="FlexibleSpace" type="Control" parent="GameScreen/Layout/TopBar"]
+[node name="FlexibleSpace" type="Control" parent="GameScreen/Layout/TopBar" unique_id=635867446]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="NotesButton" type="Button" parent="GameScreen/Layout/TopBar"]
+[node name="NotesButton" type="Button" parent="GameScreen/Layout/TopBar" unique_id=285774738]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 0)
 layout_mode = 2
 text = "手记"
-disabled = false
-custom_minimum_size = Vector2(76, 0)
 
-[node name="MenuButton" type="Button" parent="GameScreen/Layout/TopBar"]
+[node name="MenuButton" type="Button" parent="GameScreen/Layout/TopBar" unique_id=1952493105]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 0)
 layout_mode = 2
 text = "菜单"
-disabled = false
-custom_minimum_size = Vector2(76, 0)
 
-[node name="LawBar" type="HBoxContainer" parent="GameScreen/Layout"]
+[node name="LawBar" type="HBoxContainer" parent="GameScreen/Layout" unique_id=1987781187]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
 
-[node name="Law1" type="Button" parent="GameScreen/Layout/LawBar"]
-script = ExtResource("6_law")
+[node name="Law1" type="Button" parent="GameScreen/Layout/LawBar" unique_id=1986734380]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("LawStyle")
 text = "01   大海从不存在"
-disabled = false
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("LawStyle")
-
-[node name="Law2" type="Button" parent="GameScreen/Layout/LawBar"]
 script = ExtResource("6_law")
+
+[node name="Law2" type="Button" parent="GameScreen/Layout/LawBar" unique_id=563248292]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("LawStyle")
 text = "02   特定物品受限"
-disabled = false
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("LawStyle")
-
-[node name="Law3" type="Button" parent="GameScreen/Layout/LawBar"]
 script = ExtResource("6_law")
+
+[node name="Law3" type="Button" parent="GameScreen/Layout/LawBar" unique_id=998917119]
 unique_name_in_owner = true
 layout_mode = 2
-text = "03   未经允许禁止跨区"
-disabled = false
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("LawStyle")
+text = "03   未经允许禁止跨区"
+script = ExtResource("6_law")
 
-[node name="Body" type="HBoxContainer" parent="GameScreen/Layout"]
+[node name="Body" type="HBoxContainer" parent="GameScreen/Layout" unique_id=1683990088]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="LeftPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
+[node name="LeftPanel" type="PanelContainer" parent="GameScreen/Layout/Body" unique_id=1447789842]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
 
-[node name="Scroll" type="ScrollContainer" parent="GameScreen/Layout/Body/LeftPanel"]
+[node name="Scroll" type="ScrollContainer" parent="GameScreen/Layout/Body/LeftPanel" unique_id=1672851596]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll"]
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll" unique_id=2074644173]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GoalTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="GoalTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=199356637]
 layout_mode = 2
-text = "当前目标"
 theme_override_font_sizes/font_size = 22
+text = "当前目标"
 
-[node name="PreviewNotice" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="PreviewNotice" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1931119247]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.51, 0.67, 0.65, 1)
+theme_override_font_sizes/font_size = 16
 text = "导航预览 · 非任务记录"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.51, 0.67, 0.65, 1)
 
-[node name="ObjectiveText" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="ObjectiveText" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1899032286]
 unique_name_in_owner = true
 layout_mode = 2
 text = "暂无目标"
 autowrap_mode = 3
 
-[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1389936968]
 layout_mode = 2
 
-[node name="PeopleTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="PeopleTitle" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1768059414]
 layout_mode = 2
-text = "已认识人物"
 theme_override_font_sizes/font_size = 22
+text = "已认识人物"
 
-[node name="PeopleHint" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="PeopleHint" type="Label" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1377332881]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+theme_override_font_sizes/font_size = 16
 text = "示例条目，尚未接入相识记录"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
 
-[node name="PeopleList" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content"]
+[node name="PeopleList" type="VBoxContainer" parent="GameScreen/Layout/Body/LeftPanel/Scroll/Content" unique_id=1723990427]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="CenterPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
+[node name="CenterPanel" type="PanelContainer" parent="GameScreen/Layout/Body" unique_id=1937806270]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/CenterPanel"]
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/CenterPanel" unique_id=1160814553]
 layout_mode = 2
 
-[node name="RegionTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="RegionTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=1060546969]
 unique_name_in_owner = true
 layout_mode = 2
-text = "地区场景 · 未载入"
 theme_override_font_sizes/font_size = 22
+text = "地区场景 · 未载入"
 
-[node name="ScenePlaceholder" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="ScenePlaceholder" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=1900280207]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("Inset")
 
-[node name="SceneCanvas" type="Control" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder"]
+[node name="SceneCanvas" type="Control" parent="GameScreen/Layout/Body/CenterPanel/Content/ScenePlaceholder" unique_id=387077623]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("7_canal")
 
-[node name="SceneHint" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="SceneHint" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=1875778108]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+theme_override_font_sizes/font_size = 16
 text = "选择下方节点查看详情，不执行移动。"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
 
-[node name="PlaceNodes" type="GridContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="PlaceNodes" type="GridContainer" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=1206463183]
 unique_name_in_owner = true
 layout_mode = 2
 columns = 3
 
-[node name="MarkerTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="MarkerTitle" type="Label" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=1120862870]
 unique_name_in_owner = true
 layout_mode = 2
-text = "已发现的物件与异常"
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+theme_override_font_sizes/font_size = 16
+text = "已发现的物件与异常"
 
-[node name="MarkerNodes" type="HBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content"]
+[node name="MarkerNodes" type="HBoxContainer" parent="GameScreen/Layout/Body/CenterPanel/Content" unique_id=12774525]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="NightReview" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel"]
+[node name="NightReview" type="PanelContainer" parent="GameScreen/Layout/Body/CenterPanel" unique_id=415430297]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-script = ExtResource("5_review")
 theme_override_styles/panel = SubResource("Inset")
+script = ExtResource("5_review")
 
-[node name="RightPanel" type="PanelContainer" parent="GameScreen/Layout/Body"]
+[node name="RightPanel" type="PanelContainer" parent="GameScreen/Layout/Body" unique_id=204928190]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
 
-[node name="DetailsScroll" type="ScrollContainer" parent="GameScreen/Layout/Body/RightPanel"]
+[node name="DetailsScroll" type="ScrollContainer" parent="GameScreen/Layout/Body/RightPanel" unique_id=957632656]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll"]
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll" unique_id=1313028151]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TargetKind" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetKind" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1748102256]
 unique_name_in_owner = true
 layout_mode = 2
-text = "目标详情"
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+theme_override_font_sizes/font_size = 16
+text = "目标详情"
 
-[node name="TargetTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=870603568]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "尚未选择目标"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 24
 
-[node name="TargetLocation" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetLocation" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1462044527]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "当前位置未知"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="TargetSummary" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetSummary" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=198758986]
 unique_name_in_owner = true
 layout_mode = 2
 text = "从人物列表或地区节点选择。"
 autowrap_mode = 3
 
-[node name="TargetDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=603821062]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.69, 0.69, 1)
+theme_override_font_sizes/font_size = 16
 text = "选择仅用于查看，不会执行行动。"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.66, 0.69, 0.69, 1)
 
-[node name="TargetPortrait" type="PanelContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="TargetPortrait" type="PanelContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=782456177]
 unique_name_in_owner = true
-layout_mode = 2
 visible = false
 custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
 theme_override_styles/panel = SubResource("Inset")
 
-[node name="PortraitText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/TargetPortrait"]
+[node name="PortraitText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/TargetPortrait" unique_id=1643135957]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "立绘占位"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="RelationshipStatus" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="RelationshipStatus" type="VBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1955854281]
 unique_name_in_owner = true
-layout_mode = 2
 visible = false
+layout_mode = 2
 
-[node name="AttitudeText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+[node name="AttitudeText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus" unique_id=1887889097]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "对玩家的已知态度"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="BeliefText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+[node name="BeliefText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus" unique_id=2055561768]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "对海的已知看法"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="CooperationText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus"]
+[node name="CooperationText" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/RelationshipStatus" unique_id=912125393]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "当前合作范围"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="KnownIssues" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="KnownIssues" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1340365362]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "已发现的问题或线索"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="Reachability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="Reachability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=787031333]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "可达性未知"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="Separator" type="HSeparator" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1837001192]
 layout_mode = 2
 
-[node name="ActionTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ActionTitle" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1819133110]
 layout_mode = 2
-text = "行动配置"
 theme_override_font_sizes/font_size = 22
+text = "行动配置"
 
-[node name="ActionHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ActionHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1275202125]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.61, 0.59, 1)
+theme_override_font_sizes/font_size = 16
 text = "选择行为仅配置意图，不执行。"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.70, 0.61, 0.59, 1)
 
-[node name="Behaviors" type="GridContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="Behaviors" type="GridContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1328426438]
 unique_name_in_owner = true
 layout_mode = 2
 columns = 2
 
-[node name="TalkAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+[node name="TalkAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors" unique_id=1755055638]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+disabled = true
 text = "交谈"
-disabled = true
-size_flags_horizontal = 3
-tooltip_text = "行动系统尚未开放"
 
-[node name="InvestigateAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+[node name="InvestigateAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors" unique_id=994768470]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+disabled = true
 text = "调查"
-disabled = true
-size_flags_horizontal = 3
-tooltip_text = "行动系统尚未开放"
 
-[node name="ConcealAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+[node name="ConcealAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors" unique_id=1132286807]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+disabled = true
 text = "隐匿"
-disabled = true
-size_flags_horizontal = 3
-tooltip_text = "行动系统尚未开放"
 
-[node name="MoveAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors"]
+[node name="MoveAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Behaviors" unique_id=1833565075]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "行动系统尚未开放"
+disabled = true
 text = "移动"
-disabled = true
-size_flags_horizontal = 3
-tooltip_text = "行动系统尚未开放"
 
-[node name="Scale" type="HBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="Scale" type="HBoxContainer" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=496034770]
 layout_mode = 2
 
-[node name="ScaleLabel" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+[node name="ScaleLabel" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale" unique_id=1818710747]
 layout_mode = 2
-text = "规模"
 theme_override_font_sizes/font_size = 16
+text = "规模"
 
-[node name="PersonalScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
-toggle_mode = true
+[node name="PersonalScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale" unique_id=171169577]
 unique_name_in_owner = true
 layout_mode = 2
-text = "个人"
-disabled = true
 size_flags_horizontal = 3
-
-[node name="GroupScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale"]
+disabled = true
 toggle_mode = true
+text = "个人"
+
+[node name="GroupScale" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content/Scale" unique_id=109038939]
 unique_name_in_owner = true
 layout_mode = 2
-text = "群体"
-disabled = true
 size_flags_horizontal = 3
 tooltip_text = "需要组织条件"
+disabled = true
+toggle_mode = true
+text = "群体"
 
-[node name="ScaleHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ScaleHint" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1181314811]
 unique_name_in_owner = true
 layout_mode = 2
-autowrap_mode = 3
 theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
 
-[node name="CardParameter" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="CardParameter" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=422782258]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "思想卡（可选）"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="CardChoice" type="OptionButton" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="CardChoice" type="OptionButton" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1505899800]
 unique_name_in_owner = true
 layout_mode = 2
 fit_to_longest_item = false
 
-[node name="ActionDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ActionDescription" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=435650481]
 unique_name_in_owner = true
 layout_mode = 2
-autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
-
-[node name="ActionCost" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
-unique_name_in_owner = true
-layout_mode = 2
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 14
 
-[node name="QueueAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ActionCost" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1076297733]
 unique_name_in_owner = true
 layout_mode = 2
-text = "加入行动槽"
-disabled = true
-tooltip_text = "行动排程尚未开放"
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
 
-[node name="CancelReplace" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="QueueAction" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1301543464]
 unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "行动排程尚未开放"
+disabled = true
+text = "加入行动槽"
+
+[node name="CancelReplace" type="Button" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=1347702546]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "取消替换"
-visible = false
 
-[node name="ActionAvailability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content"]
+[node name="ActionAvailability" type="Label" parent="GameScreen/Layout/Body/RightPanel/DetailsScroll/Content" unique_id=837128629]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "请先选择已知目标"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 16
 
-[node name="BottomPanel" type="PanelContainer" parent="GameScreen/Layout"]
+[node name="BottomPanel" type="PanelContainer" parent="GameScreen/Layout" unique_id=824490407]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel"]
+[node name="Content" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel" unique_id=1777357418]
 layout_mode = 2
 
-[node name="Cards" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content"]
+[node name="Cards" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content" unique_id=200307095]
 layout_mode = 2
 
-[node name="CardsTitle" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+[node name="CardsTitle" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards" unique_id=1478189223]
 layout_mode = 2
-text = "思想卡"
-theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.57, 0.78, 0.73, 1)
+theme_override_font_sizes/font_size = 20
+text = "思想卡"
 
-[node name="CardsEmpty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+[node name="CardsEmpty" type="Label" parent="GameScreen/Layout/BottomPanel/Content/Cards" unique_id=1208690146]
 unique_name_in_owner = true
 layout_mode = 2
-text = "暂无已接入的卡牌"
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.61, 0.65, 0.66, 1)
+theme_override_font_sizes/font_size = 16
+text = "暂无已接入的卡牌"
 
-[node name="IdeasRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/Cards"]
+[node name="IdeasRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/Cards" unique_id=1120268305]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PlanStatus" type="Label" parent="GameScreen/Layout/BottomPanel/Content"]
+[node name="PlanStatus" type="Label" parent="GameScreen/Layout/BottomPanel/Content" unique_id=619642950]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
 max_lines_visible = 2
-theme_override_font_sizes/font_size = 14
 
-[node name="PlanRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content"]
+[node name="PlanRow" type="HBoxContainer" parent="GameScreen/Layout/BottomPanel/Content" unique_id=1120698760]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ActionSlot1" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
-script = ExtResource("3_slot")
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("Inset")
-
-[node name="ActionSlot2" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
-script = ExtResource("3_slot")
+[node name="ActionSlot1" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow" unique_id=1879899273]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Inset")
-
-[node name="ActionSlot3" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
 script = ExtResource("3_slot")
+
+[node name="ActionSlot2" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow" unique_id=5099098]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("Inset")
+script = ExtResource("3_slot")
 
-[node name="EndControls" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow"]
-layout_mode = 2
-
-[node name="APLabel" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls"]
+[node name="ActionSlot3" type="PanelContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow" unique_id=32761753]
 unique_name_in_owner = true
 layout_mode = 2
-text = "剩余 AP  — / 3"
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Inset")
+script = ExtResource("3_slot")
+
+[node name="EndControls" type="VBoxContainer" parent="GameScreen/Layout/BottomPanel/Content/PlanRow" unique_id=752570080]
+layout_mode = 2
+
+[node name="APLabel" type="Label" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls" unique_id=860665471]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_font_sizes/font_size = 20
+text = "剩余 AP  — / 3"
 
-[node name="EndDayButton" type="Button" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls"]
+[node name="EndDayButton" type="Button" parent="GameScreen/Layout/BottomPanel/Content/PlanRow/EndControls" unique_id=93329624]
 unique_name_in_owner = true
-layout_mode = 2
-text = "结束今日行动"
-disabled = true
 custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
 tooltip_text = "白天规划与夜间结算尚未开放；本阶段不消耗 AP"
+disabled = true
+text = "结束今日行动"
 
-[node name="SettlementScreen" type="CenterContainer" parent="."]
-script = ExtResource("9_summary")
+[node name="SettlementScreen" type="CenterContainer" parent="." unique_id=599571474]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("9_summary")
 
-[node name="Layout" type="VBoxContainer" parent="SettlementScreen"]
-layout_mode = 2
+[node name="Layout" type="VBoxContainer" parent="SettlementScreen" unique_id=513051825]
 custom_minimum_size = Vector2(480, 0)
-
-[node name="Title" type="Label" parent="SettlementScreen/Layout"]
 layout_mode = 2
-text = "游戏结束"
+
+[node name="Title" type="Label" parent="SettlementScreen/Layout" unique_id=416429880]
+layout_mode = 2
 theme_override_font_sizes/font_size = 48
+text = "游戏结束"
 horizontal_alignment = 1
 
-[node name="Description" type="Label" parent="SettlementScreen/Layout"]
+[node name="Description" type="Label" parent="SettlementScreen/Layout" unique_id=129231550]
 layout_mode = 2
-text = "已完成全部 10 天"
 theme_override_font_sizes/font_size = 28
+text = "已完成全部 10 天"
 horizontal_alignment = 1
 
-[node name="RestartButton" type="Button" parent="SettlementScreen/Layout"]
+[node name="RestartButton" type="Button" parent="SettlementScreen/Layout" unique_id=1938169730]
 unique_name_in_owner = true
-layout_mode = 2
-text = "重新开始"
-disabled = false
 custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
 size_flags_horizontal = 4
+text = "重新开始"
 
-[node name="InfoDialog" type="AcceptDialog" parent="."]
+[node name="InfoDialog" type="AcceptDialog" parent="." unique_id=712500431]
 unique_name_in_owner = true
+oversampling_override = 1.0
 title = "手记"
+position = Vector2i(0, 36)
 size = Vector2i(680, 220)
-exclusive = true
 theme = SubResource("Theme")
 ok_button_text = "返回"
 dialog_autowrap = true
 
-[node name="DebugPanel" type="AcceptDialog" parent="."]
+[node name="DebugPanel" type="AcceptDialog" parent="." unique_id=1718139518]
 unique_name_in_owner = true
+oversampling_override = 1.0
 title = "DEBUG · 回合测试（F3）"
-size = Vector2i(620, 300)
+position = Vector2i(0, 36)
+size = Vector2i(620, 370)
 min_size = Vector2i(620, 300)
-exclusive = true
 theme = SubResource("Theme")
 ok_button_text = "关闭"
 
-[node name="Content" type="VBoxContainer" parent="DebugPanel"]
-layout_mode = 2
+[node name="Content" type="VBoxContainer" parent="DebugPanel" unique_id=106929183]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 612.0
+offset_bottom = 308.0
 
-[node name="DebugHint" type="Label" parent="DebugPanel/Content"]
+[node name="DebugHint" type="Label" parent="DebugPanel/Content" unique_id=1750079979]
 layout_mode = 2
-text = "仅用于测试原有回合；这里的推进会改变当前日期。"
-autowrap_mode = 0
 theme_override_font_sizes/font_size = 16
+text = "仅用于测试原有回合；这里的推进会改变当前日期。"
 
-[node name="PreviewToggle" type="CheckButton" parent="DebugPanel/Content"]
+[node name="PreviewToggle" type="CheckButton" parent="DebugPanel/Content" unique_id=167342023]
 unique_name_in_owner = true
 layout_mode = 2
-text = "开发预览（资料、日期、计划独立）"
 tooltip_text = "预览拥有独立日期和预算；已提交的计划完成前不能切换"
+text = "开发预览（资料、日期、计划独立）"
 
-[node name="FeedbackTools" type="HBoxContainer" parent="DebugPanel/Content"]
+[node name="FeedbackTools" type="HBoxContainer" parent="DebugPanel/Content" unique_id=2129972214]
 layout_mode = 2
 
-[node name="FeedbackPreset" type="OptionButton" parent="DebugPanel/Content/FeedbackTools"]
+[node name="FeedbackPreset" type="OptionButton" parent="DebugPanel/Content/FeedbackTools" unique_id=1269686405]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 fit_to_longest_item = false
 
-[node name="ApplyFeedback" type="Button" parent="DebugPanel/Content/FeedbackTools"]
+[node name="ApplyFeedback" type="Button" parent="DebugPanel/Content/FeedbackTools" unique_id=126633131]
 unique_name_in_owner = true
 layout_mode = 2
-text = "应用测试快照"
 tooltip_text = "仅开发预览可用：独立测试结算，不推进日期或扣 AP。"
+text = "应用测试快照"
 
-[node name="TimeLabel" type="Label" parent="DebugPanel/Content"]
+[node name="TimeLabel" type="Label" parent="DebugPanel/Content" unique_id=1930846882]
 unique_name_in_owner = true
 layout_mode = 2
 text = "当前时间：上午"
 
-[node name="ProgressLabel" type="Label" parent="DebugPanel/Content"]
+[node name="ProgressLabel" type="Label" parent="DebugPanel/Content" unique_id=2096727795]
 unique_name_in_owner = true
 layout_mode = 2
 text = "时间进度 1 / 30"
 
-[node name="TimeProgress" type="ProgressBar" parent="DebugPanel/Content"]
+[node name="TimeProgress" type="ProgressBar" parent="DebugPanel/Content" unique_id=2094562290]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
 max_value = 30.0
 value = 1.0
 show_percentage = false
 
-[node name="LastDayHint" type="Label" parent="DebugPanel/Content"]
+[node name="LastDayHint" type="Label" parent="DebugPanel/Content" unique_id=124589147]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "已是最后一天"
-visible = false
 
-[node name="Buttons" type="HBoxContainer" parent="DebugPanel/Content"]
+[node name="Buttons" type="HBoxContainer" parent="DebugPanel/Content" unique_id=43529177]
 layout_mode = 2
 
-[node name="SkipButton" type="Button" parent="DebugPanel/Content/Buttons"]
+[node name="SkipButton" type="Button" parent="DebugPanel/Content/Buttons" unique_id=47235341]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "后一天"
-disabled = false
-size_flags_horizontal = 3
 
-[node name="NextButton" type="Button" parent="DebugPanel/Content/Buttons"]
+[node name="NextButton" type="Button" parent="DebugPanel/Content/Buttons" unique_id=118138860]
 unique_name_in_owner = true
 layout_mode = 2
-text = "下个时间节点"
-disabled = false
 size_flags_horizontal = 3
+text = "下个时间节点"
 
-[node name="SkipDialog" type="ConfirmationDialog" parent="DebugPanel"]
+[node name="SkipDialog" type="ConfirmationDialog" parent="DebugPanel" unique_id=1968369043]
 unique_name_in_owner = true
 title = "跳过当天"
 size = Vector2i(820, 240)
-exclusive = true
-transient = true
 unresizable = true
 theme = SubResource("Theme")
+ok_button_text = "确定"
 dialog_text = "确定跳过当天剩余时间，进入第 2 天上午吗？"
 dialog_hide_on_ok = false
-dialog_close_on_escape = true
-ok_button_text = "确定"
 cancel_button_text = "取消"
 
-[node name="SubmitConfirm" type="ConfirmationDialog" parent="."]
+[node name="SubmitConfirm" type="ConfirmationDialog" parent="." unique_id=2131364113]
 unique_name_in_owner = true
+oversampling_override = 1.0
 title = "确认结束今日行动"
-exclusive = true
+position = Vector2i(0, 36)
+size = Vector2i(208, 100)
 theme = SubResource("Theme")
+ok_button_text = "确定"
 dialog_hide_on_ok = false
 dialog_autowrap = true
-ok_button_text = "确定"
 cancel_button_text = "取消"
 
-[node name="PlanningController" type="Node" parent="."]
+[node name="PlanningController" type="Node" parent="." unique_id=469055714]
 unique_name_in_owner = true
 script = ExtResource("4_planning")
 
-[node name="FeedbackController" type="Node" parent="."]
+[node name="FeedbackController" type="Node" parent="." unique_id=1426018965]
 unique_name_in_owner = true
 script = ExtResource("8_feedback")

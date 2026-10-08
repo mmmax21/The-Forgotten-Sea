@@ -1,7 +1,7 @@
 extends Node
 const Events = preload("res://scripts/event_state.gd")
 const Overlay = preload("res://scripts/ui/event_overlay.gd")
-const Journal = preload("res://scripts/ui/journal_drawer.gd")
+const JournalScene = preload("res://scenes/ui/journal_book.tscn")
 var events := Events.new()
 var overlay: Control
 var journal: Control
@@ -21,8 +21,8 @@ func _ready() -> void:
 	baseline = ui.knowledge._live_snapshot.duplicate(true)
 	overlay = Overlay.new()
 	overlay.name = "EventOverlay"
-	journal = Journal.new()
-	journal.name = "JournalDrawer"
+	journal = JournalScene.instantiate()
+	journal.name = "JournalBook"
 	get_parent().add_child.call_deferred(journal)
 	get_parent().add_child.call_deferred(overlay)
 	overlay.chosen.connect(_choose)
@@ -43,7 +43,9 @@ func _ready() -> void:
 
 func _boot() -> void:
 	for state in [get_parent().live_state, get_parent().preview_state]:
-		state.changed.connect(check_events)
+		state.changed.connect(func():
+			refresh_journal()
+			check_events())
 	refresh_journal()
 	check_events()
 
@@ -71,7 +73,7 @@ func check_events() -> void:
 
 func _choose(id: String, choice: String) -> void:
 	if active.get("id", "") != id: return
-	var world: Dictionary = events.resolve(active, choice, ui.knowledge.get_snapshot())
+	var world: Dictionary = events.resolve(active, choice, ui.knowledge.get_snapshot(), planner.plan.day)
 	if world.is_empty(): return
 	active = {}
 	ui.knowledge.apply_settled_snapshot(world, "event:" + id)
@@ -124,22 +126,41 @@ func _badge() -> void:
 
 func refresh_journal() -> void:
 	if not journal.is_inside_tree(): return
-	var entries: Array = []
 	var world: Dictionary = ui.knowledge.get_snapshot()
-	for id in world.get("journal_entries", {}):
-		var item: Dictionary = world.journal_entries[id].duplicate(true)
-		item.id = id
-		entries.append(item)
-	for target in ui.knowledge.visible_targets():
-		if target.kind == "person":
-			entries.append({"id":"person:" + target.id, "category":2, "title":target.name, "text":"%s\n态度：%s\n对海的看法：%s\n合作：%s\n%s\n位置：%s\n%s" % [target.identity,target.attitude,target.belief,target.cooperation,target.description,target.location_label,"；".join(target.issues)]})
-		if not target.clues.is_empty():
-			entries.append({"id":"clue:" + target.id,"category":1,"title":target.name + " · 已知线索","text":"\n".join(target.clues) + "\n" + target.description})
+	var current := _current_day()
+	var grouped := {}
+	for day in range(1, current + 1):
+		grouped[day] = []
+	for item in world.get("journal_log", []):
+		var logged_day := int(item.get("day", 0))
+		if not grouped.has(logged_day):
+			continue
+		grouped[logged_day].append({"id": str(item.id), "title": str(item.title), "text": str(item.text)})
 	for receipt in planner.settlement.history(ui.knowledge.preview_enabled):
-		var lines: Array[String] = []
-		for section in ["actions","people","world","kingdom"]:
-			lines.append({"actions":"你的行动","people":"人们的后续行动","world":"世界的变化","kingdom":"王国的回应"}[section])
-			for record in receipt.sections[section]:
-				lines.append(record.title + "\n" + record.happened + "\n" + record.reason + "\n" + record.direction)
-		entries.append({"id":"night:" + receipt.request_id,"category":3,"title":"第 %d 天 · 夜间回顾" % receipt.day,"text":"\n\n".join(lines)})
-	journal.refresh(entries)
+		var night_day := int(receipt.get("day", 0))
+		if not grouped.has(night_day):
+			continue
+		grouped[night_day].append({
+			"id": "night:" + str(receipt.request_id),
+			"title": "第 %d 天 · 夜间回顾" % night_day,
+			"text": _night_text(receipt)
+		})
+	var pages: Array = []
+	for day in range(1, current + 1):
+		pages.append({"day": day, "entries": grouped[day]})
+	journal.refresh(pages)
+
+
+func _current_day() -> int:
+	var host := get_parent()
+	var state = host.preview_state if ui.knowledge.preview_enabled else host.live_state
+	return state.get_day()
+
+
+func _night_text(receipt: Dictionary) -> String:
+	var lines: Array[String] = []
+	for section in ["actions", "people", "world", "kingdom"]:
+		lines.append({"actions": "你的行动", "people": "人们的后续行动", "world": "世界的变化", "kingdom": "王国的回应"}[section])
+		for record in receipt.sections[section]:
+			lines.append(record.title + "\n" + record.happened + "\n" + record.reason + "\n" + record.direction)
+	return "\n\n".join(lines)

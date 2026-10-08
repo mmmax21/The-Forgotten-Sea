@@ -1,0 +1,199 @@
+[gd_scene load_steps=9 format=3]
+
+; 手记弹窗。节点职责写在 scripts/ui/journal_book.gd 文件头。
+; Icons.png 是 6 列 × 19 行、每格 16×16 的图标表。Region 用像素：列 × 16, 行 × 16, 16, 16。
+; 关闭是第 3 行第 5 格，左箭头是第 5 行第 5 格，右箭头是第 5 行第 6 格。
+; 按钮底色由脚本清掉；这里的 icon_max_width 只是编辑器里的初始大小，运行时会改成 48。
+
+[ext_resource type="Script" path="res://scripts/ui/journal_book.gd" id="1_book"]
+[ext_resource type="SpriteFrames" path="res://assets/ui/journal/book_frames.tres" id="2_frames"]
+[ext_resource type="Shader" path="res://assets/ui/journal/book_black_key.gdshader" id="3_key"]
+[ext_resource type="Texture2D" path="res://assets/Icons.png" id="4_icons"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_book"]
+shader = ExtResource("3_key")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
+atlas = ExtResource("4_icons")
+region = Rect2(64, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_prev"]
+atlas = ExtResource("4_icons")
+region = Rect2(64, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_next"]
+atlas = ExtResource("4_icons")
+region = Rect2(80, 64, 16, 16)
+
+[node name="JournalBook" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_book")
+
+; 点书本外面关闭。
+[node name="Shade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.03, 0.04, 0.05, 0.88)
+
+; 旧手记弹窗的位置。PageAnim 会缩放到这块区域里。
+[node name="Book" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+anchor_left = 0.22
+anchor_top = 0.14
+anchor_right = 0.78
+anchor_bottom = 0.86
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+; 书页动画。材质丢掉近黑背景。动画名：idle / next / prev。
+[node name="PageAnim" type="AnimatedSprite2D" parent="Book"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_book")
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+; 正文框。改 offset 的左右差和上下差，就是改文字宽高。clip_contents 裁掉超出书页的字。
+[node name="TextFrame" type="Control" parent="Book"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -320.0
+offset_right = 460.0
+offset_bottom = 250.0
+clip_contents = true
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Book/TextFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Book/TextFrame/Layout"]
+layout_mode = 2
+
+[node name="DayTitle" type="Label" parent="Book/TextFrame/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 34
+text = "第 1 天"
+
+[node name="PageClip" type="Control" parent="Book/TextFrame/Layout"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PageSlide" type="Control" parent="Book/TextFrame/Layout/PageClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PageScroll" type="ScrollContainer" parent="Book/TextFrame/Layout/PageClip/PageSlide"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="PageBody" type="VBoxContainer" parent="Book/TextFrame/Layout/PageClip/PageSlide/PageScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+; 正文和翻页图标之间的空隙。改 custom_minimum_size 的 y。
+[node name="FooterGap" type="Control" parent="Book/TextFrame/Layout"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Footer" type="HBoxContainer" parent="Book/TextFrame/Layout"]
+layout_mode = 2
+alignment = 1
+
+; 上一天。flat 去掉默认按钮底，Nearest 保持像素图标。
+[node name="PrevButton" type="Button" parent="Book/TextFrame/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_prev")
+expand_icon = true
+flat = true
+
+[node name="PageLabel" type="Label" parent="Book/TextFrame/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 18
+text = "1 / 1"
+horizontal_alignment = 1
+
+; 下一天。
+[node name="NextButton" type="Button" parent="Book/TextFrame/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_next")
+expand_icon = true
+flat = true
+
+; 关闭。锚在 Book 右上角，不跟标题挤在一行。
+[node name="CloseButton" type="Button" parent="Book"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_top = 12.0
+offset_right = -40.0
+offset_bottom = 68.0
+grow_horizontal = 0
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_close")
+expand_icon = true
+flat = true
