@@ -1,3 +1,9 @@
-res://scenes/main.tscn
-res://scenes/ui/journal_book.tscn
-res://scripts/ui/journal_book.gd
+res://scripts/ui/top_bar/top_bar.gd
+res://scenes/ui/top_bar/action_button.tscn
+res://scenes/ui/top_bar/day_badge.tscn
+res://scenes/ui/top_bar/stat_readout.tscn
+res://scripts/ui/top_bar/action_button.gd
+res://scripts/ui/top_bar/stat_readout.gd
+res://scenes/ui/top_bar/top_bar.tscn
+res://scripts/ui/top_bar/day_badge.gd
+res://assets/ui/journal/book_frames.tres

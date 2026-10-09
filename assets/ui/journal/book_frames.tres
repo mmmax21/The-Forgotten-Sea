@@ -1,7 +1,7 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://2vxyi2g5osww"]
 
-[ext_resource type="Texture2D" path="res://assets/ui/journal/turning_pages_left.png" id="1_s0hip"]
-[ext_resource type="Texture2D" path="res://assets/ui/journal/turning_pages_right.png" id="2_fnqu0"]
+[ext_resource type="Texture2D" uid="uid://bvanyr576x448" path="res://assets/ui/journal/turning_pages_left.png" id="1_s0hip"]
+[ext_resource type="Texture2D" uid="uid://dujbyey715c0s" path="res://assets/ui/journal/turning_pages_right.png" id="2_fnqu0"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qoqyi"]
 atlas = ExtResource("1_s0hip")
