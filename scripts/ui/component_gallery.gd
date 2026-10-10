@@ -6,6 +6,17 @@ const DefaultCharacters := preload("res://scripts/ui/character_card/default_char
 
 func _ready() -> void:
 	%CharacterRail.configure(_people())
+	%TopBar.action_pressed.connect(_open_default_notice)
+
+
+## 画廊临时入口。四个按钮都打开同一条通知，以后按 id 拆开。
+func _open_default_notice(_id: String) -> void:
+	%Notice.apply_engine({
+		"title": "潮汐将至",
+		"image": DefaultCharacters.portrait(0),
+		"text": "北面的网已经收起。今天先不要出镇。",
+	})
+	%Notice.open()
 
 
 func _people() -> Array:

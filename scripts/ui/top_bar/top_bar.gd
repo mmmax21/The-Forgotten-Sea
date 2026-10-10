@@ -5,9 +5,10 @@ extends Control
 ## - RowsPlate：左侧两行共用的底，包住数值和按钮。
 ## - StatPlate / StatRow：第一行数值。三项共用一条更窄的底。
 ## - ButtonRow：第二行操作按钮。按下发出 action_pressed(id)。
-## - DayBadge：右侧天数，可换四分之一圆贴图。
+## - DayBadge：右侧天数，下面是剩余行动点「ap/ap_max」。
 ##
-## 一项数值是 {label, value}。一个按钮是 {id, text}。
+## 数据引擎以后只调用 apply_engine(data)。字段见 docs/data_formats.md 的「顶栏」。
+## 顶栏不读存档，也不打开按钮对应的界面。按下只发出 action_pressed(id)。
 ## 本场景不替换 main.tscn 里的旧顶栏。
 signal action_pressed(id: String)
 
@@ -43,13 +44,40 @@ func _ready() -> void:
 	if get_tree().current_scene == self:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _pending.is_empty():
-		configure(_default_stats(), _default_buttons(), 1, 10)
+		apply_engine(_preview_payload())
 	else:
 		_apply_pending()
 
 
-func configure(stats: Array, buttons: Array, day: int, total: int) -> void:
-	_pending = {"stats": stats, "buttons": buttons, "day": day, "total": total}
+## 数据引擎入口。只接收下面这一份字典，缺的字段用预览值补上。
+## stats: [{label, value}]  左侧第一行。value 原样转成文字。
+## buttons: [{id, text}]    左侧第二行。id 会随 action_pressed 交回。
+## day: int                 角标上的「第N天」。
+## total: int               总天数。角标目前不显示，先留给引擎。
+## ap: int                  剩余行动点，角标写成「ap/ap_max」。
+## ap_max: int              行动点上限。缺省 3。
+func apply_engine(data: Dictionary) -> void:
+	var fallback := _preview_payload()
+	configure(
+		data.get("stats", fallback.stats),
+		data.get("buttons", fallback.buttons),
+		int(data.get("day", fallback.day)),
+		int(data.get("total", fallback.total)),
+		int(data.get("ap", fallback.ap)),
+		int(data.get("ap_max", fallback.ap_max)),
+	)
+
+
+## 把引擎字典拆给数值行、按钮行和天数角标。数据引擎不要直接调用。
+func configure(stats: Array, buttons: Array, day: int, total: int, ap: int = 3, ap_max: int = 3) -> void:
+	_pending = {
+		"stats": stats,
+		"buttons": buttons,
+		"day": day,
+		"total": total,
+		"ap": ap,
+		"ap_max": ap_max,
+	}
 	if is_node_ready():
 		_apply_pending()
 
@@ -57,7 +85,12 @@ func configure(stats: Array, buttons: Array, day: int, total: int) -> void:
 func _apply_pending() -> void:
 	_refill(stat_row(), _pending.stats, true)
 	_refill(button_row(), _pending.buttons, false)
-	%DayBadge.configure(int(_pending.day), int(_pending.total))
+	%DayBadge.configure(
+		int(_pending.day),
+		int(_pending.total),
+		int(_pending.ap),
+		int(_pending.ap_max),
+	)
 
 
 func _refill(row: Node, items: Array, stats: bool) -> void:
@@ -155,18 +188,22 @@ func button_row() -> HBoxContainer:
 	return %ButtonRow
 
 
-func _default_stats() -> Array:
-	return [
-		{"label": "说服力", "value": "0"},
-		{"label": "影响力", "value": "0"},
-		{"label": "曝光度", "value": "0"},
-	]
-
-
-func _default_buttons() -> Array:
-	return [
-		{"id": "tasks", "text": "任务"},
-		{"id": "items", "text": "物品"},
-		{"id": "status", "text": "状态"},
-		{"id": "settings", "text": "设置"},
-	]
+## 单独预览顶栏时用。正式运行由数据引擎调用 apply_engine，不要改这里代替存档。
+func _preview_payload() -> Dictionary:
+	return {
+		"stats": [
+			{"label": "说服力", "value": "0"},
+			{"label": "影响力", "value": "0"},
+			{"label": "曝光度", "value": "0"},
+		],
+		"buttons": [
+			{"id": "tasks", "text": "任务"},
+			{"id": "items", "text": "物品"},
+			{"id": "status", "text": "状态"},
+			{"id": "settings", "text": "设置"},
+		],
+		"day": 1,
+		"total": 10,
+		"ap": 3,
+		"ap_max": 3,
+	}
