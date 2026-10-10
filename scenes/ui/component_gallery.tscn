@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/top_bar/top_bar.tscn" id="1_bar"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_card/character_rail.tscn" id="2_rail"]
+[ext_resource type="Script" path="res://scripts/ui/component_gallery.gd" id="3_gallery"]
 
 [node name="ComponentGallery" type="Control"]
 layout_mode = 3
@@ -10,6 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("3_gallery")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -27,3 +30,11 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 228.0
 grow_horizontal = 2
+
+[node name="CharacterRail" parent="." instance=ExtResource("2_rail")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 210.0
+offset_right = 160.0
+offset_bottom = 974.0

@@ -1,9 +1,5 @@
-res://scripts/ui/top_bar/top_bar.gd
-res://scenes/ui/top_bar/action_button.tscn
-res://scenes/ui/top_bar/day_badge.tscn
-res://scenes/ui/top_bar/stat_readout.tscn
-res://scripts/ui/top_bar/action_button.gd
-res://scripts/ui/top_bar/stat_readout.gd
-res://scenes/ui/top_bar/top_bar.tscn
-res://scripts/ui/top_bar/day_badge.gd
-res://assets/ui/journal/book_frames.tres
+res://scripts/ui/character_card/character_rail.gd
+res://scenes/ui/character_card/character_rail.tscn
+res://scenes/ui/character_card/character_card.tscn
+res://scripts/ui/character_card/character_card.gd
+res://scripts/ui/component_gallery.gd

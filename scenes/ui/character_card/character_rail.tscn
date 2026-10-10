@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/character_card/character_rail.gd" id="1_rail"]
+
+[node name="CharacterRail" type="Control"]
+custom_minimum_size = Vector2(144, 0)
+offset_right = 144.0
+mouse_filter = 2
+script = ExtResource("1_rail")
+
+[node name="Cards" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 36
+
+[node name="Tooltip" type="Panel" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+visible = false
+z_index = 2
+custom_minimum_size = Vector2(320, 160)
+layout_mode = 0
+offset_left = 152.0
+offset_right = 472.0
+offset_bottom = 160.0
+mouse_filter = 0
+
+[node name="Scroll" type="ScrollContainer" parent="Tooltip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="Summary" type="Label" parent="Tooltip/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+autowrap_mode = 3
+text = "介绍"
