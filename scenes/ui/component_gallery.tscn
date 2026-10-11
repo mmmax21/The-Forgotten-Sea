@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/character_card/character_rail.tscn" id="2_rail"]
 [ext_resource type="Script" uid="uid://bxqotpjtxhilk" path="res://scripts/ui/component_gallery.gd" id="3_gallery"]
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/notice.tscn" id="4_notice"]
+[ext_resource type="PackedScene" uid="uid://bmrfdx1utfv47" path="res://scenes/ui/mini_map/mini_map.tscn" id="5_map"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/map_modal.tscn" id="6_modal"]
 
 [node name="ComponentGallery" type="Control" unique_id=891545924]
 layout_mode = 3
@@ -36,7 +38,16 @@ offset_top = 210.0
 offset_right = 160.0
 offset_bottom = 974.0
 
+[node name="MiniMap" parent="." unique_id=16484435 instance=ExtResource("5_map")]
+unique_name_in_owner = true
+layout_mode = 1
+
 [node name="Notice" parent="." unique_id=1967033321 instance=ExtResource("4_notice")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="MapModal" parent="." unique_id=2084703892 instance=ExtResource("6_modal")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

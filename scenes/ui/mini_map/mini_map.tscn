@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://bmrfdx1utfv47"]
+
+[ext_resource type="Script" uid="uid://d3h6orty4ptb5" path="res://scripts/ui/mini_map/mini_map.gd" id="1_map"]
+[ext_resource type="Script" uid="uid://b6bk3yh6lxlmp" path="res://scripts/ui/mini_map/round_button.gd" id="2_round"]
+
+[node name="MiniMap" type="Control" unique_id=901007969]
+custom_minimum_size = Vector2(299, 258)
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -315.0
+offset_top = -306.0
+offset_right = -16.0
+offset_bottom = -48.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("1_map")
+
+[node name="Compass" type="Control" parent="." unique_id=1477805886]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(256, 256)
+anchors_preset = 0
+offset_left = 43.0
+offset_top = 2.0
+offset_right = 299.0
+offset_bottom = 258.0
+script = ExtResource("2_round")
+draw_needle = true
+
+[node name="Upper" type="Control" parent="." unique_id=184885510]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+anchors_preset = 0
+offset_left = 41.0
+offset_right = 105.0
+offset_bottom = 64.0
+script = ExtResource("2_round")
+
+[node name="Lower" type="Control" parent="." unique_id=863064580]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+anchors_preset = 0
+offset_top = 98.0
+offset_right = 64.0
+offset_bottom = 162.0
+script = ExtResource("2_round")

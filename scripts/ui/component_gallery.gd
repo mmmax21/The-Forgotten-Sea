@@ -7,6 +7,7 @@ const DefaultCharacters := preload("res://scripts/ui/character_card/default_char
 func _ready() -> void:
 	%CharacterRail.configure(_people())
 	%TopBar.action_pressed.connect(_open_default_notice)
+	%MiniMap.action_pressed.connect(_open_map_notice)
 
 
 ## 画廊临时入口。四个按钮都打开同一条通知，以后按 id 拆开。
@@ -15,6 +16,29 @@ func _open_default_notice(_id: String) -> void:
 		"title": "潮汐将至",
 		"image": DefaultCharacters.portrait(0),
 		"text": "北面的网已经收起。今天先不要出镇。",
+	})
+	%Notice.open()
+
+
+## 指南针打开大地图，无海。只放开遗迹、渔村、王城。两个小钮仍打开通知。
+func _open_map_notice(id: String) -> void:
+	if id == "compass":
+		%MapModal.configure({
+			"show_ocean": false,
+			"places": [
+				{"id": "ruins", "reachable": true},
+				{"id": "fishing_village", "reachable": true},
+				{"id": "market", "reachable": false},
+				{"id": "old_academy", "reachable": false},
+				{"id": "feather_forest", "reachable": false},
+				{"id": "royal_city", "reachable": true},
+			],
+		})
+		%MapModal.open()
+		return
+	%Notice.apply_engine({
+		"title": "小地图",
+		"text": id,
 	})
 	%Notice.open()
 

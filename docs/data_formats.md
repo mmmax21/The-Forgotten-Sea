@@ -211,3 +211,39 @@
 ```
 
 这条测试数据三项都有。只想显示正文时，把 `title` 和 `image` 写成 `""`。
+
+## 大地图
+
+入口是 `map_modal.configure(data)`，然后 `open()`。控件不读存档。有海无海、每个地点能否前往，都由这一份字典决定。按下关闭后发出 `closed`，不在这里结算，也不切换所在地。
+
+不传 `places` 时，六个地点都能前往。传了 `places` 时，一项是一个地点，`id` 只接受下面六个，别的 id 跳过。这次没写到的地点不能前往。
+
+| id | 地名 |
+| --- | --- |
+| `ruins` | 遗迹 |
+| `fishing_village` | 渔村 |
+| `market` | 集市 |
+| `old_academy` | 旧学城 |
+| `feather_forest` | 羽之森 |
+| `royal_city` | 王城 |
+
+| 字段 | 类型 | 含义 |
+| --- | --- | --- |
+| `show_ocean` | 布尔 | 为真用有海图，缺省或为假用无海图 |
+| `places` | 数组 | 一项是 `{id, reachable}`。`reachable` 为真才能前往 |
+
+```json
+{
+  "show_ocean": false,
+  "places": [
+    { "id": "ruins", "reachable": true },
+    { "id": "fishing_village", "reachable": true },
+    { "id": "market", "reachable": false },
+    { "id": "old_academy", "reachable": false },
+    { "id": "feather_forest", "reachable": false },
+    { "id": "royal_city", "reachable": true }
+  ]
+}
+```
+
+这条是组件预览用的名单，不是某一天的正式进度。遗迹、渔村、王城能前往。其余三地盖住。不传 `places` 时六地都能前往。
