@@ -1,7 +1,7 @@
 extends Control
 ## 圆形按钮。不用 Button：占位圆要自己画，点击区域也要按圆裁切。
 ## 外接方框的四角会透给下面的控件。没有贴图时画淡彩纸心和旧黄铜环。
-## 悬停把整颗钮压暗，不另做三态图。
+## 三态图都在时：常规、悬停、按下各用一格。没有三态图时，悬停把整颗钮压暗。
 
 signal pressed
 
@@ -10,11 +10,31 @@ const BRASS := Color(0.64, 0.50, 0.27, 1)
 const HOVER := Color(0.62, 0.62, 0.62, 1)
 
 var _inside := false
+var _down := false
 
 ## 整张圆形图。透明角落不会扩大点击区域。空着就用占位圆。
 @export var background: Texture2D:
 	set(value):
 		background = value
+		if is_node_ready():
+			queue_redraw()
+
+## 三态合图切出来的三格。都空着就不用。
+@export var state_normal: Texture2D:
+	set(value):
+		state_normal = value
+		if is_node_ready():
+			queue_redraw()
+
+@export var state_hover: Texture2D:
+	set(value):
+		state_hover = value
+		if is_node_ready():
+			queue_redraw()
+
+@export var state_pressed: Texture2D:
+	set(value):
+		state_pressed = value
 		if is_node_ready():
 			queue_redraw()
 
@@ -32,7 +52,7 @@ func _ready() -> void:
 	mouse_exited.connect(_leave)
 	resized.connect(queue_redraw)
 	queue_redraw()
-	_paint()
+	_show_state()
 
 
 func _has_point(point: Vector2) -> bool:
@@ -42,7 +62,11 @@ func _has_point(point: Vector2) -> bool:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse := event as InputEventMouseButton
-		if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
+		if mouse.button_index != MOUSE_BUTTON_LEFT:
+			return
+		_down = mouse.pressed
+		_show_state()
+		if mouse.pressed:
 			pressed.emit()
 			accept_event()
 
@@ -52,8 +76,9 @@ func _draw() -> void:
 	if radius < 1.0:
 		return
 	var center := size * 0.5
-	if background != null:
-		draw_texture_rect(background, Rect2(Vector2.ZERO, size), false)
+	var frame := _frame()
+	if frame != null:
+		draw_texture_rect(frame, Rect2(Vector2.ZERO, size), false)
 		return
 	var ring := clampf(radius * 0.09, 3.0, 14.0)
 	draw_circle(center, radius, BRASS)
@@ -69,16 +94,35 @@ func _draw() -> void:
 
 func _enter() -> void:
 	_inside = true
-	_paint()
+	_show_state()
 
 
 func _leave() -> void:
 	_inside = false
-	_paint()
+	_down = false
+	_show_state()
 
 
-func _paint() -> void:
+func _show_state() -> void:
+	if _has_states():
+		modulate = Color.WHITE
+		queue_redraw()
+		return
 	modulate = HOVER if _inside else Color.WHITE
+
+
+func _has_states() -> bool:
+	return state_normal != null or state_hover != null or state_pressed != null
+
+
+func _frame() -> Texture2D:
+	if _down and _inside and state_pressed != null:
+		return state_pressed
+	if _inside and state_hover != null:
+		return state_hover
+	if state_normal != null:
+		return state_normal
+	return background
 
 
 func _radius() -> float:
