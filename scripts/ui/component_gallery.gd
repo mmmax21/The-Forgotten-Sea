@@ -37,7 +37,7 @@ func _ready() -> void:
 	%MiniMap.get_node("Upper").tooltip_text = "物品"
 	%MiniMap.get_node("Lower").tooltip_text = "结束今日行动"
 	%DialogueBox.dialogue_finished.connect(_on_dialogue_finished)
-	%MapModal.location_selected.connect(_on_map_location)
+	%MapModal.place_chosen.connect(_on_map_location)
 	state.load_from(save_path)
 	_refresh()
 	%DialogueBox.show_text("点击哑伯，了解他手中的旧木板。")
@@ -218,8 +218,8 @@ func _on_minimap(id: String) -> void:
 		"rim_upper": _show_inventory()
 		"rim_lower": _ask_end_day()
 
-func _on_map_location(id: String) -> void:
-	%MapModal.hide()
+func _on_map_location(id: String, _place_name: String) -> void:
+	%MapModal.close()
 	if id == "fishing_village":
 		modal.open("渔村", "目的地：哑伯住处\n当前所在地：%s" % State.NAMES[state.location], [{"id": "home", "text": "哑伯住处…"}, {"id": "cancel", "text": "返回"}])
 	elif id == "ruins":
@@ -309,6 +309,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not event.is_echo() and busy and not modal.visible and not %MapModal.visible:
 		%DialogueBox.advance()
 		get_viewport().set_input_as_handled()
+
 func _people() -> Array:
 	return [
 		{
