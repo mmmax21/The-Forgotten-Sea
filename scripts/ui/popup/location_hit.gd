@@ -1,4 +1,5 @@
 extends Control
+signal pressed
 ## 地点点击范围。节点的宽和高就是椭圆的宽和高，四角点不中。
 ## 悬停时在椭圆外缘画一圈半透明米黄光圈，宽高比范围大约大 16。
 
@@ -9,6 +10,11 @@ const GLOW_SOFT := Color(0.95, 0.86, 0.62, 0.28)
 
 var _halo: Control
 var _reachable := true
+
+func _gui_input(event: InputEvent) -> void:
+	if _reachable and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		pressed.emit()
+		accept_event()
 
 
 func _ready() -> void:

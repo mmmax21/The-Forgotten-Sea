@@ -1,0 +1,17 @@
+78098b89c88a74ebe8c20117b8754620
+::res://::1791352222
+README.md::TextFile::-1::1791211013::0::1::::<><><>0<>0<><>::
+四名关键NPC人物设定.md::TextFile::-1::1791210931::0::1::::<><><>0<>0<><>::
+::res://previews/::1791352174
+01-main.png::CompressedTexture2D::956926645524066180::1791210931::1791352174::1::::<><><>0<>0<>83c55910a3e344586e64e611c873acc6<>res://.godot/imported/01-main.png-f210b85b937773ef2b191c993e4492a2.ctex::
+02-confirmation.png::CompressedTexture2D::7628245580305199110::1791210931::1791352174::1::::<><><>0<>0<>dce0dccb8ff3c9473e8b59c233c317a3<>res://.godot/imported/02-confirmation.png-f48fee05e2412799925f1851237ff7dd.ctex::
+03-last-evening.png::CompressedTexture2D::63457632882832155::1791210931::1791352174::1::::<><><>0<>0<>c5212c580c76483360bc059d93a8533b<>res://.godot/imported/03-last-evening.png-baebf0546dbcee472d2929388f7fca8f.ctex::
+04-settlement.png::CompressedTexture2D::2821478524655995627::1791210931::1791352174::1::::<><><>0<>0<>6ff0593e12017d8129c6ad8a10c91901<>res://.godot/imported/04-settlement.png-0ec99956f1571d5e2ffeb12c64d3b08e.ctex::
+::res://scenes/::1791210931
+main.tscn::PackedScene::-1::1791210931::0::1::::<><><>0<>0<><>::res://scripts/main.gd
+::res://scripts/::1791210931
+game_state.gd::GDScript::3797998798737579897::1791210931::0::1::::<>RefCounted<><>0<>0<><>::
+main.gd::GDScript::3897656615577043168::1791210931::0::1::::<>Control<><>0<>0<><>::
+::res://tests/::1791210931
+run_tests.gd::GDScript::454302686511164320::1791210931::0::1::::<>SceneTree<><>0<>0<><>::
+validation.txt::TextFile::-1::1791210931::0::1::::<><><>0<>0<><>::

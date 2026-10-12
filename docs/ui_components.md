@@ -33,7 +33,15 @@
 - 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。
 - 数值条是整行一张底，三个数值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
 
-组件预览在 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)。窗口与主场景一样是 1920×1080，背景是 `Color(0.12, 0.13, 0.15)`。用 F6 运行这个场景，不要改项目的主场景。预览里现在有顶栏、人物栏、右下角小地图、通知弹窗和大地图卷轴。顶栏四个按钮暂时都打开同一条通知。小地图的指南针打开大地图，无海，只放开遗迹、渔村、王城。两个小钮仍打开通知，正文是被按下的 id。
+剧情运行入口为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)，F5 或单独 F6 均可启动。1920×1032 设计区域随窗口等比缩放居中。顶栏已接任务、物品、状态与设置；日期显示剩余 AP。右下地图支持遗迹与渔村移动，底部文本框播放完整剧情。抵达遗迹使用 `assets/backgrounds/ruins-v1.png` 并隐藏不在场的人物。详见 [运行说明](ruins_runtime.md)。
+
+### 底部文本框
+
+- 场景：`scenes/ui/dialogue_box/dialogue_box.tscn`，可单独复用。
+- 外框复用顶栏 `rows_texture.png`，九宫格保留雕花四角；正文区域使用深棕底与浅米色文字，避免木纹纵向拉伸影响阅读。
+- 在预览设计区域的位置为 `(250, 660)`，尺寸为 `1150×330`。
+- 默认正文为空。在检查器填写 `dialogue_text`，或调用 `apply_engine({"text": "正文"})`；正文自动换行，超出后可滚动。
+
 
 接到地图场景时，由那个场景调用 `configure`，不要让顶栏自己读存档。
 

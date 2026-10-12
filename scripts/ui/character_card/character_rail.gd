@@ -12,6 +12,8 @@ const INK := Color(0.28, 0.16, 0.05, 1)
 
 var _pending: Array = []
 var _active = null
+## 选人：index=0..3, name/portrait/summary 是该人的资料。
+signal character_selected(index: int, name: String, summary: String, portrait: Texture2D)
 
 
 func _ready() -> void:
@@ -44,7 +46,8 @@ func _apply_pending() -> void:
 	for child in %Cards.get_children():
 		%Cards.remove_child(child)
 		child.free()
-	for person in _pending:
+	for i in _pending.size():
+		var person = _pending[i]
 		if typeof(person) != TYPE_DICTIONARY:
 			continue
 		var card := CARD_SCENE.instantiate()
@@ -56,9 +59,11 @@ func _apply_pending() -> void:
 			str(person.get("summary", "")),
 			bool(person.get("disabled", false)),
 			bool(person.get("visible", true)),
+			i,
 		)
 		card.mouse_entered.connect(_on_card_mouse_entered.bind(card))
 		card.mouse_exited.connect(_on_card_mouse_exited)
+		card.pressed.connect(_on_card_pressed.bind(card, person))
 
 
 func _on_card_mouse_entered(card) -> void:
@@ -75,6 +80,18 @@ func _on_card_mouse_exited() -> void:
 
 func _on_tooltip_mouse_exited() -> void:
 	set_process(true)
+
+
+func _on_card_pressed(index: int, card, person: Dictionary) -> void:
+	if card.is_disabled() or not card.visible:
+		return
+	_hide_tooltip()
+	character_selected.emit(
+		index,
+		str(person.get("name", "")),
+		str(person.get("summary", "")),
+		person.get("portrait", null) as Texture2D,
+	)
 
 
 func _process(_delta: float) -> void:

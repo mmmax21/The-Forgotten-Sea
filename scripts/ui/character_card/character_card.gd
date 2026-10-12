@@ -17,12 +17,15 @@ const DISABLED_TINT := Color(0.55, 0.55, 0.55, 1)
 var _disabled := false
 var _hovered := false
 var _pending := {}
+## 点选时给出人物索引（0/1/2/3），由 character_rail 进一步转发。
+signal pressed(index: int)
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	gui_input.connect(_on_gui_input)
 	_apply_frame()
 	_apply_name_plate()
 	%Name.add_theme_font_override("font", _font())
@@ -35,13 +38,23 @@ func _ready() -> void:
 		_apply_pending()
 
 
-func configure(person_name: String, portrait: Texture2D, person_summary: String, is_disabled: bool = false, is_visible: bool = true) -> void:
+func _on_gui_input(event: InputEvent) -> void:
+	if _disabled:
+		return
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			pressed.emit(_pending.get("index", -1))
+
+
+func configure(person_name: String, portrait: Texture2D, person_summary: String, is_disabled: bool = false, is_visible: bool = true, index: int = -1) -> void:
 	_pending = {
 		"name": person_name,
 		"portrait": portrait,
 		"summary": person_summary,
 		"disabled": is_disabled,
 		"visible": is_visible,
+		"index": index,
 	}
 	if is_node_ready():
 		_apply_pending()
