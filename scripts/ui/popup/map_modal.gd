@@ -14,9 +14,11 @@ extends Control
 ## - CloseButton：纸面右上，轴的左边。图标是 Icons.png 第 3 行第 5 格。
 ##
 ## configure(data) 收 show_ocean 和 places。不传 places 时六地都能前往。
-## open() 负责显示。按下关闭后 hide()，并发出 closed。
+## open() 负责显示。close() 负责隐藏，并发出 closed。右上角关闭钮也走它。
+## 点中能前往的地点发出 place_chosen(id, 地名)。不关闭地图，也不打开别的界面。
 
 signal closed
+signal place_chosen(place_id: String, place_name: String)
 
 const PANEL_SIZE := Vector2(1600, 900)
 const TEX_SIZE := Vector2(1024, 576)
@@ -58,6 +60,7 @@ var _show_ocean := false
 var _shown := false
 var _places_given := false
 var _reachable := {}
+var _wired := {}
 
 
 func _ready() -> void:
@@ -67,7 +70,7 @@ func _ready() -> void:
 	_apply_background()
 	_style_close()
 	_apply_map()
-	%CloseButton.pressed.connect(_close)
+	%CloseButton.pressed.connect(close)
 	if not _places_given:
 		_reachable = _all_open()
 	_apply_places()
@@ -99,7 +102,8 @@ func open() -> void:
 		show()
 
 
-func _close() -> void:
+## 调用方也可以关。确认前往时，预览用这个方法把地图一起关掉。
+func close() -> void:
 	_shown = false
 	hide()
 	closed.emit()
@@ -189,11 +193,32 @@ func _apply_places() -> void:
 			label.visible = reachable
 		if hit != null and hit.has_method("set_reachable"):
 			hit.set_reachable(reachable)
+			_wire_hit(hit, place_id)
 		if cover == null:
 			continue
 		cover.visible = not reachable
 		if not reachable:
 			place.move_child(cover, place.get_child_count() - 1)
+
+
+func _wire_hit(hit: Node, place_id: String) -> void:
+	if _wired.has(place_id) or not hit.has_signal("pressed"):
+		return
+	_wired[place_id] = true
+	hit.pressed.connect(_choose_place.bind(place_id))
+
+
+func _choose_place(place_id: String) -> void:
+	if not bool(_reachable.get(place_id, false)):
+		return
+	var place := %Locations.get_node_or_null(place_id)
+	var label := place.get_node_or_null("Label") if place != null else null
+	var place_name := place_id
+	if label != null and "place_name" in label:
+		var written := str(label.place_name).strip_edges()
+		if written != "":
+			place_name = written
+	place_chosen.emit(place_id, place_name)
 
 
 func _cover_for(place: Node, hit: Node) -> Control:

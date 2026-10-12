@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/notice.tscn" id="4_notice"]
 [ext_resource type="PackedScene" uid="uid://bmrfdx1utfv47" path="res://scenes/ui/mini_map/mini_map.tscn" id="5_map"]
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/map_modal.tscn" id="6_modal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/confirm_dialog.tscn" id="7_confirm"]
 
 [node name="ComponentGallery" type="Control" unique_id=891545924]
 layout_mode = 3
@@ -48,6 +49,11 @@ visible = false
 layout_mode = 1
 
 [node name="MapModal" parent="." unique_id=2084703892 instance=ExtResource("6_modal")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="ConfirmDialog" parent="." instance=ExtResource("7_confirm")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

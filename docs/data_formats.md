@@ -212,9 +212,31 @@
 
 这条测试数据三项都有。只想显示正文时，把 `title` 和 `image` 写成 `""`。
 
+## 确认弹窗
+
+入口是 `confirm_dialog.configure(data)`，然后 `open()`。控件不读存档。按下确认后先隐藏，再调用 `on_confirm`，发出 `confirmed`。按下取消后先隐藏，再调用 `on_cancel`，发出 `cancelled`。方法没传就什么都不做。
+
+`title` 和 `text` 可以写成 JSON。`on_confirm`、`on_cancel` 是 GDScript 的 `Callable`，只放在调用方的字典里，不进 JSON。
+
+| 字段 | 类型 | 含义 |
+| --- | --- | --- |
+| `title` | 字符串 | 标题。没传或空字符串时用「请确认」 |
+| `text` | 字符串 | 正文。没传或空字符串时不显示，不留空行 |
+| `on_confirm` | Callable | 确认后调用。可选 |
+| `on_cancel` | Callable | 取消后调用。可选 |
+
+```json
+{
+  "title": "请确认",
+  "text": "北面的网已经收起。今天先不要出镇。"
+}
+```
+
+只传正文时，标题仍是「请确认」。方法在脚本里另挂，例如 `data["on_confirm"] = _leave_town`。
+
 ## 大地图
 
-入口是 `map_modal.configure(data)`，然后 `open()`。控件不读存档。有海无海、每个地点能否前往，都由这一份字典决定。按下关闭后发出 `closed`，不在这里结算，也不切换所在地。
+入口是 `map_modal.configure(data)`，然后 `open()`。控件不读存档。有海无海、每个地点能否前往，都由这一份字典决定。按下关闭后发出 `closed`。点中能前往的地点发出 `place_chosen(place_id, place_name)`，不在这里结算，也不切换所在地。
 
 不传 `places` 时，六个地点都能前往。传了 `places` 时，一项是一个地点，`id` 只接受下面六个，别的 id 跳过。这次没写到的地点不能前往。
 

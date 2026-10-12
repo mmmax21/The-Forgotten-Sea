@@ -4,6 +4,4 @@
 /taptap-*.zip
 /previews/*.import
 .godot/
-.godot/editor/
-.godot/shader_cache/
 .vscode/

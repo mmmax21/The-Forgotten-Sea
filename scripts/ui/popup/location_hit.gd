@@ -1,6 +1,9 @@
 extends Control
 ## 地点点击范围。节点的宽和高就是椭圆的宽和高，四角点不中。
 ## 悬停时在椭圆外缘画一圈半透明米黄光圈，宽高比范围大约大 16。
+## 能前往时，椭圆内按下发出 pressed。这里不打开界面。
+
+signal pressed
 
 const EXTRA := 16.0
 const STROKE := 8.0
@@ -24,6 +27,16 @@ func _ready() -> void:
 	add_child(_halo)
 	_layout_halo()
 	_halo.hide()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not _reachable:
+		return
+	if event is InputEventMouseButton:
+		var button := event as InputEventMouseButton
+		if button.pressed and button.button_index == MOUSE_BUTTON_LEFT:
+			accept_event()
+			pressed.emit()
 
 
 func _has_point(point: Vector2) -> bool:

@@ -8,6 +8,7 @@ func _ready() -> void:
 	%CharacterRail.configure(_people())
 	%TopBar.action_pressed.connect(_open_default_notice)
 	%MiniMap.action_pressed.connect(_open_map_notice)
+	%MapModal.place_chosen.connect(_ask_travel)
 
 
 ## 画廊临时入口。四个按钮都打开同一条通知，以后按 id 拆开。
@@ -20,7 +21,8 @@ func _open_default_notice(_id: String) -> void:
 	%Notice.open()
 
 
-## 指南针打开大地图，无海。只放开遗迹、渔村、王城。两个小钮仍打开通知。
+## 指南针打开大地图，无海。只放开遗迹、渔村、王城。
+## 靠上的小钮打开通知。靠下的小钮打开确认框，确认和取消都只关弹窗。
 func _open_map_notice(id: String) -> void:
 	if id == "compass":
 		%MapModal.configure({
@@ -36,11 +38,26 @@ func _open_map_notice(id: String) -> void:
 		})
 		%MapModal.open()
 		return
+	if id == "rim_lower":
+		%ConfirmDialog.configure({
+			"text": "北面的网已经收起。今天先不要出镇。",
+		})
+		%ConfirmDialog.open()
+		return
 	%Notice.apply_engine({
 		"title": "小地图",
 		"text": id,
 	})
 	%Notice.open()
+
+
+## 地图上点了能前往的地点。确认后连地图一起关。取消只关确认框。
+func _ask_travel(_place_id: String, place_name: String) -> void:
+	%ConfirmDialog.configure({
+		"text": "是否确认前往%s？" % place_name,
+		"on_confirm": %MapModal.close,
+	})
+	%ConfirmDialog.open()
 
 
 func _people() -> Array:
