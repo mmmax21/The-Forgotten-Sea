@@ -18,7 +18,7 @@ extends Control
 ## 点中能前往的地点发出 place_chosen(id, 地名)。不关闭地图，也不打开别的界面。
 
 signal closed
-signal place_chosen(place_id: String, place_name: String)
+signal location_selected(id: String)
 
 const PANEL_SIZE := Vector2(1600, 900)
 const TEX_SIZE := Vector2(1024, 576)
@@ -74,9 +74,17 @@ func _ready() -> void:
 	if not _places_given:
 		_reachable = _all_open()
 	_apply_places()
+	for place in %Locations.get_children():
+		var hit := place.get_node_or_null("Hit")
+		if hit != null:
+			hit.pressed.connect(_on_location_pressed.bind(String(place.name)))
 	if get_tree().current_scene == self:
 		_shown = true
 	visible = _shown
+
+
+func _on_location_pressed(id: String) -> void:
+	location_selected.emit(id)
 
 
 ## data 可以只有 show_ocean。不带 places 时六个地点都能前往。
