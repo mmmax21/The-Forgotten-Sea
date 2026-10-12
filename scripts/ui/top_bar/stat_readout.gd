@@ -1,5 +1,5 @@
 extends PanelContainer
-## 一项数值，例如「说服力 0」。
+## 一项数值，例如「支持度 0」。
 ## 单独使用时自带底；放进顶栏时由整行共用一张九宫格，调用 set_plate_visible(false)。
 
 const PLATE := Color(0.97, 0.95, 0.9, 1)

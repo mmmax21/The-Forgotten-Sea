@@ -9,6 +9,8 @@ var location := "home"
 var stage := 0
 var inventory: Array = []
 var support := 0
+## 地区支持度与全局警戒值。算法在 region_stance.gd，不替代上面的哑伯支持度。
+var stance := {}
 var pending := ""
 var choice := ""
 var history: Array = []
@@ -90,7 +92,7 @@ func save_to(path: String) -> Error:
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
-	file.store_string(JSON.stringify({"version": 1, "day": day, "ap": ap, "location": location, "stage": stage, "inventory": inventory, "support": support, "pending": pending, "choice": choice, "history": history}))
+	file.store_string(JSON.stringify({"version": 1, "day": day, "ap": ap, "location": location, "stage": stage, "inventory": inventory, "support": support, "pending": pending, "choice": choice, "history": history, "stance": stance}))
 	file.close()
 	return DirAccess.rename_absolute(path + ".tmp", path)
 
@@ -108,6 +110,8 @@ func load_from(path: String) -> bool:
 	stage = clampi(int(value.get("stage", 0)), 0, 9)
 	inventory = value.inventory
 	support = int(value.get("support", 0))
+	var raw_stance = value.get("stance", {})
+	stance = raw_stance if raw_stance is Dictionary else {}
 	choice = str(value.get("choice", ""))
 	history = value.history
 	pending = str(value.get("pending", ""))

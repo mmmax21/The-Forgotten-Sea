@@ -17,7 +17,7 @@
 
 ## 顶栏
 
-地图界面上方的横条。尚未替换 [scenes/main.tscn](../scenes/main.tscn) 里的旧顶栏（天数、阶段、地区、警戒、手记、菜单）。说服力、影响力、曝光度也还不在游戏状态里，所以这一版只接收调用方传入的文字和数字。
+地图界面上方的横条。尚未替换 [scenes/main.tscn](../scenes/main.tscn) 里的旧顶栏（天数、阶段、地区、警戒、手记、菜单）。这一版只接收调用方传入的文字和数字。剧情入口传入的两项是支持度和警戒值，算法见 [data_formats.md](data_formats.md) 的「地区态势」。
 
 场景都在 `scenes/ui/top_bar/`，脚本在 `scripts/ui/top_bar/`。
 
@@ -25,15 +25,15 @@
 | --- | --- |
 | `stat_readout.tscn` | 一项数值。`configure(label, value)`。单独使用时自带底；放进顶栏后关掉自己的底。 |
 | `action_button.tscn` | 一个操作按钮。`configure(id, text)`。没有贴图时用浅灰圆角，悬停变暗。 |
-| `day_badge.tscn` | 右侧天数。`configure(day, total, ap, ap_max)`。上面是「第N天」，下面是「ap/ap_max」。贴图 208×210，锚在顶栏右上角，上边和右边不留空。 |
+| `day_badge.tscn` | 右侧天数。`configure(day, total, ap, ap_max)`。上面是「第N天」，中间是行动点和一排圆点，下面是「结束当天」。贴图 208×210，锚在顶栏右上角，上边和右边不留空。 |
 | `top_bar.tscn` | 把上面三块排好。左侧两行，右侧天数。 |
 
 数据引擎的入口是 `apply_engine(data)`。整份字段和测试 JSON 见 [data_formats.md](data_formats.md)。`configure` 只负责拆开这字典，引擎不要直接调用。
 
 - 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。
-- 数值条是整行一张底，三个数值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
+- 数值条是整行一张底，支持度和警戒值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
 
-剧情运行入口为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)，F5 或单独 F6 均可启动。1920×1032 设计区域随窗口等比缩放居中。顶栏已接任务、物品、状态与设置；日期显示剩余 AP。右下地图的指南针打开大地图，点中能前往的地点发出 `place_chosen(place_id, place_name)`。剧情据此在遗迹与渔村之间移动，底部文本框播放完整剧情。抵达遗迹使用 `assets/backgrounds/ruins-v1.png` 并隐藏不在场的人物。详见 [运行说明](ruins_runtime.md)。
+剧情运行入口为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)，F5 或单独 F6 均可启动。1920×1032 设计区域随窗口等比缩放居中。顶栏已接剧情、物品、状态与设置；日期角标显示剩余行动点，并有「结束当天」。右下地图的指南针打开大地图，上侧小钮是集会，下侧小钮是隐藏。点中能前往的地点先在地图自己的确认弹窗里核对，确认后才发出 `place_chosen(place_id, place_name)`。剧情据此在遗迹与渔村之间移动，底部文本框播放完整剧情。抵达遗迹使用 `assets/backgrounds/ruins-v1.png` 并隐藏不在场的人物。详见 [运行说明](ruins_runtime.md)。
 
 ### 底部文本框
 
@@ -152,7 +152,7 @@
 
 ### 确认弹窗
 
-居中的小面板。全屏遮罩完全透明，仍挡住底层点击。点遮罩不关闭。没有右上角关闭钮，只能按「确认」或「取消」。用编辑器打开该场景后按 F6 可单独预览。控件不读存档，也不决定确认之后的玩法。剧情里的移动和结束今日行动走剧情自己的弹层。
+居中的小面板。全屏遮罩完全透明，仍挡住底层点击。点遮罩不关闭。没有右上角关闭钮，只能按「确认」或「取消」。用编辑器打开该场景后按 F6 可单独预览。控件不读存档，也不决定确认之后的玩法。集会和隐藏用这张弹窗先写出数值变化，确认后才结算。移动和结束今日行动仍走剧情自己的弹层。
 
 - 场景：[scenes/ui/popup/confirm_dialog.tscn](../scenes/ui/popup/confirm_dialog.tscn)
 - 脚本：[scripts/ui/popup/confirm_dialog.gd](../scripts/ui/popup/confirm_dialog.gd)
@@ -171,7 +171,7 @@
 
 - 场景：[scenes/ui/popup/map_modal.tscn](../scenes/ui/popup/map_modal.tscn)
 - 脚本：[scripts/ui/popup/map_modal.gd](../scripts/ui/popup/map_modal.gd)
-- 对外：`configure(data)`、`open()`、`close()`。字段见 [data_formats.md](data_formats.md)。`close()` 会 `hide()`，并发出 `closed`。点中能前往的地点发出 `place_chosen(place_id, place_name)`，地图自己不关闭，也不打开确认框。
+- 对外：`configure(data)`、`open()`、`close()`。字段见 [data_formats.md](data_formats.md)。`close()` 会 `hide()`，并发出 `closed`。点中能前往的地点先打开地图里的确认弹窗。确认后发出 `place_chosen(place_id, place_name)`，并关闭地图。取消留在地图上。
 - `show_ocean` 缺省是假，用无海图；为真时用有海图。不传 `places` 时六个地点都能前往。传了 `places` 时，没写到的地点不能前往。
 
 面板 1600×900，和卷轴底同比例。卷轴底左右透明边不对称，纸面中心大约在纹理 x=561，整张图中心在 512，所以面板从屏幕中心再向左挪约 77。地图铺在纸面上：纹理像素左 136、上 24、右 896、下 563。左、上、下贴住纸边，右边停在轴的深色网纹之前。两张地图都是 655×457，用覆盖缩放铺满这块槽，多出的一点点从边缘裁掉。关闭按钮在纸面右上、轴的左边，48×48，不压在轴上。
@@ -199,7 +199,7 @@
 
 还没有遮挡图。`Cover` 先画一个和 `Hit` 同大的半透明灰椭圆。图到了再换成素材，大小仍跟该地点的 `Hit` 走。
 
-剧情里指南针打开大地图，无海。遗迹在取得线索后可前往，渔村一直可前往。点中后地图自己不关闭，调用方收到 `place_chosen` 再处理：点遗迹会先关掉地图，再询问是否前往；点渔村关掉地图后选择哑伯住处。单独 F6 这个场景时不传 `places`，六地都能前往，点了只发出 `place_chosen`。
+剧情里指南针打开大地图，无海。遗迹在取得线索后可前往，渔村一直可前往。点中后地图上的确认弹窗写明目的地和 1 点行动点。确认后关闭地图并发出 `place_chosen`：遗迹前往遗迹，渔村前往哑伯住处。已经在该地，或行动点不足时，确认不会离开。单独 F6 这个场景时不传 `places`，六地都能前往，确认后发出 `place_chosen`。
 
 ### 美术
 
@@ -208,6 +208,29 @@
 - 卷轴底：1024×576，`assets/ui/map_modal/map_background.png`。
 - 无海：655×457，`assets/ui/map_modal/map_without_ocean.png`。
 - 有海：655×457，`assets/ui/map_modal/map_with_ocean.png`。
+
+### 物品栏
+
+居中的背包。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「物品」也打开这张，内容用脚本里的预览数据。控件不读存档，也不决定物品怎么使用。
+
+- 场景：[scenes/ui/popup/inventory_modal.tscn](../scenes/ui/popup/inventory_modal.tscn)
+- 脚本：[scripts/ui/popup/inventory_modal.gd](../scripts/ui/popup/inventory_modal.gd)
+- 对外：`apply_engine(data)`、`open()`。按下右上角关闭后 `hide()`，并发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。书签和页码由控件自己记。
+
+面板宽 560，高 640，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。
+
+左侧两枚书签贴在面板左缘外侧。上枚「剧情」，下枚「普通」。选中的那枚与面板同色，并压住面板左缘。未选中的更短、颜色更暗，画在面板后面。换书签回到第 1 页。
+
+主体始终是 4×4，共 16 格。格子 96×96，间距 12。有物品且图标能载入时显示图标。图标缺失时在格内写名字。空格仍留浅底和细边，不显示字。单击格子不使用物品。
+
+格子下方是翻页条：左箭头、`当前页/总页`、右箭头。左箭头是 `assets/Icons.png` 第 5 行第 5 格 `Rect2(64, 64, 16, 16)`，右箭头是第 5 行第 6 格 `Rect2(80, 64, 16, 16)`，都显示成 48。第一页左箭头变淡且按了无效，最后一页右箭头同样。不足或刚好 16 件时两枚都无效，格子数仍是 16。
+
+鼠标进入有物品的格子时，右侧 8px 外弹出介绍。宽 320，四边留空 22。标题是物品名，下面是描述。描述超出时在介绍内部滚动，滚轮停在格子上即可翻。移出格子后介绍消失。空格不弹出。介绍碰到屏幕右缘时改到格子左侧。
+
+关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48。悬停只把图标压暗。
+
+单独 F6 时，剧情侧是古老的船歌、旧木板、造船图纸。普通侧放 17 件占位，用来看到第二页。
 
 ## 小地图
 
@@ -219,12 +242,12 @@
 | --- | --- |
 | `mini_map.tscn` | 外壳锚在屏幕右下。指南针距右 16，距下 48。 |
 | 指南针 | 256×256。按下发出 `action_pressed("compass")`。 |
-| 上侧小钮 | 64×64，约在 10 点半方向，直径的三分之一压进铜环。默认 id 是 `rim_upper`。 |
-| 下侧小钮 | 64×64，约在 9 点方向，同样压进铜环。默认 id 是 `rim_lower`。 |
+| 上侧小钮 | 64×64，约在 10 点半方向，直径的三分之一压进铜环。默认 id 是 `gather`，纸心写「集」。 |
+| 下侧小钮 | 64×64，约在 9 点方向，同样压进铜环。默认 id 是 `hide`，纸心写「隐」。 |
 
 三个圆钮是同级节点，小钮排在指南针后面，所以画在上面、先接到点击。每个钮只在圆内接收点击，方框四角透下去，重叠处点到的是小钮。
 
-- `configure(upper_id, lower_id)` 只改两个小钮的 id。
+- `configure(upper_id, lower_id)` 只改两个小钮的 id。默认是 `gather`、`hide`。纸心上的「集」「隐」由代码绘制，不画进贴图。
 - `press_compass()`、`press_upper()`、`press_lower()` 是预留入口，内部只发出对应 id，不打开地图。
 - 按下走 `action_pressed(id)`。打开什么界面由调用方决定。
 
@@ -244,7 +267,7 @@
 | 素材 | 路径 | 文件尺寸 | 比例 | 用途 |
 | --- | --- | --- | --- | --- |
 | 顶栏两行底板 | `assets/ui/top_bar/rows_texture.png` | 620×150 | 4.13:1 | 顶栏左侧木板，包住数值和四个按钮。左右各 108px、上下各 64px 不拉伸。 |
-| 数值条 | `assets/ui/top_bar/stat_bar_texture.png` | 560×72 | 7.78:1 | 说服力、影响力、曝光度共用的一条底。左右卷轴各 64px，上下木边各 16px 不拉伸。 |
+| 数值条 | `assets/ui/top_bar/stat_bar_texture.png` | 560×72 | 7.78:1 | 支持度、警戒值共用的一条底。左右卷轴各 64px，上下木边各 16px 不拉伸。 |
 | 按钮三态 | `assets/ui/top_bar/button_states.png` | 560×76 | 7.37:1 | 从左到右：常规 `Rect2(0, 0, 186, 76)`、悬停 `Rect2(193, 0, 178, 76)`、按下 `Rect2(378, 0, 182, 76)`。圆角两端各留 40px。 |
 | 天数角标 | `assets/ui/top_bar/day_badge.png` | 208×210 | 约 1:1 | 右上四分之一圆。贴住屏幕上边和右边，上面显示「第N天」，下面显示「ap/ap_max」。 |
 | 人物卡框 | `assets/ui/character_card/card_frame.png` | 144×160 | 0.9:1（9:10） | 单张人物卡外框。四边各 16px 不拉伸，正中透明。人像画在 120×104，多出的约 4px 被这圈木边盖住。 |

@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dnlus0wtv1qah" path="res://assets/ui/map_modal/map_with_ocean.png" id="5_sea"]
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/location_label.tscn" id="6_place"]
 [ext_resource type="Script" path="res://scripts/ui/popup/location_hit.gd" id="7_hit"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/confirm_dialog.tscn" id="8_confirm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4f661"]
 content_margin_left = 12.0
@@ -342,3 +343,8 @@ theme_override_constants/icon_max_width = 48
 icon = SubResource("AtlasTexture_close")
 flat = true
 expand_icon = true
+
+[node name="ConfirmDialog" parent="." instance=ExtResource("8_confirm")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

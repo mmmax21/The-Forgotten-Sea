@@ -1,0 +1,44 @@
+{
+  "alert": 0,
+  "alert_min": 0,
+  "support_min": 0,
+  "ap_cost": 1,
+  "actions": {
+    "gather": {
+      "title": "集会",
+      "lead": "在{region}召集集会。",
+      "summary": "居民会更接受海的想法，王国也更容易注意到这里。",
+      "empty_summary": "这里还没有居民，支持度不变。警戒值仍会上升。",
+      "support": 1,
+      "alert": 1
+    },
+    "hide": {
+      "title": "隐藏",
+      "lead": "暂时隐藏行踪。",
+      "summary": "王国对你的注意会下降。本地区支持度不变。",
+      "floor_summary": "警戒值已经到下限，不会再下降。这次不消耗行动点。",
+      "support": 0,
+      "alert": -1
+    }
+  },
+  "regions": {
+    "fishing_village": {
+      "name": "渔村",
+      "npcs": [
+        { "id": "fisher", "name": "老渔夫", "support": 0 },
+        { "id": "salt", "name": "盐嫂", "support": 0 },
+        { "id": "luoluo", "name": "螺螺", "support": 0 },
+        { "id": "yabo", "name": "哑伯", "support": 0 }
+      ]
+    },
+    "ruins": { "name": "遗迹", "npcs": [] },
+    "market": { "name": "集市", "npcs": [] },
+    "old_academy": { "name": "旧学城", "npcs": [] },
+    "feather_forest": { "name": "羽之森", "npcs": [] },
+    "royal_city": { "name": "王城", "npcs": [] }
+  },
+  "location_region": {
+    "home": "fishing_village",
+    "ruins": "ruins"
+  }
+}

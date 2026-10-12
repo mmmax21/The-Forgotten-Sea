@@ -13,9 +13,9 @@ extends Control
 ##   old_academy 旧学城，feather_forest 羽之森，royal_city 王城。
 ## - CloseButton：纸面右上，轴的左边。图标是 Icons.png 第 3 行第 5 格。
 ##
-## configure(data) 收 show_ocean 和 places。不传 places 时六地都能前往。
+## configure(data) 收 show_ocean、places，以及可选的 ap、ap_cost、current_place、travel_names。
 ## open() 负责显示。close() 负责隐藏，并发出 closed。右上角关闭钮也走它。
-## 点中能前往的地点发出 place_chosen(id, 地名)。不关闭地图，也不打开别的界面。
+## 点中能前往的地点先打开本场景里的确认弹窗。确认后才发出 place_chosen(id, 地名)，并关闭地图。
 
 signal closed
 signal place_chosen(place_id: String, place_name: String)
@@ -61,6 +61,12 @@ var _shown := false
 var _places_given := false
 var _reachable := {}
 var _wired := {}
+var _ap := 3
+var _ap_cost := 1
+var _current_place := ""
+var _travel_names := {}
+var _pending_id := ""
+var _pending_name := ""
 
 
 func _ready() -> void:
@@ -71,6 +77,7 @@ func _ready() -> void:
 	_style_close()
 	_apply_map()
 	%CloseButton.pressed.connect(close)
+	%ConfirmDialog.hide()
 	if not _places_given:
 		_reachable = _all_open()
 	_apply_places()
@@ -83,6 +90,11 @@ func _ready() -> void:
 ## 带了 places 时，没写到的地点不能前往。一项是 {id, reachable}。
 func configure(data: Dictionary = {}) -> void:
 	_show_ocean = bool(data.get("show_ocean", false))
+	_ap = int(data.get("ap", _ap))
+	_ap_cost = maxi(0, int(data.get("ap_cost", _ap_cost)))
+	_current_place = str(data.get("current_place", _current_place))
+	var names = data.get("travel_names", _travel_names)
+	_travel_names = names if names is Dictionary else {}
 	if data.has("places"):
 		_places_given = true
 		_reachable = _from_places(data.get("places", []))
@@ -105,8 +117,15 @@ func open() -> void:
 ## 调用方也可以关。确认前往时，预览用这个方法把地图一起关掉。
 func close() -> void:
 	_shown = false
+	_pending_id = ""
+	if is_node_ready():
+		%ConfirmDialog.hide()
 	hide()
 	closed.emit()
+
+
+func is_travel_confirm_open() -> bool:
+	return is_node_ready() and %ConfirmDialog.visible
 
 
 func _layout_panel() -> void:
@@ -218,7 +237,40 @@ func _choose_place(place_id: String) -> void:
 		var written := str(label.place_name).strip_edges()
 		if written != "":
 			place_name = written
+	_pending_id = place_id
+	_pending_name = place_name
+	var destination := str(_travel_names.get(place_id, place_name))
+	var title := "前往%s" % destination
+	var text := ""
+	var on_confirm := Callable()
+	if place_id == _current_place and _current_place != "":
+		text = "你已经在%s。" % destination
+	elif _ap < _ap_cost:
+		text = "行动点不足，无法前往%s。\n需要 %d AP，当前剩余 %d。\n这次不会离开。" % [destination, _ap_cost, _ap]
+	else:
+		text = "是否前往%s？\n本次移动消耗 %d 点行动点。\n当前剩余：%d AP\n确认后才会离开。取消则留在地图上。" % [destination, _ap_cost, _ap]
+		on_confirm = _commit_travel
+	%ConfirmDialog.configure({
+		"title": title,
+		"text": text,
+		"on_confirm": on_confirm,
+		"on_cancel": _clear_travel,
+	})
+	%ConfirmDialog.open()
+
+
+func _commit_travel() -> void:
+	var place_id := _pending_id
+	var place_name := _pending_name
+	_pending_id = ""
+	if place_id == "":
+		return
 	place_chosen.emit(place_id, place_name)
+	close()
+
+
+func _clear_travel() -> void:
+	_pending_id = ""
 
 
 func _cover_for(place: Node, hit: Node) -> Control:

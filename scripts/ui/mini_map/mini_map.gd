@@ -7,7 +7,7 @@ extends Control
 ##   大钮不当父节点，否则会把小钮的点击吃掉。
 ##
 ## 按下只发出 action_pressed(id)。打开什么界面由调用方决定。
-## 两个小钮的玩法还没定，id 用 configure 改。
+## 上侧小钮是集会，下侧小钮是隐藏。纸心上的字由圆钮自己画。
 
 signal action_pressed(id: String)
 
@@ -21,8 +21,8 @@ const COMPASS_ID := "compass"
 const UPPER_ANGLE := -135.0
 const LOWER_ANGLE := 180.0
 
-var _upper_id := "rim_upper"
-var _lower_id := "rim_lower"
+var _upper_id := "gather"
+var _lower_id := "hide"
 
 
 func _ready() -> void:
@@ -30,11 +30,15 @@ func _ready() -> void:
 	%Compass.pressed.connect(press_compass)
 	%Upper.pressed.connect(press_upper)
 	%Lower.pressed.connect(press_lower)
+	%Upper.caption = "集"
+	%Lower.caption = "隐"
+	%Upper.tooltip_text = "集会"
+	%Lower.tooltip_text = "隐藏"
 	_layout()
 
 
 ## 只改两个小钮的 id。指南针固定是 "compass"。
-func configure(upper_id: String = "rim_upper", lower_id: String = "rim_lower") -> void:
+func configure(upper_id: String = "gather", lower_id: String = "hide") -> void:
 	_upper_id = upper_id
 	_lower_id = lower_id
 

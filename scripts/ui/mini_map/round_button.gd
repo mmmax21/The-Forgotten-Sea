@@ -45,6 +45,15 @@ var _down := false
 		if is_node_ready():
 			queue_redraw()
 
+## 纸心上的字。图内不写字，小钮的「集」「隐」从这里画。
+@export var caption := "":
+	set(value):
+		caption = value
+		if is_node_ready():
+			queue_redraw()
+
+var _caption_font: SystemFont
+
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -79,17 +88,17 @@ func _draw() -> void:
 	var frame := _frame()
 	if frame != null:
 		draw_texture_rect(frame, Rect2(Vector2.ZERO, size), false)
-		return
-	var ring := clampf(radius * 0.09, 3.0, 14.0)
-	draw_circle(center, radius, BRASS)
-	var inner := radius - ring
-	draw_circle(center, inner, PAPER)
-	if not draw_needle:
-		return
-	var tip := center + Vector2(0.0, -inner * 0.72)
-	var tail := center + Vector2(0.0, inner * 0.22)
-	draw_line(tail, tip, BRASS, maxf(2.0, radius * 0.035), true)
-	draw_circle(center, maxf(3.0, radius * 0.045), BRASS)
+	else:
+		var ring := clampf(radius * 0.09, 3.0, 14.0)
+		draw_circle(center, radius, BRASS)
+		var inner := radius - ring
+		draw_circle(center, inner, PAPER)
+		if draw_needle:
+			var tip := center + Vector2(0.0, -inner * 0.72)
+			var tail := center + Vector2(0.0, inner * 0.22)
+			draw_line(tail, tip, BRASS, maxf(2.0, radius * 0.035), true)
+			draw_circle(center, maxf(3.0, radius * 0.045), BRASS)
+	_draw_caption()
 
 
 func _enter() -> void:
@@ -123,6 +132,24 @@ func _frame() -> Texture2D:
 	if state_normal != null:
 		return state_normal
 	return background
+
+
+func _draw_caption() -> void:
+	if caption == "":
+		return
+	var font := _font()
+	var font_size := clampi(int(round(minf(size.x, size.y) * 0.36)), 16, 36)
+	var ascent := font.get_ascent(font_size)
+	var descent := font.get_descent(font_size)
+	var baseline := size.y * 0.5 + (ascent - descent) * 0.5
+	draw_string(font, Vector2(0, baseline), caption, HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, Color(0.28, 0.16, 0.05, 1))
+
+
+func _font() -> SystemFont:
+	if _caption_font == null:
+		_caption_font = SystemFont.new()
+		_caption_font.font_names = PackedStringArray(["KaiTi", "Microsoft YaHei", "微软雅黑"])
+	return _caption_font
 
 
 func _radius() -> float:

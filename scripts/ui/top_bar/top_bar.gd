@@ -3,14 +3,15 @@ extends Control
 ##
 ## 场景结构（scenes/ui/top_bar/top_bar.tscn）：
 ## - RowsPlate：左侧两行共用的底，包住数值和按钮。
-## - StatPlate / StatRow：第一行数值。三项共用一条更窄的底。
+## - StatPlate / StatRow：第一行数值。支持度、警戒值共用一条更窄的底。
 ## - ButtonRow：第二行操作按钮。按下发出 action_pressed(id)。
-## - DayBadge：右侧天数，下面是剩余行动点「ap/ap_max」。
+## - DayBadge：右侧天数。行动点在羊皮纸条上，下面是「结束当天」。
 ##
 ## 数据引擎以后只调用 apply_engine(data)。字段见 docs/data_formats.md 的「顶栏」。
 ## 顶栏不读存档，也不打开按钮对应的界面。按下只发出 action_pressed(id)。
 ## 本场景不替换 main.tscn 里的旧顶栏。
 signal action_pressed(id: String)
+signal end_day_confirmed
 
 const STAT_SCENE := preload("res://scenes/ui/top_bar/stat_readout.tscn")
 const BUTTON_SCENE := preload("res://scenes/ui/top_bar/action_button.tscn")
@@ -41,6 +42,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_apply_rows_plate()
 	_apply_stat_plate()
+	%DayBadge.end_day_confirmed.connect(func() -> void: end_day_confirmed.emit())
 	if get_tree().current_scene == self:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if _pending.is_empty():
@@ -188,16 +190,27 @@ func button_row() -> HBoxContainer:
 	return %ButtonRow
 
 
+func set_end_day_enabled(enabled: bool) -> void:
+	%DayBadge.set_end_day_enabled(enabled)
+
+
+func ask_end_day() -> void:
+	%DayBadge.ask_end_day()
+
+
+func is_end_day_confirm_open() -> bool:
+	return %DayBadge.is_confirm_open()
+
+
 ## 单独预览顶栏时用。正式运行由数据引擎调用 apply_engine，不要改这里代替存档。
 func _preview_payload() -> Dictionary:
 	return {
 		"stats": [
-			{"label": "说服力", "value": "0"},
-			{"label": "影响力", "value": "0"},
-			{"label": "曝光度", "value": "0"},
+			{"label": "支持度", "value": "0"},
+			{"label": "警戒值", "value": "0"},
 		],
 		"buttons": [
-			{"id": "tasks", "text": "任务"},
+			{"id": "story", "text": "剧情"},
 			{"id": "items", "text": "物品"},
 			{"id": "status", "text": "状态"},
 			{"id": "settings", "text": "设置"},
