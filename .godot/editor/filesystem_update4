@@ -1,3 +1,4 @@
 res://scripts/story/trial1_state.gd
 res://scripts/ui/trial1.gd
 res://tests/trial1_tests.gd
+res://scripts/ui/trial1_dialogue_box.gd

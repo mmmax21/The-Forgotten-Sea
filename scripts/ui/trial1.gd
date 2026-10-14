@@ -1,6 +1,7 @@
 extends Control
 ## Standalone MVP scene; does not change the existing chapter or its save.
 const Dialogue := preload("res://scripts/story/trial1_dialogue.gd")
+const Art := preload("res://scripts/ui/trial1_art.gd")
 const State := preload("res://scripts/story/trial1_state.gd")
 const Characters := preload("res://scripts/ui/character_card/default_characters.gd")
 const MapScene := preload("res://scenes/ui/popup/map_modal.tscn")
@@ -97,6 +98,11 @@ func _text(parent: Node, value: String, font_size := 25, color := PAPER) -> Labe
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_shadow_color", Color(0.02, 0.03, 0.03, 0.95))
+	label.add_theme_constant_override("shadow_offset_x", 2)
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.03, 0.8))
+	label.add_theme_constant_override("outline_size", 3)
 	parent.add_child(label)
 	return label
 
@@ -149,7 +155,7 @@ func _build_ui() -> void:
 	var right := _panel(Vector2(1440, 260), Vector2(450, 420), %Design)
 	side = _scroll_column(right)
 	continue_hint = _text(%Design, "", 22, GOLD)
-	continue_hint.position = Vector2(340, 978)
+	continue_hint.position = Vector2(340, 950)
 	continue_hint.size = Vector2(950, 35)
 	continue_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	continue_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -237,6 +243,7 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	_ensure_presentation()
+	%LocationBackground.texture = Art.BACKGROUNDS[Art.REGION_IDS[state.region()]]
 	%TopBar.apply_engine({"stats": [{"label": "信仰 F", "value": state.faith}, {"label": "警戒 A", "value": state.alert}], "buttons": [{"id": "journal", "text": "手记"}, {"id": "evidence", "text": "证据"}, {"id": "map", "text": "地图"}, {"id": "settings", "text": "设置"}], "day": state.round_number, "total": 15, "ap": state.ap, "ap_max": 3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 15" % state.round_number
 	%TopBar.get_node("DayBadge/Ap").text = "AP %d/3" % state.ap
@@ -406,8 +413,8 @@ func _toolbar(id: String) -> void:
 				_text(overlay_body, "旅程刚刚开始，尚无完成的调查。")
 		"map":
 			var places: Array = []
-			for i in range(3):
-				places.append({"id": ["fishing_village", "market", "old_academy"][i], "reachable": i <= state.region()})
+			for place_id in Art.BACKGROUNDS:
+				places.append({"id": place_id, "reachable": true})
 			map_modal.configure({"show_ocean": state.ending == "sea", "places": places})
 			map_modal.open()
 		"settings":
@@ -417,13 +424,23 @@ func _toolbar(id: String) -> void:
 
 func _map_place(id: String) -> void:
 	map_modal.hide()
-	var index: int = ["fishing_village", "market", "old_academy"].find(id)
-	if index < 0:
+	if not Art.BACKGROUNDS.has(id):
 		return
-	_popup(str(state.data.regions[index].name))
-	_text(overlay_body, str(state.data.regions[index].intro))
-	_text(overlay_body, "这里是当前调查区域。" if index == state.region() else "这段调查已完成，可在手记中回看。", 24, GOLD)
-	_text(overlay_body, "旅程按回合推进，区域切换不消耗 AP。查看地图不会改变剧情进度。", 23, MUTED)
+	var index: int = Art.REGION_IDS.find(id)
+	_popup(str(Art.PLACE_NAMES[id]))
+	var picture := TextureRect.new()
+	picture.texture = Art.BACKGROUNDS[id]
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size.y = 430
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_body.add_child(picture)
+	if index >= 0:
+		_text(overlay_body, str(state.data.regions[index].intro))
+		_text(overlay_body, "这里是当前调查区域。" if index == state.region() else ("这段调查已完成，可在手记中回看。" if index < state.region() else "这里是后续调查区域，完成当前章节后前往。"), 24, GOLD)
+	else:
+		_text(overlay_body, "地点预览 · 当前十五回合旅程暂未开放这里的剧情。", 24, GOLD)
+	_text(overlay_body, "查看地点不消耗 AP，也不会改变剧情进度。", 23, MUTED)
 
 func _restart_ask() -> void:
 	_popup("重新开始旅程？")
