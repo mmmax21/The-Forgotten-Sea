@@ -1,9 +1,3 @@
-res://scripts/ui/component_gallery.gd
-res://scripts/ui/character_card/character_card.gd
-res://scripts/ui/character_card/character_rail.gd
-res://scripts/ui/character_card/default_characters.gd
-res://scripts/ui/dialogue_box/dialogue_box.gd
-res://scripts/ui/portrait_panel/portrait_panel.gd
-res://scripts/ui/popup/location_hit.gd
-res://scripts/ui/popup/map_modal.gd
-res://scripts/ui/story_modal.gd
+res://scenes/main.tscn
+res://assets/ui/journal/book_frames.tres
+res://scripts/ui/top_bar/top_bar.gd

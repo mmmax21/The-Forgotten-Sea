@@ -1,6 +1,6 @@
 # 渔村与遗迹：运行说明
 
-打开根目录 `project.godot`，按 F5。现在默认启动 `scenes/ui/component_gallery.tscn` 中的剧情界面；原版十日规划保留在 `scenes/main.tscn`，可单独 F6 运行，其数据与此章节分开。
+打开根目录 `project.godot`，按 F5。默认启动 `scenes/ui/component_gallery.tscn` 中的剧情界面。文件结构见 [完整依赖清单](component_gallery_files.md)。
 
 ## 可玩流程
 
