@@ -10,7 +10,7 @@ F5 启动项目或 F6 运行 `scenes/ui/component_gallery.tscn`，点击哑伯�
 
 ## 物品裁切
 
-本剧情使用的三张独立 Godot AtlasTexture 资源从 `assets/icons_4panel.jpg` 划定完整区域，保留各自金色边框，避开其他格子。原有裁偏的 PNG 保留。可将以下 `.tres` 直接拖入 Texture 属性，保持图片比例显示。
+本剧情使用的三张独立 Godot AtlasTexture 资源从 `assets/icons_4panel.jpg` 划定完整区域，保留各自金色边框，避开其他格子。未使用的旧裁切 PNG 已清理。可将以下 `.tres` 直接拖入 Texture 属性，保持图片比例显示。
 
 | 物品 | 资源 |
 | --- | --- |

@@ -9,7 +9,7 @@ extends Control
 ##
 ## 数据引擎以后只调用 apply_engine(data)。字段见 docs/data_formats.md 的「顶栏」。
 ## 顶栏不读存档，也不打开按钮对应的界面。按下只发出 action_pressed(id)。
-## 本场景不替换 main.tscn 里的旧顶栏。
+## 由 component_gallery.tscn 使用的顶栏组件。
 signal action_pressed(id: String)
 signal end_day_confirmed
 
