@@ -210,8 +210,8 @@ func _preview_payload() -> Dictionary:
 			{"label": "警戒值", "value": "0"},
 		],
 		"buttons": [
-			{"id": "story", "text": "剧情"},
-			{"id": "items", "text": "物品"},
+			{"id": "journal", "text": "手记"},
+			{"id": "evidence", "text": "证据"},
 			{"id": "status", "text": "状态"},
 			{"id": "settings", "text": "设置"},
 		],

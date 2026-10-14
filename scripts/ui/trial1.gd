@@ -5,6 +5,7 @@ const Art := preload("res://scripts/ui/trial1_art.gd")
 const State := preload("res://scripts/story/trial1_state.gd")
 const Characters := preload("res://scripts/ui/character_card/default_characters.gd")
 const MapScene := preload("res://scenes/ui/popup/map_modal.tscn")
+const EventScene := preload("res://scenes/ui/popup/event_modal.tscn")
 const GOLD := Color("d5bb83")
 const PAPER := Color("ece2cd")
 const MUTED := Color("b5c4c0")
@@ -19,6 +20,7 @@ var actions: VBoxContainer
 var side: VBoxContainer
 var save_label: Label
 var map_modal
+var event_modal
 var overlay: Control
 var overlay_body: VBoxContainer
 var overlay_actions: VBoxContainer
@@ -34,6 +36,7 @@ func _ready() -> void:
 	%CharacterRail.character_selected.connect(_on_character_selected)
 	%DialogueBox.dialogue_finished.connect(_on_dialogue_finished)
 	%DialogueBox.line_presented.connect(_on_line_presented)
+	%DialogueBox.gui_input.connect(_on_dialogue_click)
 	%MiniMap.action_pressed.connect(_minimap)
 	%MiniMap.get_node("Compass").tooltip_text = "地图"
 	%MiniMap.get_node("Upper").tooltip_text = "证据"
@@ -165,7 +168,12 @@ func _build_ui() -> void:
 	map_modal = MapScene.instantiate()
 	%Design.add_child(map_modal)
 	map_modal.hide()
-	map_modal.location_selected.connect(_map_place)
+	map_modal.place_chosen.connect(_map_place)
+	event_modal = EventScene.instantiate()
+	%Design.add_child(event_modal)
+	event_modal.hide()
+	event_modal.option_chosen.connect(_choose)
+	event_modal.closed.connect(_on_event_closed)
 	overlay = Control.new()
 	%Design.add_child(overlay)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -243,10 +251,10 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	_ensure_presentation()
+	if event_modal != null and stage() != "choices" and event_modal.visible:
+		event_modal.hide()
 	%LocationBackground.texture = Art.BACKGROUNDS[Art.REGION_IDS[state.region()]]
 	%TopBar.apply_engine({"stats": [{"label": "信仰 F", "value": state.faith}, {"label": "警戒 A", "value": state.alert}], "buttons": [{"id": "journal", "text": "手记"}, {"id": "evidence", "text": "证据"}, {"id": "map", "text": "地图"}, {"id": "settings", "text": "设置"}], "day": state.round_number, "total": 15, "ap": state.ap, "ap_max": 3})
-	%TopBar.get_node("DayBadge/Caption").text = "%d / 15" % state.round_number
-	%TopBar.get_node("DayBadge/Ap").text = "AP %d/3" % state.ap
 	for button in %TopBar.button_row().get_children():
 		button.disabled = busy()
 	_refresh_people()
@@ -270,13 +278,7 @@ func _refresh() -> void:
 			%DialogueBox.show_from(state.presentation.lines, int(state.presentation.index))
 		"choices":
 			_show_portrait(str(state.presentation.get("portrait", current_actor())))
-			%DialogueBox.show_text("你准备如何回应？请选择上方的一项行动。")
-			for id in ["A", "B", "C"]:
-				var value: Dictionary = state.option(id)
-				var reason: String = state.blocked_reason(id)
-				var cost := "%d AP · F %+d · A %+d" % [int(value.cost), int(value.f), int(value.a)]
-				var label := "%s　%s\n%s" % [id, value.title, cost if reason.is_empty() else cost + "\n" + reason]
-				_button(actions, label, id, _choose.bind(id), not reason.is_empty())
+			%DialogueBox.show_text("点击此处，查看可以采取的行动。")
 		"aftermath":
 			%DialogueBox.show_text(str(state.report).replace("未接触", "尚未建立联系"))
 			if state.ap > 0 and not state.generic_used:
@@ -350,6 +352,8 @@ func _on_dialogue_finished() -> void:
 		_: return
 	_save()
 	_refresh()
+	if stage() == "choices":
+		_open_event_choices()
 
 func _save_caption() -> void:
 	save_label.text = save_error if not save_error.is_empty() else "进度自动保存到当前对白　·　移动不消耗 AP　·　A≥18 遗忘重临"
@@ -365,7 +369,51 @@ func _choose(id: String) -> void:
 	if stage() != "choices" or overlay.visible or map_modal.visible:
 		return
 	if state.begin(id):
+		if event_modal != null and event_modal.visible:
+			event_modal.hide()
 		_start_dialogue("result", dialogue.lines_for(state, id))
+
+
+func _open_event_choices() -> void:
+	if stage() != "choices" or overlay.visible or map_modal.visible or event_modal.visible:
+		return
+	event_modal.apply_engine(_event_payload())
+	event_modal.open()
+
+
+func _event_payload() -> Dictionary:
+	var options: Array = []
+	for id in ["A", "B", "C"]:
+		var value: Dictionary = state.option(id)
+		if value.is_empty():
+			continue
+		var reason: String = state.blocked_reason(id)
+		var detail := "%d AP · F %+d · A %+d" % [int(value.cost), int(value.f), int(value.a)]
+		options.append({
+			"id": id,
+			"title": str(value.title),
+			"detail": reason if not reason.is_empty() else detail,
+			"disabled": not reason.is_empty(),
+		})
+	return {
+		"title": str(state.event().title),
+		"text": str(state.event().get("intro", "")),
+		"options": options,
+	}
+
+
+func _on_event_closed() -> void:
+	if stage() == "choices":
+		%DialogueBox.show_text("点击此处，查看可以采取的行动。")
+
+
+func _on_dialogue_click(event: InputEvent) -> void:
+	var click: InputEventMouseButton = event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if stage() != "choices" or event_modal.visible or overlay.visible or map_modal.visible:
+		return
+	_open_event_choices()
 
 func _generic(id: String) -> void:
 	if stage() == "aftermath" and state.generic(id):
@@ -422,7 +470,7 @@ func _toolbar(id: String) -> void:
 			_text(overlay_body, "每回合 3 AP，只选择一个剧情行动。有余力时，可再执行一次整理笔记或谨慎收尾。移动免费，第 5、10 回合结束后自动转场。\n\nF 表示海洋真相进入共同认知的程度，A 表示调查引起的警戒。F 不设硬上限，A 最低为 0。\n\nA≥6 受到关注；A≥10 出现监视；A≥14 关闭客栈传播、小规模复制、商队托带；A≥18 立即遗忘重临。\n\n第 15 回合结算：F≥20 且 A<18，海回归；12≤F<20 且 A≤10，王国获得解放；其余为遗忘重临。\n\n点击当前角色卡开始交谈。点击文字框或按回车逐段推进，开场结束后选择行动，分支读完才结算。每段对白自动保存，退出后从当前句继续。")
 			_button(overlay_actions, "重新开始这段旅程…", "restart", _restart_ask)
 
-func _map_place(id: String) -> void:
+func _map_place(id: String, _place_name: String = "") -> void:
 	map_modal.hide()
 	if not Art.BACKGROUNDS.has(id):
 		return

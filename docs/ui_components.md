@@ -4,7 +4,7 @@
 
 | 组件 | 场景 | 作用 |
 | --- | --- | --- |
-| 顶栏 | `scenes/ui/top_bar/top_bar.tscn` | 日期、AP，任务、物品、状态与设置入口 |
+| 顶栏 | `scenes/ui/top_bar/top_bar.tscn` | 日期、AP，手记、证据、状态与设置入口 |
 | 人物栏 | `scenes/ui/character_card/character_rail.tscn` | 人物卡选择；卡片来自 `character_card.tscn` |
 | 立绘 | `scenes/ui/portrait_panel/portrait_panel.tscn` | 显示当前人物 |
 | 对话框 | `scenes/ui/dialogue_box/dialogue_box.tscn` | 逐段显示台词，发出对话完成信号 |
@@ -14,16 +14,6 @@
 | 通知 | `scenes/ui/popup/notice.tscn` | 场景内保留的可配置通知组件 |
 
 `story_modal.gd` 在运行时创建通用弹窗，用于移动确认、物品、任务、状态和剧情选项。`ruins_state.gd` 管理行动点、进度、背包与保存恢复。`data/story/ya_bo.json` 提供台词及物品图像路径。
-
-<<<<<<< HEAD
-已完成。按天翻页的书本弹窗，一页是一天的记录。
-
-- 场景：[scenes/ui/journal_book.tscn](../scenes/ui/journal_book.tscn)
-- 脚本：[scripts/ui/journal_book.gd](../scripts/ui/journal_book.gd)
-- 对外：`refresh(pages)`、`open()`、`show_day(day)`、`unread()`。翻页和关闭由场景自己处理。
-- 一页的数据是 `{day, entries:[{id, title, text}]}`。完整字段和测试 JSON 见 [data_formats.md](data_formats.md)。控件不读 JSON，也不读游戏状态。
-
-叙事控制器在运行时实例化这个场景。主场景节点树里看不到它。用编辑器打开该场景后按 F6，会用 `data/journal_test.json` 单独预览。
 
 ## 顶栏
 
@@ -40,10 +30,10 @@
 
 数据引擎的入口是 `apply_engine(data)`。整份字段和测试 JSON 见 [data_formats.md](data_formats.md)。`configure` 只负责拆开这字典，引擎不要直接调用。
 
-- 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。
+- 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。默认四个按钮的 id 是 `journal`、`evidence`、`status`、`settings`，文字是手记、证据、状态、设置。
 - 数值条是整行一张底，支持度和警戒值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
 
-剧情运行入口为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)，F5 或单独 F6 均可启动。1920×1032 设计区域随窗口等比缩放居中。顶栏已接剧情、物品、状态与设置；日期角标显示剩余行动点，并有「结束当天」。右下地图的指南针打开大地图，上侧小钮是集会，下侧小钮是隐藏。点中能前往的地点先在地图自己的确认弹窗里核对，确认后才发出 `place_chosen(place_id, place_name)`。剧情据此在遗迹与渔村之间移动，底部文本框播放完整剧情。抵达遗迹使用 `assets/backgrounds/ruins-v1.png` 并隐藏不在场的人物。详见 [运行说明](ruins_runtime.md)。
+组件画廊为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)。1920×1032 设计区域随窗口等比缩放居中。顶栏默认四个按钮是手记、证据、状态、设置。手记打开手记弹窗，证据打开证据栏，状态打开通知，设置走原来的窗口。点左侧能选的人物卡打开事件弹窗，内容是画廊里按人物准备的假数据。日期角标显示剩余行动点，并有「结束当天」。右下地图的指南针打开大地图，上侧小钮是集会，下侧小钮是隐藏。点中能前往的地点先在地图自己的确认弹窗里核对，确认后才发出 `place_chosen(place_id, place_name)`。
 
 ### 底部文本框
 
@@ -139,7 +129,7 @@
 
 ## 弹窗
 
-以后的弹窗场景放在 `scenes/ui/popup/`，脚本放在 `scripts/ui/popup/`。日记仍留在原来的路径。
+弹窗场景放在 `scenes/ui/popup/`，脚本放在 `scripts/ui/popup/`。手记和证据栏也在这里。
 
 ### 通知
 
@@ -219,28 +209,62 @@
 - 无海：655×457，`assets/ui/map_modal/map_without_ocean.png`。
 - 有海：655×457，`assets/ui/map_modal/map_with_ocean.png`。
 
-### 物品栏
+### 手记
 
-居中的背包。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「物品」也打开这张，内容用脚本里的预览数据。控件不读存档，也不决定物品怎么使用。
+按天翻页的书本。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「手记」也打开这张，内容用脚本里的预览数据。控件不读存档。
 
-- 场景：[scenes/ui/popup/inventory_modal.tscn](../scenes/ui/popup/inventory_modal.tscn)
-- 脚本：[scripts/ui/popup/inventory_modal.gd](../scripts/ui/popup/inventory_modal.gd)
+- 场景：[scenes/ui/popup/journal_book.tscn](../scenes/ui/popup/journal_book.tscn)
+- 脚本：[scripts/ui/popup/journal_book.gd](../scripts/ui/popup/journal_book.gd)
+- 对外：`apply_engine(data)`、`open()`、`show_day(day)`。按下右上角关闭后 `hide()`，并发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。打开后停在最后一天。
+
+一页是一天。页首标题是大写开头的 `Day N`。下面先写「当日事件」，再写「玩家操作」。事件写出标题和正文。操作写出玩家做了什么，以及对应结果。正文超出时只在书页内部滚动。
+
+翻页条在页脚：左箭头、`当前页/总页`、右箭头。箭头用 `assets/Icons.png` 第 5 行第 5 格和第 6 格，显示成 48。第一页左箭头变淡且按了无效，最后一页右箭头同样。翻页时书页播放下一页或上一页的动画。
+
+关闭图标与通知相同，第 3 行第 5 格，显示成 48。悬停只把图标压暗。
+
+单独 F6 时有两天。第二天的操作结果比较长，用来看到页内滚动。
+
+### 证据栏
+
+居中的证据格。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「证据」打开这张，内容用脚本里的预览数据。控件不读存档，也不决定证据怎么使用。没有书签。
+
+- 场景：[scenes/ui/popup/evidence_modal.tscn](../scenes/ui/popup/evidence_modal.tscn)
+- 脚本：[scripts/ui/popup/evidence_modal.gd](../scripts/ui/popup/evidence_modal.gd)
 - 对外：`apply_engine(data)`、`open()`。按下右上角关闭后 `hide()`，并发出 `closed`。
-- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。书签和页码由控件自己记。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。页码由控件自己记。
 
-面板宽 560，高 640，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。
+面板宽 560，高 640，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。标题是「证据」。
 
-左侧两枚书签贴在面板左缘外侧。上枚「剧情」，下枚「普通」。选中的那枚与面板同色，并压住面板左缘。未选中的更短、颜色更暗，画在面板后面。换书签回到第 1 页。
-
-主体始终是 4×4，共 16 格。格子 96×96，间距 12。有物品且图标能载入时显示图标。图标缺失时在格内写名字。空格仍留浅底和细边，不显示字。单击格子不使用物品。
+主体始终是 4×4，共 16 格。格子 96×96，间距 12。有证据且图标能载入时显示图标。图标缺失时在格内写名字。空格仍留浅底和细边，不显示字。单击格子不使用证据。
 
 格子下方是翻页条：左箭头、`当前页/总页`、右箭头。左箭头是 `assets/Icons.png` 第 5 行第 5 格 `Rect2(64, 64, 16, 16)`，右箭头是第 5 行第 6 格 `Rect2(80, 64, 16, 16)`，都显示成 48。第一页左箭头变淡且按了无效，最后一页右箭头同样。不足或刚好 16 件时两枚都无效，格子数仍是 16。
 
-鼠标进入有物品的格子时，右侧 8px 外弹出介绍。宽 320，四边留空 22。标题是物品名，下面是描述。描述超出时在介绍内部滚动，滚轮停在格子上即可翻。移出格子后介绍消失。空格不弹出。介绍碰到屏幕右缘时改到格子左侧。
+鼠标进入有证据的格子时，右侧 8px 外弹出介绍。宽 320，四边留空 22。标题是证据名，下面是描述。描述超出时在介绍内部滚动，滚轮停在格子上即可翻。移出格子后介绍消失。空格不弹出。介绍碰到屏幕右缘时改到格子左侧。
 
 关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48。悬停只把图标压暗。
 
-单独 F6 时，剧情侧是古老的船歌、旧木板、造船图纸。普通侧放 17 件占位，用来看到第二页。
+单独 F6 时先放古老的船歌、旧木板、造船图纸，再放 14 件占位，用来看到第二页。
+
+### 事件弹窗
+
+居中的大面板。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。试玩的选项阶段用它代替原来的 A/B/C 按钮。控件不读存档，也不结算选项。
+
+- 场景：[scenes/ui/popup/event_modal.tscn](../scenes/ui/popup/event_modal.tscn)
+- 脚本：[scripts/ui/popup/event_modal.gd](../scripts/ui/popup/event_modal.gd)
+- 对外：`apply_engine(data)`、`open()`、`close()`。点能选的卡先 `hide()`，发出 `option_chosen(id)`。点右上角关闭后 `hide()`，只发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。
+
+面板 1180×680，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。标题居中，字号 32。左右各留 96，避免贴到关闭钮，文字仍按整块面板居中。
+
+标题下面是高 160 的说明区。正文自动换行，超出只在这块里滚动。打开时滚回顶部。正文为空就不留这块。
+
+说明区下面横排 2 到 4 张卡，间距 16，在行内居中。每张 240×240。卡上是选项名，下面一行是调用方传来的费用或不能选的原因。能选的卡平时阴影很浅，悬停变大，按下收短。不能选的卡变淡，没有阴影变化，按了没有反应。多于 4 张只显示前 4 张。少于 2 张也照显示，不补假卡。
+
+关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48，距右、距上各 24。悬停只把图标压暗。
+
+单独 F6 时标题是「螺螺发现贝壳」，三张卡里 C 不能选，用来看到置灰。组件画廊里，点能选的人物卡也会打开：老渔夫是潮汐歌，螺螺是贝壳，哑伯是四张船板卡。盐嫂置灰，点了不开。假数据不改进度。
 
 ## 小地图
 
@@ -298,6 +322,3 @@
 | 玩家肖像 | 未定 | — | — | 对话界面右侧。没有图时用纯色块。 |
 | 地点遮挡 | 未定 | 与对应 `Hit` 同大 | — | 不能前往时盖住该地点。没有图时用半透明灰椭圆。 |
 | 确认弹窗底 | 未定 | 宽 560 | — | 确认框面板。没有图时用米色圆角和细暗边。 |
-=======
-完整文件列表见 [依赖清单](component_gallery_files.md)，操作与测试见 [运行说明](ruins_runtime.md)。
->>>>>>> origin/dev-max

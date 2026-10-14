@@ -7,9 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://bmrfdx1utfv47" path="res://scenes/ui/mini_map/mini_map.tscn" id="5_map"]
 [ext_resource type="PackedScene" uid="uid://bg1cybtj3ltue" path="res://scenes/ui/popup/map_modal.tscn" id="6_modal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/confirm_dialog.tscn" id="7_confirm"]
-[ext_resource type="PackedScene" path="res://scenes/ui/popup/inventory_modal.tscn" id="9_inventory"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dialogue_box/dialogue_box.tscn" id="7_dialogue"]
 [ext_resource type="PackedScene" uid="uid://b8pwp0jrtq3y0" path="res://scenes/ui/portrait_panel/portrait_panel.tscn" id="8_portrait"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/evidence_modal.tscn" id="9_evidence"]
+[ext_resource type="PackedScene" uid="uid://ovv1fhq640i0" path="res://scenes/ui/popup/journal_book.tscn" id="10_journal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/event_modal.tscn" id="11_event"]
 
 [node name="ComponentGallery" type="Control" unique_id=891545924]
 layout_mode = 3
@@ -80,7 +82,17 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 1
 
-[node name="InventoryModal" parent="Design" instance=ExtResource("9_inventory")]
+[node name="EvidenceModal" parent="Design" unique_id=89121333 instance=ExtResource("9_evidence")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="JournalBook" parent="Design" unique_id=24765624 instance=ExtResource("10_journal")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="EventModal" parent="Design" instance=ExtResource("11_event")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1

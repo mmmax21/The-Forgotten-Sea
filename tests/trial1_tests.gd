@@ -50,6 +50,12 @@ func action(id: String) -> Button:
 	for button in scene.actions.get_children():
 		if button.get_meta("action_id") == id:
 			return button
+	if scene.event_modal != null:
+		var row: Node = scene.event_modal.get_node_or_null("Panel/CardRow")
+		if row != null:
+			for button in row.get_children():
+				if button.get_meta("action_id") == id:
+					return button
 	return null
 
 func run() -> void:

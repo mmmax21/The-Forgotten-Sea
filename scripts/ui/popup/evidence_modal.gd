@@ -1,15 +1,14 @@
 extends Control
-## 居中的物品栏。不读存档，也不使用物品。
+## 居中的证据栏。不读存档，也不使用证据。
 ##
-## 场景结构（scenes/ui/popup/inventory_modal.tscn）：
+## 场景结构（scenes/ui/popup/evidence_modal.tscn）：
 ## - Shade：全屏遮罩，挡住底层点击，点遮罩不关闭。
-## - StoryTab / NormalTab：贴在面板左缘外的书签。选中的压住左缘，未选中的藏在面板后面。
 ## - Panel：宽 560。里面是标题、4×4 格子、翻页条。
 ## - CloseButton：右上角。图标是 Icons.png 第 3 行第 5 格。
 ## - PrevButton / NextButton：Icons.png 第 5 行第 5、第 6 格。
-## - Tooltip：悬停有物品的格子时出现在格子右侧。
+## - Tooltip：悬停有证据的格子时出现在格子右侧。
 ##
-## 数据引擎只调用 apply_engine(data)。字段见 docs/data_formats.md 的「物品栏」。
+## 数据引擎只调用 apply_engine(data)。字段见 docs/data_formats.md 的「证据栏」。
 ## open() 负责显示。按下关闭后 hide()，发出 closed。
 
 signal closed
@@ -23,17 +22,13 @@ const TOOLTIP_WIDTH := 320.0
 const TOOLTIP_MARGIN := 22.0
 const PARCHMENT := Color(0.93, 0.88, 0.78, 1)
 const PARCHMENT_EMPTY := Color(0.84, 0.78, 0.66, 1)
-const TAB_IDLE := Color(0.62, 0.54, 0.42, 1)
 const EDGE := Color(0.28, 0.22, 0.16, 1)
 const INK := Color(0.28, 0.16, 0.05, 1)
 const ICON_SIZE := 48
 const ICON_HOVER := Color(0.62, 0.62, 0.62, 1)
 const ICON_DISABLED := Color(1, 1, 1, 0.35)
-const TAB_STORY := "story"
-const TAB_NORMAL := "normal"
 
 var _items: Array = []
-var _tab := TAB_STORY
 var _page := 0
 var _shown := false
 var _has_data := false
@@ -51,15 +46,12 @@ func _ready() -> void:
 	_layout_panel()
 	_build_slots()
 	_style_panel()
-	_style_tabs()
 	_style_icons()
 	_style_tooltip()
 	_apply_fonts()
 	%CloseButton.pressed.connect(_close)
 	%PrevButton.pressed.connect(_turn.bind(-1))
 	%NextButton.pressed.connect(_turn.bind(1))
-	%StoryTab.pressed.connect(_select_tab.bind(TAB_STORY))
-	%NormalTab.pressed.connect(_select_tab.bind(TAB_NORMAL))
 	%Tooltip.hide()
 	if not _has_data and get_tree().current_scene == self:
 		apply_engine(_preview_payload())
@@ -68,14 +60,13 @@ func _ready() -> void:
 	visible = _shown
 
 
-## items 是数组。非对象、或 kind 不是 story / normal 的项会跳过。
-## 不接收页码。书签和页码留在控件里，这次刷新只把页码夹进新的范围内。
+## items 是数组。非对象跳过。不接收页码，页码留在控件里。
 func apply_engine(data: Dictionary) -> void:
 	var raw = data.get("items", [])
 	var items: Array = []
 	if raw is Array:
 		for entry in raw:
-			var item := _item_or_empty(entry)
+			var item: Dictionary = _item_or_empty(entry)
 			if not item.is_empty():
 				items.append(item)
 	_items = items
@@ -102,15 +93,6 @@ func _close() -> void:
 	closed.emit()
 
 
-func _select_tab(kind: String) -> void:
-	if _tab == kind:
-		return
-	_tab = kind
-	_page = 0
-	_hide_tooltip()
-	_render()
-
-
 func _turn(step: int) -> void:
 	var next := _page + step
 	var last := _page_count() - 1
@@ -122,8 +104,7 @@ func _turn(step: int) -> void:
 
 
 func _render() -> void:
-	_paint_tabs()
-	var visible_items := _visible_items()
+	var visible_items := _items
 	var start := _page * PAGE_SIZE
 	for index in PAGE_SIZE:
 		var item: Dictionary = {}
@@ -139,16 +120,8 @@ func _render() -> void:
 	_paint_icon(%NextButton)
 
 
-func _visible_items() -> Array:
-	var picked: Array = []
-	for item in _items:
-		if str(item.get("kind", "")) == _tab:
-			picked.append(item)
-	return picked
-
-
 func _page_count() -> int:
-	var count := _visible_items().size()
+	var count := _items.size()
 	return maxi(1, int(ceil(float(count) / float(PAGE_SIZE))))
 
 
@@ -159,13 +132,12 @@ func _clamp_page() -> void:
 func _item_or_empty(entry) -> Dictionary:
 	if typeof(entry) != TYPE_DICTIONARY:
 		return {}
-	var kind := str(entry.get("kind", "")).strip_edges()
-	if kind != TAB_STORY and kind != TAB_NORMAL:
+	var item_name: String = str(entry.get("name", "")).strip_edges()
+	if item_name.is_empty():
 		return {}
 	return {
 		"id": str(entry.get("id", "")),
-		"name": str(entry.get("name", "")),
-		"kind": kind,
+		"name": item_name,
 		"icon": entry.get("icon", ""),
 		"description": str(entry.get("description", "")),
 	}
@@ -310,49 +282,6 @@ func _style_panel() -> void:
 	%Panel.add_theme_stylebox_override("panel", flat)
 
 
-func _style_tabs() -> void:
-	for button in [%StoryTab, %NormalTab]:
-		button.focus_mode = Control.FOCUS_NONE
-		button.mouse_filter = Control.MOUSE_FILTER_STOP
-		button.add_theme_font_override("font", _font())
-		button.add_theme_font_size_override("font_size", 22)
-		button.add_theme_color_override("font_color", INK)
-		button.add_theme_color_override("font_hover_color", INK)
-		button.add_theme_color_override("font_pressed_color", INK)
-
-
-func _paint_tabs() -> void:
-	_paint_tab(%StoryTab, _tab == TAB_STORY, 0)
-	_paint_tab(%NormalTab, _tab == TAB_NORMAL, 1)
-
-
-func _paint_tab(button: Button, selected: bool, index: int) -> void:
-	var box := StyleBoxFlat.new()
-	box.bg_color = PARCHMENT if selected else TAB_IDLE
-	box.border_color = EDGE
-	box.border_width_left = 2
-	box.border_width_top = 2
-	box.border_width_bottom = 2
-	box.border_width_right = 0 if selected else 2
-	box.corner_radius_top_left = 10
-	box.corner_radius_bottom_left = 10
-	box.content_margin_left = 8
-	box.content_margin_right = 16
-	button.add_theme_stylebox_override("normal", box)
-	button.add_theme_stylebox_override("hover", box)
-	button.add_theme_stylebox_override("pressed", box)
-	button.add_theme_stylebox_override("focus", box)
-	button.z_index = 2 if selected else 0
-	var hang := 72.0 if selected else 60.0
-	var height := 112.0 if selected else 96.0
-	var top := -150.0 + float(index) * 124.0
-	button.set_anchors_preset(Control.PRESET_CENTER)
-	button.offset_left = -PANEL_SIZE.x * 0.5 - hang
-	button.offset_right = -PANEL_SIZE.x * 0.5 + 16.0
-	button.offset_top = top
-	button.offset_bottom = top + height
-
-
 func _on_slot_gui_input(event: InputEvent, slot: Control) -> void:
 	if _hovered != slot or not %Tooltip.visible:
 		return
@@ -440,40 +369,36 @@ func _font() -> SystemFont:
 
 
 func _preview_payload() -> Dictionary:
-	var normal_names := [
+	var extra_names := [
 		"麻绳", "干粮", "火折", "铜钱", "清水", "盐包", "鱼钩", "油灯",
-		"布条", "木炭", "陶碗", "针线", "地图残页", "药粉", "铁钉", "蜡烛", "贝壳",
+		"布条", "木炭", "陶碗", "针线", "地图残页", "贝壳",
 	]
 	var items: Array = [
 		{
 			"id": "ancient_song",
 			"name": "古老的船歌",
-			"kind": TAB_STORY,
 			"icon": "res://assets/items/ancient_song.tres",
 			"description": "字迹漫漶，隐约可以识读——「向您致敬，深蓝发的神明！蒙您庇佑，我们在波涛之间……」",
 		},
 		{
 			"id": "old_plank",
 			"name": "旧木板",
-			"kind": TAB_STORY,
 			"icon": "res://assets/items/old_plank.tres",
 			"description": "形状奇怪的旧木板，似乎是某种大型物件的碎片，上面刻有形似音符的符号。",
 		},
 		{
 			"id": "ship_blueprint",
 			"name": "造船图纸",
-			"kind": TAB_STORY,
 			"icon": "res://assets/items/ship_blueprint.tres",
 			"description": "记录着船只的构造与制作方法，还有一些难以理解的词句。",
 		},
 	]
-	for index in normal_names.size():
-		var item_name: String = normal_names[index]
+	for index in extra_names.size():
+		var item_name: String = extra_names[index]
 		items.append({
-			"id": "normal_%d" % index,
+			"id": "evidence_%d" % index,
 			"name": item_name,
-			"kind": TAB_NORMAL,
 			"icon": "",
-			"description": "普通物品占位。%s还没有正式说明。" % item_name,
+			"description": "证据占位。%s还没有正式说明。" % item_name,
 		})
 	return {"items": items}

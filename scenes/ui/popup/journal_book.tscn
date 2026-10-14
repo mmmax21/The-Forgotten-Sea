@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ovv1fhq640i0"]
 
-[ext_resource type="Script" path="res://scripts/ui/journal_book.gd" id="1_book"]
+[ext_resource type="Script" path="res://scripts/ui/popup/journal_book.gd" id="1_book"]
 [ext_resource type="SpriteFrames" path="res://assets/ui/journal/book_frames.tres" id="2_frames"]
 [ext_resource type="Shader" path="res://assets/ui/journal/book_black_key.gdshader" id="3_key"]
 [ext_resource type="Texture2D" uid="uid://bw7wy4j77x7rx" path="res://assets/Icons.png" id="4_icons"]
@@ -78,6 +78,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 72.0
+offset_top = 8.0
+offset_right = -72.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 12
@@ -91,7 +95,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 34
-text = "第 1 天"
+text = "Day 1"
 
 [node name="PageClip" type="Control" parent="Book/TextFrame/Layout" unique_id=1147759653]
 unique_name_in_owner = true
@@ -170,10 +174,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -96.0
-offset_top = 12.0
-offset_right = -40.0
-offset_bottom = 68.0
+offset_left = -168.0
+offset_top = 28.0
+offset_right = -112.0
+offset_bottom = 84.0
 grow_horizontal = 0
 theme_override_constants/icon_max_width = 48
 icon = SubResource("AtlasTexture_close")
