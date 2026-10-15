@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dfckgpgea5b36"]
 
 [ext_resource type="PackedScene" uid="uid://or33d8kxaqm4" path="res://scenes/ui/top_bar/top_bar.tscn" id="1_bar"]
-[ext_resource type="PackedScene" path="res://scenes/ui/character_card/character_rail.tscn" id="2_rail"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_card/character_row.tscn" id="2_row"]
 [ext_resource type="Script" uid="uid://bxqotpjtxhilk" path="res://scripts/ui/component_gallery.gd" id="3_gallery"]
 [ext_resource type="PackedScene" path="res://scenes/ui/popup/notice.tscn" id="4_notice"]
 [ext_resource type="PackedScene" uid="uid://bmrfdx1utfv47" path="res://scenes/ui/mini_map/mini_map.tscn" id="5_map"]
@@ -43,13 +43,15 @@ mouse_filter = 2
 unique_name_in_owner = true
 layout_mode = 1
 
-[node name="CharacterRail" parent="Design" unique_id=890090446 instance=ExtResource("2_rail")]
+[node name="CharacterRow" parent="Design" instance=ExtResource("2_row")]
 unique_name_in_owner = true
-anchors_preset = 0
-offset_left = 16.0
-offset_top = 210.0
-offset_right = 160.0
-offset_bottom = 974.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="MiniMap" parent="Design" unique_id=16484435 instance=ExtResource("5_map")]
 unique_name_in_owner = true

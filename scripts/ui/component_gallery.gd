@@ -2,6 +2,7 @@ extends Control
 ## 组件预览。F6 运行本场景，只展示界面样式，不跑剧情。
 
 const DefaultCharacters := preload("res://scripts/ui/character_card/default_characters.gd")
+const Portraits := preload("res://scripts/ui/character_card/portraits.gd")
 const State := preload("res://scripts/story/ruins_state.gd")
 const Modal := preload("res://scripts/ui/story_modal.gd")
 
@@ -13,11 +14,12 @@ func _ready() -> void:
 	resized.connect(_fit_design)
 	_fit_design()
 	_build_settings_modal()
-	%CharacterRail.configure(_people())
-	%CharacterRail.character_selected.connect(_show_character)
+	%CharacterRow.configure(_people())
+	%CharacterRow.character_selected.connect(_show_character)
+	%PortraitPanel.hide_portrait()
 	%TopBar.action_pressed.connect(_on_toolbar)
 	%MiniMap.action_pressed.connect(_on_minimap)
-	%DialogueBox.show_text("点选左侧人物，查看立绘和文本框。")
+	%DialogueBox.show_text("点选中间的人物，查看立绘和文本框。")
 
 
 func _build_settings_modal() -> void:
@@ -51,10 +53,10 @@ func _fit_design() -> void:
 	%Design.position = (size - Vector2(1920, 1032) * factor) / 2.0
 
 
-func _show_character(index: int, actor_name: String, summary: String, _portrait: Texture2D) -> void:
+func _show_character(_index: int, actor_name: String, summary: String, _portrait: Texture2D) -> void:
 	if _dialog_open():
 		return
-	%PortraitPanel.show_portrait(index, actor_name)
+	%PortraitPanel.hide_portrait()
 	%DialogueBox.show_text(summary)
 	%EventModal.apply_engine(_event_preview(actor_name))
 	%EventModal.open()
@@ -201,30 +203,23 @@ func _event_preview(actor_name: String) -> Dictionary:
 func _people() -> Array:
 	return [
 		{
-			"name": "老渔夫",
-			"portrait": DefaultCharacters.portrait(0),
-			"summary": "镇上的老渔夫，小时候见过海，也记得潮汐歌。父亲因公开说海存在被处决，所以他不敢再提。他想把记忆留下来，却害怕连累孙子。若不能先保证孙子安全，他只肯私下透露片段，不愿公开作证，更不会跟着去传播。",
-			"disabled": false,
-			"visible": true,
-		},
-		{
-			"name": "盐嫂",
-			"portrait": DefaultCharacters.portrait(1),
-			"summary": "丈夫因调查海被处决。她恨王权，也怕自己再没有活路。这条是置灰示例，悬停不会弹出介绍。",
-			"disabled": true,
-			"visible": true,
-		},
-		{
-			"name": "螺螺",
-			"portrait": DefaultCharacters.portrait(2),
-			"summary": "十二岁，捡到一枚贝壳，不相信大人说的「海不存在」。胆子大，也最容易被牵连。",
-			"disabled": false,
-			"visible": true,
-		},
-		{
-			"name": "哑伯",
-			"portrait": DefaultCharacters.portrait(3),
+			"name": Portraits.display_name("yabo"),
+			"portrait": Portraits.texture("yabo"),
 			"summary": "年老的船匠，不能说话，双手受过重伤。他把船体和航线刻在木头上。",
+			"disabled": false,
+			"visible": true,
+		},
+		{
+			"name": Portraits.display_name("yansao"),
+			"portrait": Portraits.texture("yansao"),
+			"summary": "丈夫因调查海被处决。她恨王权，也怕自己再没有活路。",
+			"disabled": false,
+			"visible": true,
+		},
+		{
+			"name": Portraits.display_name("luoluo"),
+			"portrait": Portraits.texture("luoluo"),
+			"summary": "十二岁，捡到一枚贝壳，不相信大人说的「海不存在」。胆子大，也最容易被牵连。",
 			"disabled": false,
 			"visible": true,
 		},

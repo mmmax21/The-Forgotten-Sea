@@ -1,4 +1,5 @@
 extends Control
+## 已弃用。画廊改用 character_row.tscn。本场景先留着，试玩旧流程还在用。
 ## 顶栏下方的人物竖栏。人数由调用方决定，隐藏的卡不留空位。不读存档。
 
 const CARD_SCENE := preload("res://scenes/ui/character_card/character_card.tscn")

@@ -38,6 +38,17 @@ func is_visible_now() -> bool:
 	return _shown_index >= 0
 
 
+## 用调用方传来的立绘滑入。index 只用来取一句短台词。
+func show_given(portrait: Texture2D, actor_name: String, index: int = 0) -> void:
+	if _image == null or _name_label == null or _quote_label == null:
+		return
+	_shown_index = index
+	_image.texture = portrait
+	_name_label.text = actor_name
+	_quote_label.text = _quote_for(index)
+	_slide_in()
+
+
 ## 显示 index 号立绘，name/quote 填到标签。quote 留空就只显示立绘。
 func show_portrait(index: int, name: String = "", quote: String = "") -> void:
 	if index < 0 or index > 3:
@@ -80,8 +91,8 @@ func _slide_in() -> void:
 
 func _quote_for(index: int) -> String:
 	match index:
-		0: return "你来了。坐吧，我慢慢说。"
+		0: return "（点头，把木头推过来）"
 		1: return "……你别问太多。"
 		2: return "我捡到一枚贝壳，它会唱歌。"
-		3: return "（点头，把木头推过来）"
+		3: return "你来了。坐吧，我慢慢说。"
 	return ""

@@ -5,7 +5,7 @@
 | 组件 | 场景 | 作用 |
 | --- | --- | --- |
 | 顶栏 | `scenes/ui/top_bar/top_bar.tscn` | 日期、AP，手记、证据、状态与设置入口 |
-| 人物栏 | `scenes/ui/character_card/character_rail.tscn` | 人物卡选择；卡片来自 `character_card.tscn` |
+| 人物横排 | `scenes/ui/character_card/character_row.tscn` | 场景一哑伯、盐嫂、螺螺横排居中；卡片来自 `character_card.tscn` |
 | 立绘 | `scenes/ui/portrait_panel/portrait_panel.tscn` | 显示当前人物 |
 | 对话框 | `scenes/ui/dialogue_box/dialogue_box.tscn` | 逐段显示台词，发出对话完成信号 |
 | 小地图按钮 | `scenes/ui/mini_map/mini_map.tscn` | 打开地图、物品与结束今日行动 |
@@ -55,40 +55,45 @@
 
 合计 4 张必做，2 张可选。数值旁边先不加各自的小图标。
 
-## 人物栏
+## 人物横排
 
-顶栏木板下方的左侧竖栏。人数不固定，调用方传几张就排几张。隐藏的卡不留空位。卡框和默认人像已接上。介绍底还是纯色羊皮纸。
+页面中间的一排人物卡。人数不固定，调用方传几张就排几张，在 1920×1032 的画面里居中。隐藏的卡不留空位。没有卡框，只有立绘和名字。介绍底还是纯色羊皮纸。
 
-场景在 `scenes/ui/character_card/`，脚本在 `scripts/ui/character_card/`。
+`character_rail.tscn` 已弃用，场景先留着。组件预览改用横排。
+
+场景在 `scenes/ui/character_card/`，脚本在 `scripts/ui/character_card/`。立绘登记在 [scripts/ui/character_card/portraits.gd](../scripts/ui/character_card/portraits.gd)。新人物加一个 id 和一张贴图。
 
 | 控件 | 作用 |
 | --- | --- |
-| `character_card.tscn` | 一张人物卡，144×160。人像 120×104，只伸进木框约 4px。 |
-| `character_rail.tscn` | 竖向排卡，间距 48。放在 (16, 220)。 |
+| `character_card.tscn` | 一张人物卡，360×404。立绘 360×360，下面是名字。 |
+| `character_row.tscn` | 横排，间距 48，在画面里居中。 |
 
-单张的入口是 `configure(name, portrait, summary, disabled, visible)`。栏的入口是 `configure(people)`。
+单张的入口是 `configure(name, portrait, summary, disabled, visible, index)`。横排的入口是 `configure(people)`。`show_row()` 显示整排，`hide_row()` 藏起整排并收起介绍。
+
+点选人物后，中间的对话立绘先不出现。
 
 - 一个人是 `{name, portrait, summary, disabled, visible}`。字段和测试 JSON 见 [data_formats.md](data_formats.md)。`portrait` 可以空。`disabled` 默认假，为真时整张置灰，悬停不弹出介绍。`visible` 默认真，为假时这张不占位。
-- 悬停未禁用的卡时，右侧 8px 外弹出介绍。介绍固定 320×160，不随文字变高。超出的文字在内部滚动，滚动条出现在右侧。鼠标移进介绍条时不关闭。
-- 单击未禁用的卡时，卡片只发出 `pressed(name)`。介绍收起。对话界面由调用方打开，不写在这张卡里。置灰的卡不响应单击。
-- 预览数据在 [scripts/ui/component_gallery.gd](../scripts/ui/component_gallery.gd)。四个人都显示，盐嫂是置灰示例。
+- 悬停未禁用的卡时，名字下方 8px 弹出介绍。介绍固定 320×160，不随文字变高。超出的文字在内部滚动。鼠标移进介绍条时不关闭。
+- 单击未禁用的卡时，横排发出 `character_selected`。介绍收起。置灰的卡不响应单击。
+- 预览在 [scripts/ui/component_gallery.gd](../scripts/ui/component_gallery.gd)。场景一从左到右是哑伯、盐嫂、螺螺。
 
 ### 美术
 
-卡框已接上。介绍底还没有图。图内不写字、不写数字。花纹只放在边缘，中间留空。置灰和悬停都由代码处理，不必另做状态图。
+立绘按角色分开存放，显示时缩进 360×360，保持比例，不裁切。置灰和悬停由代码处理。
 
-界面两张要和顶栏一致：深色旧木、细黄铜边、少量藤蔓，平视，无投影。
+- 哑伯：720×720，`assets/portraits/yabo.png`，id `yabo`。
+- 盐嫂：720×720，`assets/portraits/yansao.png`，id `yansao`。
+- 螺螺：720×720，`assets/portraits/luoluo.png`，id `luoluo`。
+- 阿香：720×720，`assets/portraits/axiang.png`，id `axiang`。
+- 二笔：720×720，`assets/portraits/erbi.png`，id `erbi`。
+- 高帽子：720×720，`assets/portraits/gaomaozi.png`，id `gaomaozi`。
+- 墨先生：720×720，`assets/portraits/moxiansheng.png`，id `moxiansheng`。
+- 钱伯：720×720，`assets/portraits/qianbo.png`，id `qianbo`。
+- 刀郎：720×720，`assets/portraits/daolang.png`，id `daolang`。
 
-- 卡框：144×160，`assets/ui/character_card/card_frame.png`，绑在人物卡的 `frame_texture`。四边各 16px 不拉伸。中心全透明，头像从窗口露出。
-- 介绍底：320×160，`assets/ui/character_card/tooltip_plate.png`。四边各 22px 不拉伸。中间是空白羊皮纸。
+介绍底还没有图：320×160，`assets/ui/character_card/tooltip_plate.png`。四边各 22px 不拉伸。中间是空白羊皮纸。
 
-> 游戏界面卡框，144×160 像素。深色旧木边框，四角细黄铜，外缘只有少量藤蔓。正中心完全透明，不要人物，不要脸，不要文字，不要数字。底边略厚。正面平视，边缘清楚，透明背景，厚涂，暗褐与旧金色，不要投影。
-
-> 游戏界面羊皮纸介绍底，320×160 像素。陈旧米色纸，细的深色木边和黄铜边。纹样只沿外圈，中间是空白纸。不要文字，不要字母，不要数字，不要人物。正面平视，边缘清楚，厚涂，淡褐色，透明背景。
-
-默认头像是一张横图 `assets/portraits/default_characters.png`，1024×242。从左到右是老渔夫、盐嫂、螺螺、哑伯。三人之间各有一条黑线，切点去掉黑线和旁边的暗边：`Rect2(0, 0, 259, 242)`、`Rect2(263, 0, 245, 242)`、`Rect2(511, 0, 244, 242)`、`Rect2(758, 0, 265, 242)`。人像缩到 120×104，比木框内窗口每边大约多 4px，多出来的边被木框盖住。名字条在木框之上，贴着窗口下沿。以后换别人时，调用方另传 `portrait`。
-
-> 一张西幻叙事游戏的角色半身像横图，1024×256 像素，透明背景。四个胸像从左到右等距排成一行，每人独占 256×256 的方格，肩部以上，同样大小，同一正面柔光，灰蓝海岸的厚涂，旧亚麻和皮革，不要文字，不要现代物品，不要水印，不要 Q 版。左一：七十岁渔夫，深皱纹，灰白胡子，手里捏着一顶油布帽，眼神疲惫而戒备，褪色的靛蓝外套。左二：四十岁左右的盐妇，寡妇，头发简单地束起，脸被海风吹得粗糙，打补丁的灰蓝亚麻衣，肩上一条盐筐带子，神情防备。左三：十二岁男孩，短发，神情好奇，打补丁的素色束腰外衣，手里握着一枚小贝壳。左四：年老的哑船匠，闭着嘴，风霜脸，双手有明显伤疤并放在画面偏低处，深色皮围裙上沾着木屑。
+人物卡不再使用 `assets/ui/character_card/card_frame.png`。旧的四人横图仍留给通知和旧竖栏，不进这排卡。
 
 ## 对话界面
 
@@ -264,7 +269,7 @@
 
 关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48，距右、距上各 24。悬停只把图标压暗。
 
-单独 F6 时标题是「螺螺发现贝壳」，三张卡里 C 不能选，用来看到置灰。组件画廊里，点能选的人物卡也会打开：老渔夫是潮汐歌，螺螺是贝壳，哑伯是四张船板卡。盐嫂置灰，点了不开。假数据不改进度。
+单独 F6 时标题是「螺螺发现贝壳」，三张卡里 C 不能选，用来看到置灰。组件画廊里，点人物卡也会打开：哑伯是船板，螺螺是贝壳，盐嫂用贝壳那组假数据。假数据不改进度。
 
 ## 小地图
 
@@ -304,8 +309,16 @@
 | 数值条 | `assets/ui/top_bar/stat_bar_texture.png` | 560×72 | 7.78:1 | 支持度、警戒值共用的一条底。左右卷轴各 64px，上下木边各 16px 不拉伸。 |
 | 按钮三态 | `assets/ui/top_bar/button_states.png` | 560×76 | 7.37:1 | 从左到右：常规 `Rect2(0, 0, 186, 76)`、悬停 `Rect2(193, 0, 178, 76)`、按下 `Rect2(378, 0, 182, 76)`。圆角两端各留 40px。 |
 | 天数角标 | `assets/ui/top_bar/day_badge.png` | 208×210 | 约 1:1 | 右上四分之一圆。贴住屏幕上边和右边，上面显示「第N天」，下面显示「ap/ap_max」。 |
-| 人物卡框 | `assets/ui/character_card/card_frame.png` | 144×160 | 0.9:1（9:10） | 单张人物卡外框。四边各 16px 不拉伸，正中透明。人像画在 120×104，多出的约 4px 被这圈木边盖住。 |
-| 默认四人像 | `assets/portraits/default_characters.png` | 1024×242 | 4.23:1 | 从左到右：老渔夫、盐嫂、螺螺、哑伯。黑线切点为 `Rect2(0, 0, 259, 242)`、`Rect2(263, 0, 245, 242)`、`Rect2(511, 0, 244, 242)`、`Rect2(758, 0, 265, 242)`。显示时缩进人物卡。以后换角色另传图，不必改这张的路径。 |
+| 哑伯立绘 | `assets/portraits/yabo.png` | 720×720 | 1:1 | 场景一人物卡，id `yabo`。显示成 360×360，不裁切。 |
+| 盐嫂立绘 | `assets/portraits/yansao.png` | 720×720 | 1:1 | 场景一人物卡，id `yansao`。显示成 360×360，不裁切。 |
+| 螺螺立绘 | `assets/portraits/luoluo.png` | 720×720 | 1:1 | 场景一人物卡，id `luoluo`。显示成 360×360，不裁切。 |
+| 阿香立绘 | `assets/portraits/axiang.png` | 720×720 | 1:1 | id `axiang`。已登记，尚未放进横排。 |
+| 二笔立绘 | `assets/portraits/erbi.png` | 720×720 | 1:1 | id `erbi`。已登记，尚未放进横排。 |
+| 高帽子立绘 | `assets/portraits/gaomaozi.png` | 720×720 | 1:1 | id `gaomaozi`。已登记，尚未放进横排。 |
+| 墨先生立绘 | `assets/portraits/moxiansheng.png` | 720×720 | 1:1 | id `moxiansheng`。已登记，尚未放进横排。 |
+| 钱伯立绘 | `assets/portraits/qianbo.png` | 720×720 | 1:1 | id `qianbo`。已登记，尚未放进横排。 |
+| 刀郎立绘 | `assets/portraits/daolang.png` | 720×720 | 1:1 | id `daolang`。已登记，尚未放进横排。 |
+| 旧四人头像 | `assets/portraits/default_characters.png` | 1024×242 | 4.23:1 | 通知和旧竖栏仍用。人物横排不再使用。 |
 | 通知纸底 | `assets/ui/popup/notice_background.png` | 640×840 | 16:21 | 通知弹窗面板。四边各 24px 不拉伸。面板与图同大。 |
 | 卷轴底 | `assets/ui/map_modal/map_background.png` | 1024×576 | 16:9 | 大地图弹窗底。右侧是轴，轴从纹理 x=896 起。纸面左 136、上 24、下 563。 |
 | 无海地图 | `assets/ui/map_modal/map_without_ocean.png` | 655×457 | 1.43:1 | 大地图默认图。铺在纸面上，右边不盖轴。 |
