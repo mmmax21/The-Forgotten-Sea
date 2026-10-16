@@ -1,0 +1,55 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/top_bar/rows_texture.png" id="1_wood"]
+[ext_resource type="Script" path="res://scripts/ui/dialogue_box/dialogue_box.gd" id="2_script"]
+
+[sub_resource type="StyleBoxTexture" id="WoodFrame"]
+texture = ExtResource("1_wood")
+draw_center = false
+texture_margin_left = 108.0
+texture_margin_top = 64.0
+texture_margin_right = 108.0
+texture_margin_bottom = 64.0
+content_margin_left = 124.0
+content_margin_top = 80.0
+content_margin_right = 124.0
+content_margin_bottom = 80.0
+
+[sub_resource type="SystemFont" id="DialogueFont"]
+font_names = PackedStringArray("Kaiti SC", "STKaiti", "KaiTi", "Songti SC", "Microsoft YaHei")
+
+[sub_resource type="StyleBoxFlat" id="InsetBackground"]
+bg_color = Color(0.16, 0.125, 0.10, 1)
+
+[node name="DialogueBox" type="PanelContainer"]
+custom_minimum_size = Vector2(480, 220)
+offset_right = 1150.0
+offset_bottom = 330.0
+theme_override_styles/panel = SubResource("WoodFrame")
+script = ExtResource("2_script")
+
+[node name="Backdrop" type="Node2D" parent="."]
+show_behind_parent = true
+
+[node name="Fill" type="Panel" parent="Backdrop"]
+offset_left = 108.0
+offset_top = 64.0
+offset_right = 1042.0
+offset_bottom = 266.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("InsetBackground")
+
+[node name="Text" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.94, 0.89, 0.77, 1)
+theme_override_colors/font_shadow_color = Color(0.08, 0.06, 0.04, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/line_separation = 12
+theme_override_fonts/normal_font = SubResource("DialogueFont")
+theme_override_font_sizes/normal_font_size = 26
+scroll_active = true
+

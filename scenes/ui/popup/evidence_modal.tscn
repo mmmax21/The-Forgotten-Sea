@@ -1,0 +1,191 @@
+[gd_scene format=3]
+
+; 证据栏。节点职责写在 scripts/ui/popup/evidence_modal.gd 文件头。
+; Icons.png 是 6 列 × 19 行、每格 16×16。
+; 关闭是第 3 行第 5 格。左箭头是第 5 行第 5 格，右箭头是第 5 行第 6 格。
+
+[ext_resource type="Script" path="res://scripts/ui/popup/evidence_modal.gd" id="1_evidence"]
+[ext_resource type="Texture2D" path="res://assets/Icons.png" id="2_icons"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
+atlas = ExtResource("2_icons")
+region = Rect2(64, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_prev"]
+atlas = ExtResource("2_icons")
+region = Rect2(64, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_next"]
+atlas = ExtResource("2_icons")
+region = Rect2(80, 64, 16, 16)
+
+[node name="EvidenceModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_evidence")
+
+[node name="Shade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.03, 0.04, 0.05, 0.62)
+
+[node name="Panel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -320.0
+offset_right = 280.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="CloseButton" type="Button" parent="Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -72.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 72.0
+grow_horizontal = 0
+focus_mode = 0
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_close")
+expand_icon = true
+flat = true
+
+[node name="Title" type="Label" parent="Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 0.0
+offset_top = 20.0
+offset_right = 0.0
+offset_bottom = 64.0
+grow_horizontal = 2
+text = "证据"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Grid" type="GridContainer" parent="Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -198.0
+offset_right = 210.0
+offset_bottom = 222.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+[node name="Pager" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -72.0
+offset_right = 140.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PrevButton" type="Button" parent="Panel/Pager"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+focus_mode = 0
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_prev")
+expand_icon = true
+flat = true
+
+[node name="PageLabel" type="Label" parent="Panel/Pager"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+text = "1/1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="Button" parent="Panel/Pager"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+focus_mode = 0
+texture_filter = 1
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_next")
+expand_icon = true
+flat = true
+
+[node name="Tooltip" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 160.0
+mouse_filter = 2
+
+[node name="TipMargin" type="MarginContainer" parent="Tooltip"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 22
+
+[node name="TipColumn" type="VBoxContainer" parent="Tooltip/TipMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TipTitle" type="Label" parent="Tooltip/TipMargin/TipColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "证据"
+
+[node name="TipScroll" type="ScrollContainer" parent="Tooltip/TipMargin/TipColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(276, 96)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="TipBody" type="Label" parent="Tooltip/TipMargin/TipColumn/TipScroll"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(276, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+text = "说明"

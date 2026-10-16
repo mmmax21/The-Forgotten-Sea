@@ -1,0 +1,185 @@
+[gd_scene format=3 uid="uid://ovv1fhq640i0"]
+
+[ext_resource type="Script" path="res://scripts/ui/popup/journal_book.gd" id="1_book"]
+[ext_resource type="SpriteFrames" path="res://assets/ui/journal/book_frames.tres" id="2_frames"]
+[ext_resource type="Shader" path="res://assets/ui/journal/book_black_key.gdshader" id="3_key"]
+[ext_resource type="Texture2D" uid="uid://bw7wy4j77x7rx" path="res://assets/Icons.png" id="4_icons"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_book"]
+shader = ExtResource("3_key")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_prev"]
+atlas = ExtResource("4_icons")
+region = Rect2(64, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_next"]
+atlas = ExtResource("4_icons")
+region = Rect2(80, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
+atlas = ExtResource("4_icons")
+region = Rect2(64, 32, 16, 16)
+
+[node name="JournalBook" type="Control" unique_id=1681775561]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_book")
+
+[node name="Shade" type="ColorRect" parent="." unique_id=2025938179]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.04, 0.05, 0.88)
+
+[node name="Book" type="Control" parent="." unique_id=637064857]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.22
+anchor_top = 0.14
+anchor_right = 0.78
+anchor_bottom = 0.86
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PageAnim" type="AnimatedSprite2D" parent="Book" unique_id=1002117850]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_book")
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="TextFrame" type="Control" parent="Book" unique_id=595958177]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -320.0
+offset_right = 460.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Book/TextFrame" unique_id=127698371]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 72.0
+offset_top = 8.0
+offset_right = -72.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Book/TextFrame/Layout" unique_id=1993674956]
+layout_mode = 2
+
+[node name="DayTitle" type="Label" parent="Book/TextFrame/Layout/Header" unique_id=621030019]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 34
+text = "Day 1"
+
+[node name="PageClip" type="Control" parent="Book/TextFrame/Layout" unique_id=1147759653]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PageSlide" type="Control" parent="Book/TextFrame/Layout/PageClip" unique_id=559838466]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PageScroll" type="ScrollContainer" parent="Book/TextFrame/Layout/PageClip/PageSlide" unique_id=1070865144]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="PageBody" type="VBoxContainer" parent="Book/TextFrame/Layout/PageClip/PageSlide/PageScroll" unique_id=170857828]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="FooterGap" type="Control" parent="Book/TextFrame/Layout" unique_id=1817369481]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Footer" type="HBoxContainer" parent="Book/TextFrame/Layout" unique_id=794264942]
+layout_mode = 2
+alignment = 1
+
+[node name="PrevButton" type="Button" parent="Book/TextFrame/Layout/Footer" unique_id=690710184]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_prev")
+flat = true
+expand_icon = true
+
+[node name="PageLabel" type="Label" parent="Book/TextFrame/Layout/Footer" unique_id=508596304]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 18
+text = "1 / 1"
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="Book/TextFrame/Layout/Footer" unique_id=521592795]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_next")
+flat = true
+expand_icon = true
+
+[node name="CloseButton" type="Button" parent="Book" unique_id=881993992]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_top = 28.0
+offset_right = -112.0
+offset_bottom = 84.0
+grow_horizontal = 0
+theme_override_constants/icon_max_width = 48
+icon = SubResource("AtlasTexture_close")
+flat = true
+expand_icon = true

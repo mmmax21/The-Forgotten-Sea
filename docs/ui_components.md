@@ -1,21 +1,23 @@
-# 界面组件
+# 当前界面组件
 
-场景负责外观。脚本对外只留 `configure`、`refresh`、`open` 和信号。拼条目、读存档仍留在调用方，不放进这些控件。
+入口为 `scenes/ui/component_gallery.tscn`。`scripts/ui/component_gallery.gd` 负责连接组件信号、推进剧情、加载存档、刷新任务和行动按钮。设计尺寸为 1920×1032，随窗口等比缩放居中。
 
-## 日记
+| 组件 | 场景 | 作用 |
+| --- | --- | --- |
+| 顶栏 | `scenes/ui/top_bar/top_bar.tscn` | 日期、AP，手记、证据、状态与设置入口 |
+| 人物横排 | `scenes/ui/character_card/character_row.tscn` | 场景一哑伯、盐嫂、螺螺横排居中；卡片来自 `character_card.tscn` |
+| 立绘 | `scenes/ui/portrait_panel/portrait_panel.tscn` | 显示当前人物 |
+| 对话框 | `scenes/ui/dialogue_box/dialogue_box.tscn` | 逐段显示台词，发出对话完成信号 |
+| 小地图按钮 | `scenes/ui/mini_map/mini_map.tscn` | 打开地图、物品与结束今日行动 |
+| 地图弹窗 | `scenes/ui/popup/map_modal.tscn` | 展示地图与地点，选择后交由入口处理移动 |
+| 地点标签 | `scenes/ui/popup/location_label.tscn` | 地图地点文字，与点击区域和遮盖脚本配合 |
+| 通知 | `scenes/ui/popup/notice.tscn` | 场景内保留的可配置通知组件 |
 
-已完成。按天翻页的书本弹窗，一页是一天的记录。
-
-- 场景：[scenes/ui/journal_book.tscn](../scenes/ui/journal_book.tscn)
-- 脚本：[scripts/ui/journal_book.gd](../scripts/ui/journal_book.gd)
-- 对外：`refresh(pages)`、`open()`、`show_day(day)`、`unread()`。翻页和关闭由场景自己处理。
-- 一页的数据是 `{day, entries:[{id, title, text}]}`。控件不读 JSON，也不读游戏状态。
-
-叙事控制器在运行时实例化这个场景。主场景节点树里看不到它。用编辑器打开该场景后按 F6，会用 `data/journal_test.json` 单独预览。
+`story_modal.gd` 在运行时创建通用弹窗，用于移动确认、物品、任务、状态和剧情选项。`ruins_state.gd` 管理行动点、进度、背包与保存恢复。`data/story/ya_bo.json` 提供台词及物品图像路径。
 
 ## 顶栏
 
-地图界面上方的横条。尚未替换 [scenes/main.tscn](../scenes/main.tscn) 里的旧顶栏（天数、阶段、地区、警戒、手记、菜单）。说服力、影响力、曝光度也还不在游戏状态里，所以这一版只接收调用方传入的文字和数字。
+地图界面上方的横条。尚未替换 [scenes/main.tscn](../scenes/main.tscn) 里的旧顶栏（天数、阶段、地区、警戒、手记、菜单）。这一版只接收调用方传入的文字和数字。剧情入口传入的两项是支持度和警戒值，算法见 [data_formats.md](data_formats.md) 的「地区态势」。
 
 场景都在 `scenes/ui/top_bar/`，脚本在 `scripts/ui/top_bar/`。
 
@@ -23,17 +25,22 @@
 | --- | --- |
 | `stat_readout.tscn` | 一项数值。`configure(label, value)`。单独使用时自带底；放进顶栏后关掉自己的底。 |
 | `action_button.tscn` | 一个操作按钮。`configure(id, text)`。没有贴图时用浅灰圆角，悬停变暗。 |
-| `day_badge.tscn` | 右侧天数。`configure(day, total)`，文案只显示「第N天」。贴图 208×210，锚在顶栏右上角，上边和右边不留空。 |
+| `day_badge.tscn` | 右侧天数。`configure(day, total, ap, ap_max)`。上面是「第N天」，中间是行动点和一排圆点，下面是「结束当天」。贴图 208×210，锚在顶栏右上角，上边和右边不留空。 |
 | `top_bar.tscn` | 把上面三块排好。左侧两行，右侧天数。 |
 
-顶栏的入口是 `configure(stats, buttons, day, total)`。
+数据引擎的入口是 `apply_engine(data)`。整份字段和测试 JSON 见 [data_formats.md](data_formats.md)。`configure` 只负责拆开这字典，引擎不要直接调用。
 
-- 一项数值是 `{label, value}`。默认：说服力、影响力、曝光度。
-- 一个按钮是 `{id, text}`。默认：任务、物品、状态、设置。
-- 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。
-- 数值条是整行一张底，三个数值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
+- 按下按钮只发出 `action_pressed(id)`，不在顶栏里打开界面。默认四个按钮的 id 是 `journal`、`evidence`、`status`、`settings`，文字是手记、证据、状态、设置。
+- 数值条是整行一张底，支持度和警戒值共用。`stat_bar_texture` 和 `button_texture` 都可以空着。
 
-组件预览在 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)。窗口与主场景一样是 1920×1080，背景是 `Color(0.12, 0.13, 0.15)`。用 F6 运行这个场景，不要改项目的主场景。预览里现在有顶栏和人物栏。
+组件画廊为 [scenes/ui/component_gallery.tscn](../scenes/ui/component_gallery.tscn)。1920×1032 设计区域随窗口等比缩放居中。顶栏默认四个按钮是手记、证据、状态、设置。手记打开手记弹窗，证据打开证据栏，状态打开通知，设置走原来的窗口。点左侧能选的人物卡打开事件弹窗，内容是画廊里按人物准备的假数据。日期角标显示剩余行动点，并有「结束当天」。右下地图的指南针打开大地图，上侧小钮是集会，下侧小钮是隐藏。点中能前往的地点先在地图自己的确认弹窗里核对，确认后才发出 `place_chosen(place_id, place_name)`。
+
+### 底部文本框
+
+- 场景：`scenes/ui/dialogue_box/dialogue_box.tscn`，可单独复用。
+- 外框复用顶栏 `rows_texture.png`，九宫格保留雕花四角；正文区域使用深棕底与浅米色文字，避免木纹纵向拉伸影响阅读。
+- 在预览设计区域的位置为 `(250, 660)`，尺寸为 `1150×330`。
+- 默认正文为空。在检查器填写 `dialogue_text`，或调用 `apply_engine({"text": "正文"})`；正文自动换行，超出后可滚动。
 
 接到地图场景时，由那个场景调用 `configure`，不要让顶栏自己读存档。
 
@@ -48,36 +55,283 @@
 
 合计 4 张必做，2 张可选。数值旁边先不加各自的小图标。
 
-## 人物栏
+## 人物横排
 
-顶栏木板下方的左侧竖栏。人数不固定，调用方传几张就排几张。隐藏的卡不留空位。这一版没有卡框和介绍底的贴图，用深色木板和羊皮纸纯色占位。
+页面中间的一排人物卡。人数不固定，调用方传几张就排几张，在 1920×1032 的画面里居中。隐藏的卡不留空位。没有卡框，只有立绘和名字。介绍底还是纯色羊皮纸。
 
-场景在 `scenes/ui/character_card/`，脚本在 `scripts/ui/character_card/`。
+`character_rail.tscn` 已弃用，场景先留着。组件预览改用横排。
+
+场景在 `scenes/ui/character_card/`，脚本在 `scripts/ui/character_card/`。立绘登记在 [scripts/ui/character_card/portraits.gd](../scripts/ui/character_card/portraits.gd)。新人物加一个 id 和一张贴图。
 
 | 控件 | 作用 |
 | --- | --- |
-| `character_card.tscn` | 一张人物卡，144×160。人像 120×104，只伸进木框约 4px。 |
-| `character_rail.tscn` | 竖向排卡，间距 48。放在 (16, 220)。 |
+| `character_card.tscn` | 一张人物卡，360×404。立绘 360×360，下面是名字。 |
+| `character_row.tscn` | 横排，间距 48，在画面里居中。 |
 
-单张的入口是 `configure(name, portrait, summary, disabled, visible)`。栏的入口是 `configure(people)`。
+单张的入口是 `configure(name, portrait, summary, disabled, visible, index)`。横排的入口是 `configure(people)`。`show_row()` 显示整排，`hide_row()` 藏起整排并收起介绍。
 
-- 一个人是 `{name, portrait, summary, disabled, visible}`。`portrait` 可以空。`disabled` 默认假，为真时整张置灰，悬停不弹出介绍。`visible` 默认真，为假时这张不占位。
-- 悬停未禁用的卡时，右侧 8px 外弹出介绍。介绍固定 320×160，不随文字变高。超出的文字在内部滚动，滚动条出现在右侧。鼠标移进介绍条时不关闭。
-- 预览数据在 [scripts/ui/component_gallery.gd](../scripts/ui/component_gallery.gd)。四个人都显示，盐嫂是置灰示例。
+点选人物后，中间的对话立绘先不出现。
+
+- 一个人是 `{name, portrait, summary, disabled, visible}`。字段和测试 JSON 见 [data_formats.md](data_formats.md)。`portrait` 可以空。`disabled` 默认假，为真时整张置灰，悬停不弹出介绍。`visible` 默认真，为假时这张不占位。
+- 悬停未禁用的卡时，名字下方 8px 弹出介绍。介绍固定 320×160，不随文字变高。超出的文字在内部滚动。鼠标移进介绍条时不关闭。
+- 单击未禁用的卡时，横排发出 `character_selected`。介绍收起。置灰的卡不响应单击。
+- 预览在 [scripts/ui/component_gallery.gd](../scripts/ui/component_gallery.gd)。场景一从左到右是哑伯、盐嫂、螺螺。
 
 ### 美术
 
-卡框已接上。介绍底还没有图。图内不写字、不写数字。花纹只放在边缘，中间留空。置灰和悬停都由代码处理，不必另做状态图。
+立绘按角色分开存放，显示时缩进 360×360，保持比例，不裁切。置灰和悬停由代码处理。
 
-界面两张要和顶栏一致：深色旧木、细黄铜边、少量藤蔓，平视，无投影。
+- 哑伯：720×720，`assets/portraits/yabo.png`，id `yabo`。
+- 盐嫂：720×720，`assets/portraits/yansao.png`，id `yansao`。
+- 螺螺：720×720，`assets/portraits/luoluo.png`，id `luoluo`。
+- 阿香：720×720，`assets/portraits/axiang.png`，id `axiang`。
+- 二笔：720×720，`assets/portraits/erbi.png`，id `erbi`。
+- 高帽子：720×720，`assets/portraits/gaomaozi.png`，id `gaomaozi`。
+- 墨先生：720×720，`assets/portraits/moxiansheng.png`，id `moxiansheng`。
+- 钱伯：720×720，`assets/portraits/qianbo.png`，id `qianbo`。
+- 刀郎：720×720，`assets/portraits/daolang.png`，id `daolang`。
 
-- 卡框：144×160，`assets/ui/character_card/card_frame.png`，绑在人物卡的 `frame_texture`。四边各 16px 不拉伸。中心全透明，头像从窗口露出。
-- 介绍底：320×160，`assets/ui/character_card/tooltip_plate.png`。四边各 22px 不拉伸。中间是空白羊皮纸。
+介绍底还没有图：320×160，`assets/ui/character_card/tooltip_plate.png`。四边各 22px 不拉伸。中间是空白羊皮纸。
 
-> 游戏界面卡框，144×160 像素。深色旧木边框，四角细黄铜，外缘只有少量藤蔓。正中心完全透明，不要人物，不要脸，不要文字，不要数字。底边略厚。正面平视，边缘清楚，透明背景，厚涂，暗褐与旧金色，不要投影。
+人物卡不再使用 `assets/ui/character_card/card_frame.png`。旧的四人横图仍留给通知和旧竖栏，不进这排卡。
 
-> 游戏界面羊皮纸介绍底，320×160 像素。陈旧米色纸，细的深色木边和黄铜边。纹样只沿外圈，中间是空白纸。不要文字，不要字母，不要数字，不要人物。正面平视，边缘清楚，厚涂，淡褐色，透明背景。
+## 对话界面
 
-默认头像是一张横图 `assets/portraits/default_characters.png`，1024×242。从左到右是老渔夫、盐嫂、螺螺、哑伯。三人之间各有一条黑线，切点去掉黑线和旁边的暗边：`Rect2(0, 0, 259, 242)`、`Rect2(263, 0, 245, 242)`、`Rect2(511, 0, 244, 242)`、`Rect2(758, 0, 265, 242)`。人像缩到 120×104，比木框内窗口每边大约多 4px，多出来的边被木框盖住。名字条在木框之上，贴着窗口下沿。以后换别人时，调用方另传 `portrait`。
+尚未制作。地图上的人物栏单击之后，由调用方实例化。主场景节点树里先不放它。控件不读存档，不扣行动点，也不执行数值、物品和后续事件。
 
-> 一张西幻叙事游戏的角色半身像横图，1024×256 像素，透明背景。四个胸像从左到右等距排成一行，每人独占 256×256 的方格，肩部以上，同样大小，同一正面柔光，灰蓝海岸的厚涂，旧亚麻和皮革，不要文字，不要现代物品，不要水印，不要 Q 版。左一：七十岁渔夫，深皱纹，灰白胡子，手里捏着一顶油布帽，眼神疲惫而戒备，褪色的靛蓝外套。左二：四十岁左右的盐妇，寡妇，头发简单地束起，脸被海风吹得粗糙，打补丁的灰蓝亚麻衣，肩上一条盐筐带子，神情防备。左三：十二岁男孩，短发，神情好奇，打补丁的素色束腰外衣，手里握着一枚小贝壳。左四：年老的哑船匠，闭着嘴，风霜脸，双手有明显伤疤并放在画面偏低处，深色皮围裙上沾着木屑。
+窗口与主场景一样是 1920×1080。界面盖住底层，打开期间底层不再接收点击。
+
+上半是左右两张肖像，中间留出一条竖缝放按钮。下半是一整条文字框，横跨两张肖像和中间的缝。
+
+| 区域 | 作用 |
+| --- | --- |
+| 左肖像 | 当前 NPC。名字写在像下。 |
+| 右肖像 | 玩家。名字写在像下。 |
+| 中缝 | 同一时间只放一组按钮。 |
+| 文字框 | 当前这一段话。一次放完整段，不逐字打出。 |
+
+说话的一侧保持原亮度，并向中缝平移一小段。另一侧压暗，停在外侧。旁白阶段说话的是左侧 NPC。对白阶段按当前段的 `speaker` 切换。按钮和文字框不跟着明暗走。
+
+中缝的按钮分两组，不会同时出现。
+
+- 操作按钮固定三个：交谈、调查、取消。取消旁标 ESC。
+- 具体选项数量不固定，只对应当时选中的交谈或调查。过多时在中缝里纵向滚动，不盖住文字框。
+
+对外是 `open(dialogue)`。字段和测试 JSON 写在 [data_formats.md](data_formats.md)。关闭只走信号，调用方决定扣点和效果。
+
+- `cancelled`：还没进入对白就关掉。旁白、三个操作按钮、具体选项这三个阶段都算。
+- `resolved(option_id)`：某一条具体选项的对白全部显示完。
+
+`dialogue` 不带效果正文。点数和效果留在调用方，按钮上只写选项名。`opening` 是 NPC 旁白。`talk` 和 `investigate` 是两组选项，里面的 `lines` 用 `speaker` 标 `npc` 或 `player`。空数组不隐藏按钮，置灰规则见交互文档。`portrait` 可以空，空时用纯色块。
+
+### 美术
+
+尚未接图。明暗和位移由代码处理，不必另做说话状态图。图内不写字、不写数字。花纹只放在边缘，中间留空。
+
+- 文字框底：横条羊皮纸，中间空白，四边不拉伸。没有图时用介绍底的米色。
+- 操作按钮和具体选项先沿用顶栏 `action_button.tscn`。
+- 玩家肖像还没有文件。NPC 可先用人物卡已经切好的头像，放大后仍由框盖住边缘。
+
+## 弹窗
+
+弹窗场景放在 `scenes/ui/popup/`，脚本放在 `scripts/ui/popup/`。手记和证据栏也在这里。
+
+### 通知
+
+居中的竖向面板。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览，图片用默认头像的第一张。剧情入口的顶栏不打开这张通知。
+
+- 场景：[scenes/ui/popup/notice.tscn](../scenes/ui/popup/notice.tscn)
+- 脚本：[scripts/ui/popup/notice.gd](../scripts/ui/popup/notice.gd)
+- 对外：`apply_engine(data)`、`open()`。按下右上角关闭后 `hide()`，并发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。控件不读存档。图片路径由控件自己加载。
+
+面板固定 640×840，和背景图同大，锚在屏幕中心。内容四边内边距 48。关闭按钮在右上，距右、距上各 16，不进文字流。标题居中。标题、图片、正文从按钮下沿再空 8px 开始。三者任一为空就不显示，不留空位。
+
+图片宽度等于内容列宽（544），高度按比例。超过 420 时缩进这块高度里，并在列内居中。正文自动换行，超出时只在正文区域滚动。
+
+关闭图标用 `assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48。悬停只把图标压暗。
+
+### 美术
+
+背景已接上 `assets/ui/popup/notice_background.png`，绑在通知的 `background`。图是 640×840，面板与它同大，按原尺寸显示。四边各 24px 不拉伸，盖住木边和撕边。没有这张图时仍用米色占位。
+
+### 确认弹窗
+
+居中的小面板。全屏遮罩完全透明，仍挡住底层点击。点遮罩不关闭。没有右上角关闭钮，只能按「确认」或「取消」。用编辑器打开该场景后按 F6 可单独预览。控件不读存档，也不决定确认之后的玩法。集会和隐藏用这张弹窗先写出数值变化，确认后才结算。移动和结束今日行动仍走剧情自己的弹层。
+
+- 场景：[scenes/ui/popup/confirm_dialog.tscn](../scenes/ui/popup/confirm_dialog.tscn)
+- 脚本：[scripts/ui/popup/confirm_dialog.gd](../scripts/ui/popup/confirm_dialog.gd)
+- 对外：`configure(data)`、`open()`。按下确认后 `hide()`，调用 `on_confirm`，发出 `confirmed`。按下取消后 `hide()`，调用 `on_cancel`，发出 `cancelled`。方法没传或无效就跳过。
+- `title` 没传或为空时用「请确认」。`text` 为空就不显示，不留空行。两个方法只在 GDScript 字典里传，不进 JSON。字段见 [data_formats.md](data_formats.md)。
+
+面板宽 560，锚在屏幕中心，高随正文增加。四边内边距 32。标题居中，字号 32。正文 22，自动换行。底部「取消」在左，「确认」在右，各 140×48。
+
+还没有底板图。先用和地名牌相同的米色圆角，细暗边。两个按钮是浅灰圆角，悬停压暗。图到了再换，宽仍是 560。
+
+单独 F6 时标题是「请确认」，正文一句短话，两个方法都空着。
+
+### 大地图
+
+居中的卷轴。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览，默认无海。组件画廊里，小地图的指南针打开它。控件不读存档，也不改游戏里的海。
+
+- 场景：[scenes/ui/popup/map_modal.tscn](../scenes/ui/popup/map_modal.tscn)
+- 脚本：[scripts/ui/popup/map_modal.gd](../scripts/ui/popup/map_modal.gd)
+- 对外：`configure(data)`、`open()`、`close()`。字段见 [data_formats.md](data_formats.md)。`close()` 会 `hide()`，并发出 `closed`。点中能前往的地点先打开地图里的确认弹窗。确认后发出 `place_chosen(place_id, place_name)`，并关闭地图。取消留在地图上。
+- `show_ocean` 缺省是假，用无海图；为真时用有海图。不传 `places` 时六个地点都能前往。传了 `places` 时，没写到的地点不能前往。
+
+面板 1600×900，和卷轴底同比例。卷轴底左右透明边不对称，纸面中心大约在纹理 x=561，整张图中心在 512，所以面板从屏幕中心再向左挪约 77。地图铺在纸面上：纹理像素左 136、上 24、右 896、下 563。左、上、下贴住纸边，右边停在轴的深色网纹之前。两张地图都是 655×457，用覆盖缩放铺满这块槽，多出的一点点从边缘裁掉。关闭按钮在纸面右上、轴的左边，48×48，不压在轴上。
+
+六个地点都在 `Locations` 下。父节点名就是地点 id。子节点名字固定：
+
+| 子节点 | 作用 |
+| --- | --- |
+| `Label` | 地名。能前往时显示。 |
+| `Hit` | 椭圆点击范围。宽高就是椭圆的宽和高，四角点不中。 |
+| `Cover` | 遮挡物，和对应的 `Hit` 同宽同高，盖在 `Hit` 和 `Label` 上面。 |
+
+| id | 地名 |
+| --- | --- |
+| `ruins` | 遗迹 |
+| `fishing_village` | 渔村 |
+| `market` | 集市 |
+| `old_academy` | 旧学城 |
+| `feather_forest` | 羽之森 |
+| `royal_city` | 王城 |
+
+能前往时藏起 `Cover`，显示地名。指针在椭圆内时，外缘浮出半透明米黄光圈，宽高比椭圆大约大 16。能前往的点按和悬停见交互文档。
+
+不能前往时显示 `Cover`，藏起地名。`Hit` 不接收指针，所以没有光圈，也点不中。遮挡物停住，不跟悬停变化。
+
+还没有遮挡图。`Cover` 先画一个和 `Hit` 同大的半透明灰椭圆。图到了再换成素材，大小仍跟该地点的 `Hit` 走。
+
+剧情里指南针打开大地图，无海。遗迹在取得线索后可前往，渔村一直可前往。点中后地图上的确认弹窗写明目的地和 1 点行动点。确认后关闭地图并发出 `place_chosen`：遗迹前往遗迹，渔村前往哑伯住处。已经在该地，或行动点不足时，确认不会离开。单独 F6 这个场景时不传 `places`，六地都能前往，确认后发出 `place_chosen`。
+
+### 美术
+
+三张都已接上。卷轴底绑在 `background`，无海图绑在 `map_without_ocean`，有海图绑在 `map_with_ocean`。
+
+- 卷轴底：1024×576，`assets/ui/map_modal/map_background.png`。
+- 无海：655×457，`assets/ui/map_modal/map_without_ocean.png`。
+- 有海：655×457，`assets/ui/map_modal/map_with_ocean.png`。
+
+### 手记
+
+按天翻页的书本。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「手记」也打开这张，内容用脚本里的预览数据。控件不读存档。
+
+- 场景：[scenes/ui/popup/journal_book.tscn](../scenes/ui/popup/journal_book.tscn)
+- 脚本：[scripts/ui/popup/journal_book.gd](../scripts/ui/popup/journal_book.gd)
+- 对外：`apply_engine(data)`、`open()`、`show_day(day)`。按下右上角关闭后 `hide()`，并发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。打开后停在最后一天。
+
+一页是一天。页首标题是大写开头的 `Day N`。下面先写「当日事件」，再写「玩家操作」。事件写出标题和正文。操作写出玩家做了什么，以及对应结果。正文超出时只在书页内部滚动。
+
+翻页条在页脚：左箭头、`当前页/总页`、右箭头。箭头用 `assets/Icons.png` 第 5 行第 5 格和第 6 格，显示成 48。第一页左箭头变淡且按了无效，最后一页右箭头同样。翻页时书页播放下一页或上一页的动画。
+
+关闭图标与通知相同，第 3 行第 5 格，显示成 48。悬停只把图标压暗。
+
+单独 F6 时有两天。第二天的操作结果比较长，用来看到页内滚动。
+
+### 证据栏
+
+居中的证据格。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。组件画廊顶栏的「证据」打开这张，内容用脚本里的预览数据。控件不读存档，也不决定证据怎么使用。没有书签。
+
+- 场景：[scenes/ui/popup/evidence_modal.tscn](../scenes/ui/popup/evidence_modal.tscn)
+- 脚本：[scripts/ui/popup/evidence_modal.gd](../scripts/ui/popup/evidence_modal.gd)
+- 对外：`apply_engine(data)`、`open()`。按下右上角关闭后 `hide()`，并发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。`apply_engine` 不接收页码。页码由控件自己记。
+
+面板宽 560，高 640，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。标题是「证据」。
+
+主体始终是 4×4，共 16 格。格子 96×96，间距 12。有证据且图标能载入时显示图标。图标缺失时在格内写名字。空格仍留浅底和细边，不显示字。单击格子不使用证据。
+
+格子下方是翻页条：左箭头、`当前页/总页`、右箭头。左箭头是 `assets/Icons.png` 第 5 行第 5 格 `Rect2(64, 64, 16, 16)`，右箭头是第 5 行第 6 格 `Rect2(80, 64, 16, 16)`，都显示成 48。第一页左箭头变淡且按了无效，最后一页右箭头同样。不足或刚好 16 件时两枚都无效，格子数仍是 16。
+
+鼠标进入有证据的格子时，右侧 8px 外弹出介绍。宽 320，四边留空 22。标题是证据名，下面是描述。描述超出时在介绍内部滚动，滚轮停在格子上即可翻。移出格子后介绍消失。空格不弹出。介绍碰到屏幕右缘时改到格子左侧。
+
+关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48。悬停只把图标压暗。
+
+单独 F6 时先放古老的船歌、旧木板、造船图纸，再放 14 件占位，用来看到第二页。
+
+### 事件弹窗
+
+居中的大面板。遮罩挡住底层点击，点遮罩不关闭。用编辑器打开该场景后按 F6 可单独预览。试玩的选项阶段用它代替原来的 A/B/C 按钮。控件不读存档，也不结算选项。
+
+- 场景：[scenes/ui/popup/event_modal.tscn](../scenes/ui/popup/event_modal.tscn)
+- 脚本：[scripts/ui/popup/event_modal.gd](../scripts/ui/popup/event_modal.gd)
+- 对外：`apply_engine(data)`、`open()`、`close()`。点能选的卡先 `hide()`，发出 `option_chosen(id)`。点右上角关闭后 `hide()`，只发出 `closed`。
+- 字段和测试 JSON 见 [data_formats.md](data_formats.md)。
+
+面板 1180×680，锚在屏幕中心。没有底板图时用和其他弹窗一样的米色圆角、细暗边。标题居中，字号 32。左右各留 96，避免贴到关闭钮，文字仍按整块面板居中。
+
+标题下面是高 160 的说明区。正文自动换行，超出只在这块里滚动。打开时滚回顶部。正文为空就不留这块。
+
+说明区下面横排 2 到 4 张卡，间距 16，在行内居中。每张 240×240。卡上是选项名，下面一行是调用方传来的费用或不能选的原因。能选的卡平时阴影很浅，悬停变大，按下收短。不能选的卡变淡，没有阴影变化，按了没有反应。多于 4 张只显示前 4 张。少于 2 张也照显示，不补假卡。
+
+关闭图标与通知相同，`assets/Icons.png` 第 3 行第 5 格 `Rect2(64, 32, 16, 16)`，显示成 48，距右、距上各 24。悬停只把图标压暗。
+
+单独 F6 时标题是「螺螺发现贝壳」，三张卡里 C 不能选，用来看到置灰。组件画廊里，点人物卡也会打开：哑伯是船板，螺螺是贝壳，盐嫂用贝壳那组假数据。假数据不改进度。
+
+## 小地图
+
+地图界面右下角的圆形按钮组，和右上角天数角标成对角。这一版是指南针样式的按钮，不绘制实时地图，不读存档，也不替换 [scenes/main.tscn](../scenes/main.tscn)。
+
+场景在 `scenes/ui/mini_map/`，脚本在 `scripts/ui/mini_map/`。
+
+| 控件 | 作用 |
+| --- | --- |
+| `mini_map.tscn` | 外壳锚在屏幕右下。指南针距右 16，距下 48。 |
+| 指南针 | 256×256。按下发出 `action_pressed("compass")`。 |
+| 上侧小钮 | 64×64，约在 10 点半方向，直径的三分之一压进铜环。默认 id 是 `gather`，纸心写「集」。 |
+| 下侧小钮 | 64×64，约在 9 点方向，同样压进铜环。默认 id 是 `hide`，纸心写「隐」。 |
+
+三个圆钮是同级节点，小钮排在指南针后面，所以画在上面、先接到点击。每个钮只在圆内接收点击，方框四角透下去，重叠处点到的是小钮。
+
+- `configure(upper_id, lower_id)` 只改两个小钮的 id。默认是 `gather`、`hide`。纸心上的「集」「隐」由代码绘制，不画进贴图。
+- `press_compass()`、`press_upper()`、`press_lower()` 是预留入口，内部只发出对应 id，不打开地图。
+- 按下走 `action_pressed(id)`。打开什么界面由调用方决定。
+
+没有贴图时，大钮画淡彩纸心、旧黄铜环和一根朝上的针，小钮画同色小圆。指南针和小钮都用三态合图，悬停和按下换格，不再整颗压暗。
+
+### 美术
+
+图内不写字、不写数字、不写字母。两个小钮共用一张三态合图。
+
+- 指南针：`assets/ui/mini_map/compass.png`，798×266。从左到右三格，每格 266×266，圆心对齐。常规 `Rect2(0, 0, 266, 266)`，悬停 `Rect2(266, 0, 266, 266)`，按下 `Rect2(532, 0, 266, 266)`。默认显示常规。
+- 小钮：`assets/ui/mini_map/satellite.png`，714×238。从左到右三格，每格 238×238，圆心对齐。常规 `Rect2(0, 0, 238, 238)`，悬停 `Rect2(238, 0, 238, 238)`，按下 `Rect2(476, 0, 238, 238)`。两个小钮共用。默认显示常规。
+
+## 现用素材清单
+
+下面这些是界面里正在用的图，路径不要改，替换同名文件即可。图内不写字、不写数字。花纹只放在边缘，中间留空，方便九宫格。日记翻页和 `assets/Icons.png` 不在这批里。
+
+| 素材 | 路径 | 文件尺寸 | 比例 | 用途 |
+| --- | --- | --- | --- | --- |
+| 顶栏两行底板 | `assets/ui/top_bar/rows_texture.png` | 620×150 | 4.13:1 | 顶栏左侧木板，包住数值和四个按钮。左右各 108px、上下各 64px 不拉伸。 |
+| 数值条 | `assets/ui/top_bar/stat_bar_texture.png` | 560×72 | 7.78:1 | 支持度、警戒值共用的一条底。左右卷轴各 64px，上下木边各 16px 不拉伸。 |
+| 按钮三态 | `assets/ui/top_bar/button_states.png` | 560×76 | 7.37:1 | 从左到右：常规 `Rect2(0, 0, 186, 76)`、悬停 `Rect2(193, 0, 178, 76)`、按下 `Rect2(378, 0, 182, 76)`。圆角两端各留 40px。 |
+| 天数角标 | `assets/ui/top_bar/day_badge.png` | 208×210 | 约 1:1 | 右上四分之一圆。贴住屏幕上边和右边，上面显示「第N天」，下面显示「ap/ap_max」。 |
+| 哑伯立绘 | `assets/portraits/yabo.png` | 720×720 | 1:1 | 场景一人物卡，id `yabo`。显示成 360×360，不裁切。 |
+| 盐嫂立绘 | `assets/portraits/yansao.png` | 720×720 | 1:1 | 场景一人物卡，id `yansao`。显示成 360×360，不裁切。 |
+| 螺螺立绘 | `assets/portraits/luoluo.png` | 720×720 | 1:1 | 场景一人物卡，id `luoluo`。显示成 360×360，不裁切。 |
+| 阿香立绘 | `assets/portraits/axiang.png` | 720×720 | 1:1 | id `axiang`。已登记，尚未放进横排。 |
+| 二笔立绘 | `assets/portraits/erbi.png` | 720×720 | 1:1 | id `erbi`。已登记，尚未放进横排。 |
+| 高帽子立绘 | `assets/portraits/gaomaozi.png` | 720×720 | 1:1 | id `gaomaozi`。已登记，尚未放进横排。 |
+| 墨先生立绘 | `assets/portraits/moxiansheng.png` | 720×720 | 1:1 | id `moxiansheng`。已登记，尚未放进横排。 |
+| 钱伯立绘 | `assets/portraits/qianbo.png` | 720×720 | 1:1 | id `qianbo`。已登记，尚未放进横排。 |
+| 刀郎立绘 | `assets/portraits/daolang.png` | 720×720 | 1:1 | id `daolang`。已登记，尚未放进横排。 |
+| 旧四人头像 | `assets/portraits/default_characters.png` | 1024×242 | 4.23:1 | 通知和旧竖栏仍用。人物横排不再使用。 |
+| 通知纸底 | `assets/ui/popup/notice_background.png` | 640×840 | 16:21 | 通知弹窗面板。四边各 24px 不拉伸。面板与图同大。 |
+| 卷轴底 | `assets/ui/map_modal/map_background.png` | 1024×576 | 16:9 | 大地图弹窗底。右侧是轴，轴从纹理 x=896 起。纸面左 136、上 24、下 563。 |
+| 无海地图 | `assets/ui/map_modal/map_without_ocean.png` | 655×457 | 1.43:1 | 大地图默认图。铺在纸面上，右边不盖轴。 |
+| 有海地图 | `assets/ui/map_modal/map_with_ocean.png` | 655×457 | 1.43:1 | `show_ocean` 为真时换成这张。槽位与无海图相同。 |
+| 指南针三态 | `assets/ui/mini_map/compass.png` | 798×266 | 3:1 | 右下角大钮。从左到右三格各 266×266，圆心对齐：常规 `Rect2(0, 0, 266, 266)`、悬停 `Rect2(266, 0, 266, 266)`、按下 `Rect2(532, 0, 266, 266)`。 |
+| 小钮三态 | `assets/ui/mini_map/satellite.png` | 714×238 | 3:1 | 两个小钮共用。从左到右三格各 238×238，圆心对齐：常规 `Rect2(0, 0, 238, 238)`、悬停 `Rect2(238, 0, 238, 238)`、按下 `Rect2(476, 0, 238, 238)`。 |
+
+还缺，现在用纯色或已有控件顶着：
+
+| 素材 | 路径 | 文件尺寸 | 比例 | 用途 |
+| --- | --- | --- | --- | --- |
+| 人物介绍底 | `assets/ui/character_card/tooltip_plate.png` | 320×160 | 2:1 | 悬停人物卡时出现在右侧。四边各 22px 不拉伸，中间空白羊皮纸，文字由程序写。 |
+| 对话文字框底 | 未定 | 横条 | — | 对话界面下半。没有图时用介绍底的米色。 |
+| 玩家肖像 | 未定 | — | — | 对话界面右侧。没有图时用纯色块。 |
+| 地点遮挡 | 未定 | 与对应 `Hit` 同大 | — | 不能前往时盖住该地点。没有图时用半透明灰椭圆。 |
+| 确认弹窗底 | 未定 | 宽 560 | — | 确认框面板。没有图时用米色圆角和细暗边。 |

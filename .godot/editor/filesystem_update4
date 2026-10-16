@@ -1,5 +1,7 @@
-res://scripts/ui/character_card/character_rail.gd
-res://scenes/ui/character_card/character_rail.tscn
 res://scenes/ui/character_card/character_card.tscn
-res://scripts/ui/character_card/character_card.gd
 res://scripts/ui/component_gallery.gd
+res://scripts/ui/character_card/character_card.gd
+res://scripts/ui/character_card/character_rail.gd
+res://scripts/ui/portrait_panel/portrait_panel.gd
+res://scripts/ui/character_card/character_row.gd
+res://scripts/ui/character_card/portraits.gd

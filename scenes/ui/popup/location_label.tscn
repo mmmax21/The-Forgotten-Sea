@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/popup/location_label.gd" id="1_label"]
+
+[node name="LocationLabel" type="PanelContainer"]
+custom_minimum_size = Vector2(112, 40)
+offset_right = 112.0
+offset_bottom = 40.0
+mouse_filter = 2
+script = ExtResource("1_label")
+place_name = "地点名"
+
+[node name="Name" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "地点名"
+horizontal_alignment = 1
+vertical_alignment = 1

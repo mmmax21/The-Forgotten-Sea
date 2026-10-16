@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3]
+
+; 确认弹窗。节点职责写在 scripts/ui/popup/confirm_dialog.gd 文件头。
+; Shade 全透明，仍挡住背后点击。面板底以后换成美术图。
+
+[ext_resource type="Script" path="res://scripts/ui/popup/confirm_dialog.gd" id="1_confirm"]
+
+[node name="ConfirmDialog" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_confirm")
+
+[node name="Shade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+mouse_filter = 0
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="Body" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "请确认"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BodyText" type="Label" parent="Center/Panel/Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Panel/Margin/Body"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="Center/Panel/Margin/Body/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+focus_mode = 0
+text = "取消"
+
+[node name="ConfirmButton" type="Button" parent="Center/Panel/Margin/Body/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+focus_mode = 0
+text = "确认"
