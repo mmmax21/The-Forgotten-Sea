@@ -1,0 +1,15 @@
+Use case: illustration-story. Generate a new 16:9 landscape full-bleed in-game story popup illustration, continuing the reference scene. Reference image is for exact painterly style, warm academy setting, tactile paper and character costume continuity, not for repeating composition.
+Scene: close slightly oblique overhead view of the old academy wooden research table in soft golden window light. Two open books occupy most of the frame side by side: left an older amber yellow volume with natural aged paper and worn binding; right a newer ivory-paper edition. The paper aging is coherent with older vs newer editions, neither forged nor suspiciously inconsistent. A few chronologically layered reference slips with matching numbered citations establish that dates and citation sequence agree. Restrained archive tools and a partial antique harbor drawing near far upper edge, subdued shelves and cream stone window at back. Do not clutter.
+Only the researcher's forearms and hands appear from bottom left and lower edge, same cream sleeve and blue-gray academy clothing as reference, one fingertip following matching numbered paragraphs across the old and new books, other hand lightly holding newer page open. No other person.
+Narrative: ordinary trade records survive unchanged, but statements about ocean travel and distant voyages have been rewritten in newer edition. Show the correspondence clearly through exactly three short numbered entries in each book, large enough for readable Chinese, plenty of whitespace.
+Old page printed text exactly:
+“一、货物入仓，清点登记。”
+“二、商船出海，远航通商。”
+“三、货款结清，账目归档。”
+New page printed text exactly:
+“一、货物入仓，清点登记。”
+“二、货船循河，往来转运。”
+“三、货款结清，账目归档。”
+Use elegant natural Chinese book typography, physically printed on pages with correct perspective. Same numbered order in both. Thin subdued pencil brackets beside the second entry on each page indicate comparison, no black censorship bars or aggressively crossed out words. Small matching reference numbers below the entries, suggest archival citation layout without additional prominent invented narrative text.
+Crucial clue: at the foot of the NEWER right-hand page only, small printed label “校对” followed by a clearly legible handwritten ink signature “莫先生”. This should be a noticeable secondary focal point, with the light gently catching it. Signature is proof only of proofreading participation. No commands, no accusations, no culprit portrait, no threatening shadows, no official orders or invented evidence identifying who requested the change.
+Style: detailed soft hand-painted fantasy academy storybook art, warm pale gold, cream limestone, slate-blue accents, desaturated brown wood, delicate brushwork and paper grain matching reference. Intimate investigative moment, calm and thoughtful, NOT a flat infographic. Main focus readable old vs new entries and page-footer signature. Physical books in a believable scene. No interface frames, no popup buttons, no external captions, no watermark.

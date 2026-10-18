@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/trail2.gd" id="1_rnfy6"]
+[ext_resource type="PackedScene" uid="uid://or33d8kxaqm4" path="res://scenes/ui/top_bar/top_bar.tscn" id="2_7rer6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_card/character_rail.tscn" id="3_onbfy"]
+[ext_resource type="PackedScene" uid="uid://bmrfdx1utfv47" path="res://scenes/ui/mini_map/mini_map.tscn" id="4_oaedq"]
+[ext_resource type="PackedScene" path="res://scenes/ui/popup/notice.tscn" id="5_cmma0"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dialogue_box/dialogue_box.tscn" id="6_dy5uc"]
+[ext_resource type="PackedScene" path="res://scenes/ui/portrait_panel/portrait_panel.tscn" id="7_he4jk"]
+[ext_resource type="PackedScene" uid="uid://bg1cybtj3ltue" path="res://scenes/ui/popup/map_modal.tscn" id="8_8xb8f"]
+
+[node name="Trail2" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_rnfy6")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.13, 0.14, 1)
+
+[node name="Design" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1032.0
+mouse_filter = 2
+
+[node name="TopBar" parent="Design" instance=ExtResource("2_7rer6")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="CharacterRail" parent="Design" instance=ExtResource("3_onbfy")]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 210.0
+offset_right = 160.0
+offset_bottom = 974.0
+
+[node name="MiniMap" parent="Design" instance=ExtResource("4_oaedq")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="Notice" parent="Design" instance=ExtResource("5_cmma0")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="DialogueBox" parent="Design" instance=ExtResource("6_dy5uc")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 250.0
+offset_top = 660.0
+offset_right = 1400.0
+offset_bottom = 990.0
+
+[node name="PortraitPanel" parent="Design" instance=ExtResource("7_he4jk")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 880.0
+offset_top = 140.0
+offset_right = 1240.0
+offset_bottom = 660.0
+
+[node name="MapModal" parent="Design" instance=ExtResource("8_8xb8f")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
