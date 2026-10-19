@@ -4,12 +4,19 @@ const Academy := preload("res://scripts/story/academy_chapter_state.gd")
 const AcademyStory := preload("res://scripts/story/academy_chapter_story.gd")
 const AcademySave := preload("res://scripts/story/academy_chapter_save.gd")
 var market_snapshot: Dictionary = {}
+const STORY_PICTURES := {
+	"harbor": {"title":"旧书里的港口", "path":"res://assets/study_city/学城_旧港口图_剧情弹窗.png"},
+	"compare": {"title":"新旧书页的差异", "path":"res://assets/study_city/学城_新旧书校对_剧情弹窗.png"},
+	"consult": {"title":"向墨先生求证", "path":"res://assets/study_city/学城_向莫先生求证_剧情弹窗.png"},
+}
+var active_story_picture := ""
 
 func _ready() -> void:
 	if save_path=="user://trial1_village_v1.json": save_path = "user://trial1_academy_v1.json"
 	state = Academy.new()
 	_build_theme()
 	_build_ui()
+	overlay.visibility_changed.connect(_story_picture_visibility_changed)
 	for child in %Design.get_children():
 		if child is Label and child.text=="渔村六日 · 调查与抉择": child.text = "学城五日 · 旧史与抉择"
 	end_button = _button(%Design,"结束当天","end_day",_ask_end)
@@ -70,22 +77,14 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	%LocationBackground.texture = Art.BACKGROUNDS.old_academy
-	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"调查"},{"id":"evidence","text":"材料"},{"id":"map","text":"地图"},{"id":"settings","text":"设置"}],"day":state.day,"total":5,"ap":state.ap,"ap_max":3})
+	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"进度"},{"id":"evidence","text":"材料"},{"id":"people","text":"人物"},{"id":"settings","text":"设置"}],"day":state.day,"total":5,"ap":state.ap,"ap_max":3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 5" % state.day
 	for button in %TopBar.button_row().get_children(): button.disabled = busy()
 	_refresh_people()
-	_clear(side)
-	_text(side,"学城第%d天 · 全局第%d回合" % [state.day,state.entry_turn+state.day-1],25,GOLD)
-	var guidance: Dictionary = AcademyStory.stage(state)
-	_text(side,guidance.title,23,GOLD)
-	_text(side,"目标：证实有意删改，并完成讲读、质证或正式留档。\n调查："+("已查明" if state.has("trace") else "进行中"),23)
-	_text(side,"第3天末：停止普通调阅\n第4天末：清理旧稿\n第5天：定本审议与离城",22,MUTED)
-	if not state.selected.is_empty(): _text(side,Academy.NAMES[state.selected]+"："+state.status(state.selected),23)
-	for who in state.warnings: _text(side,Academy.NAMES[who]+"："+state.status(who),21,GOLD)
-	if not state.history.is_empty(): _text(side,"最近："+state.history.back().title+"\n"+state.history.back().receipt,20,MUTED)
+	var guidance: Dictionary = _chapter_guidance()
+	_render_progress_side()
 	end_button.visible = not state.finished
 	end_button.disabled = busy()
-	completed_button.disabled = busy()
 	end_button.text = "离城交接与结算" if state.day==5 else "结束当天 · 剩%d AP" % state.ap
 	subtitle.text = "学城五日 · 阅读与切换免费"
 	heading.text = "学城调查" if state.selected.is_empty() else Academy.NAMES[state.selected]
@@ -105,8 +104,41 @@ func _refresh() -> void:
 		_show_portrait(Academy.NAMES.get(state.selected,""))
 		%DialogueBox.show_text(guidance.next)
 		_build_actions()
+		_empty_actions_hint()
 	choice_scroll.scroll_vertical = 0
 	_save_caption()
+
+func _show_story_picture(line: Dictionary) -> void:
+	var id := str(line.get("illustration",""))
+	if not STORY_PICTURES.has(id) or state.flags.has("seen_picture_"+id): return
+	active_story_picture = id
+	_popup(STORY_PICTURES[id].title)
+	var picture := TextureRect.new()
+	picture.name = "StoryPicture"
+	picture.texture = load(STORY_PICTURES[id].path)
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size.y = 530
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_body.add_child(picture)
+	_text(overlay_body,str(line.get("text","")),24)
+	_clear(overlay_actions)
+	var close := _button(overlay_actions,"继续阅读 · 回车 / Esc","close",overlay.hide)
+	close.focus_mode = Control.FOCUS_NONE
+
+func _story_picture_visibility_changed() -> void:
+	if overlay.visible or active_story_picture.is_empty(): return
+	state.flags["seen_picture_"+active_story_picture] = true
+	active_story_picture = ""
+	_save()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not active_story_picture.is_empty() and overlay.visible:
+		if (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel")) and not event.is_echo():
+			overlay.hide()
+			get_viewport().set_input_as_handled()
+		return
+	super._unhandled_key_input(event)
 
 func _build_actions() -> void:
 	var group: String = "research" if state.selected.is_empty() else state.selected
@@ -159,6 +191,7 @@ func _on_line_presented(index: int, speaker: String) -> void:
 	continue_hint.text = "点击文字框 / 回车继续　%d / %d ›" % [index+1,state.presentation.lines.size()]
 	_save()
 	_save_caption()
+	_show_story_picture(state.presentation.lines[index])
 
 func _on_dialogue_finished() -> void:
 	if not busy(): return
@@ -170,6 +203,7 @@ func _ask_end() -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible: return
 	_popup("离城交接" if state.day==5 else "结束当天？")
 	_text(overlay_body,state.end_preview(),24)
+	_text(overlay_body,"时间提醒\n"+"\n".join(_time_notices()),23,GOLD)
 	_button(overlay_actions,"确认离城" if state.day==5 else "确认结束当天","confirm_day",_end_day)
 
 func _end_day() -> void:
@@ -186,12 +220,8 @@ func _show_report() -> void:
 func _toolbar(id: String) -> void:
 	if busy() or overlay.visible or map_modal.visible: return
 	match id:
-		"journal":
-			_popup("旧学城 · 调查与成果")
-			_text(overlay_body,"一本书被改了，旧书又快被清理。\n找齐新旧书页→查旧书去了哪里→找到改书通知→把三份证据连起来。\n然后选择：交给读者、在审议会上提出证据，或正式登记异议。\n不要求三位人物都支持，也不以认知分数作为通关门槛。",24)
-			_text(overlay_body,AcademyStory.stage(state).next,24,GOLD)
-			_text(overlay_body,state.result_text()+"\n\n"+state.end_preview(),23)
-			if not state.finished: _button(overlay_actions,"进入公共档案","research",_open_research)
+		"journal": _show_progress()
+		"people": _show_people_page()
 		"evidence":
 			_popup("档案与来源")
 			for doc in Academy.DOCS: _text(overlay_body,Academy.DOCS[doc]+"："+("随身保全" if state.docs.has(doc) else "尚未取得"),23)
@@ -269,7 +299,7 @@ func _enter_forest() -> void:
 	var seed: Dictionary=state.snapshot.duplicate(true)
 	var identity:=JSON.stringify(seed).sha256_text().substr(0,16)
 	var next=load("res://scenes/forest_chapter.tscn").instantiate()
-	next.save_path=save_path+".forest-"+identity+".json"
+	next.save_path=save_path+".forest-v2-"+identity+".json"
 	next.academy_snapshot=seed
 	get_parent().add_child(next)
 	if get_tree().current_scene==self: get_tree().current_scene=next
@@ -278,3 +308,6 @@ func _enter_forest() -> void:
 func _enter_forest_from_map() -> void:
 	overlay.hide()
 	_enter_forest()
+
+func _chapter_guidance() -> Dictionary:
+	return AcademyStory.stage(state)

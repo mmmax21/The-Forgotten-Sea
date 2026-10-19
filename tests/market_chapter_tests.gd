@@ -299,6 +299,19 @@ func ui_checks() -> void:
 	check(scene!=null,"Village handoff loads market scene")
 	if scene==null: return
 	check(scene.state.entry_turn==7 and scene.state.origin.has("evidence"),"Actual village snapshot inherited")
+	scene.get_node("%DialogueBox").advance()
+	scene.get_node("%DialogueBox").advance()
+	check(scene.active_story_picture=="gate" and scene.overlay.visible,"Gate image at rewritten manifest")
+	check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Gate texture loaded")
+	var entry_path: String=scene.save_path
+	scene.queue_free();await frames()
+	scene=load("res://scenes/market_chapter.tscn").instantiate();scene.save_path=entry_path
+	root.add_child(scene);await frames()
+	check(scene.active_story_picture=="gate" and scene.overlay.visible,"Pending image resumes after load")
+	await activate(button(scene.overlay_actions,"close"))
+	check(scene.state.presentation.index==2 and scene.state.ap==3,"Closing image preserves cursor and AP")
+	scene._refresh()
+	check(not scene.overlay.visible,"Seen image does not repeat")
 	await finish_dialogue()
 	check(scene.state.ap==3,"Intro free")
 	var cards = scene.get_node("Design/CharacterRail/Cards").get_children()
@@ -345,6 +358,14 @@ func ui_checks() -> void:
 				check(scene.state.to_data()==before_compare,"Correct comparison still awaits paid confirmation")
 			await activate(button(scene.overlay_actions,"execute"))
 			check(scene.state.flags.has(scene.state.key_for(id,"censorship")),"UI action confirmed: "+id)
+			if id=="text_verify":
+				check(scene.active_story_picture=="pages" and scene.overlay.visible,"Text verification shows old pages")
+				check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Pages texture loaded")
+			if id=="private":
+				check(not scene.overlay.visible,"Reader picture waits for response")
+				scene.get_node("%DialogueBox").advance()
+				check(scene.active_story_picture=="readers" and scene.overlay.visible,"Reader response shows delivered materials")
+				check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Readers texture loaded")
 			await finish_dialogue()
 		await activate(scene.end_button)
 		check(scene.overlay.visible,"End day confirmation")
@@ -370,4 +391,13 @@ func ui_checks() -> void:
 	await activate(button(scene.overlay_actions,"execute"))
 	await finish_dialogue()
 	check(scene.state.belief==25,"Unified UI delivery pays enhanced reward")
+	scene.state=S.new();scene.state.initialize({});scene._refresh()
+	for id in ["qian_help","cargo","seizure"]:
+		scene._market_execute(id,"censorship")
+		await finish_dialogue()
+	scene.state.end_day()
+	scene._market_execute("goods_verify","censorship")
+	check(scene.active_story_picture=="cargo" and scene.overlay.visible,"Goods route shows matching records")
+	check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Cargo texture loaded")
+	await finish_dialogue()
 	scene.queue_free(); await frames()

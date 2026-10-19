@@ -22,15 +22,22 @@ var map_modal
 var overlay: Control
 var overlay_body: VBoxContainer
 var overlay_actions: VBoxContainer
-var completed_button: Button
 var end_button: Button
 var save_error := ""
 var save_blocked := false
 var rail_names: Array = []
+const VILLAGE_PICTURES := {
+	"heirloom": {"title":"丈夫留下的手记", "path":"res://assets/fishing_village/渔村_丈夫的手记.png"},
+	"identify": {"title":"哑伯辨认木件", "path":"res://assets/fishing_village/渔村_哑伯辨认木件.png"},
+	"waterline": {"title":"无雨的水位涨落", "path":"res://assets/fishing_village/渔村_无雨的水线.png"},
+	"shells": {"title":"旧水线之外的贝壳", "path":"res://assets/fishing_village/渔村_水线外的贝壳.png"},
+}
+var active_village_picture := ""
 
 func _ready() -> void:
 	_build_theme()
 	_build_ui()
+	overlay.visibility_changed.connect(_village_picture_visibility_changed)
 	end_button = _button(%Design,"结束当天","end_day",_ask_end)
 	end_button.position = Vector2(1450,690)
 	end_button.size = Vector2(420,60)
@@ -44,7 +51,7 @@ func _ready() -> void:
 	%MiniMap.action_pressed.connect(_minimap)
 	%MiniMap.get_node("Compass").tooltip_text = "地图"
 	%MiniMap.get_node("Upper").tooltip_text = "证据与材料"
-	%MiniMap.get_node("Lower").tooltip_text = "调查手记"
+	%MiniMap.get_node("Lower").tooltip_text = "调查进度"
 	var loaded := Save.load_from(save_path)
 	if loaded.ok:
 		state = loaded.state
@@ -124,6 +131,7 @@ func _button(parent: Node, value: String, id: String, callback: Callable, disabl
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.disabled = disabled
+	button.visible = not disabled
 	button.set_meta("action_id", id)
 	button.pressed.connect(callback)
 	parent.add_child(button)
@@ -162,10 +170,7 @@ func _build_ui() -> void:
 	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_theme_constant_override("separation", 12)
 	choice_scroll.add_child(actions)
-	completed_button = _button(%Design,"查看已完成行动","completed",_completed)
-	completed_button.position = Vector2(700,280)
-	completed_button.size = Vector2(280,60)
-	var scroll_hint := _text(%Design,"行动列表可滚动 · 灰色行动暂不可用，原因见按钮",19,MUTED)
+	var scroll_hint := _text(%Design,"只显示当前可做的行动 · 下一步与期限见「进度」",19,MUTED)
 	scroll_hint.position = Vector2(250,675)
 	scroll_hint.size = Vector2(730,25)
 	scroll_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -236,27 +241,13 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	%LocationBackground.texture = Art.BACKGROUNDS[state.location]
-	%TopBar.apply_engine({"stats":[{"label":"认知 B","value":state.belief},{"label":"粮食","value":state.food}],"buttons":[{"id":"journal","text":"手记"},{"id":"evidence","text":"材料"},{"id":"map","text":"地图"},{"id":"settings","text":"设置"}],"day":state.day,"total":6,"ap":state.ap,"ap_max":3})
+	%TopBar.apply_engine({"stats":[{"label":"认知 B","value":state.belief},{"label":"粮食","value":state.food}],"buttons":[{"id":"journal","text":"进度"},{"id":"evidence","text":"材料"},{"id":"people","text":"人物"},{"id":"settings","text":"设置"}],"day":state.day,"total":6,"ap":state.ap,"ap_max":3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 6" % state.day
 	for button in %TopBar.button_row().get_children(): button.disabled = busy()
 	_refresh_people()
-	_clear(side)
-	_text(side,"第%d天 · %s" % [state.day,Art.PLACE_NAMES[state.location]],26,GOLD)
-	_text(side,"目标：完成验证，并留下传播影响。\n未完成仍可离村，但不算调查成功。",23)
-	_text(side,state.progress_text().split("\n\n")[0]+"\n验证条件详见手记",21,MUTED)
-	_text(side,"认知30：留下火种\n认知60：局部现实变化",22,MUTED)
-	if not state.selected.is_empty():
-		var p: Dictionary = state.people[state.selected]
-		_text(side,"%s · T%d / A%d\n%s" % [State.NAMES[state.selected],p.t,p.a,state.status(state.selected)],23)
-	for who in state.people:
-		if state.people[who].due > 0: _text(side,State.NAMES[who]+" · "+state.status(who),23,Color("efb786"))
-	if not state.history.is_empty():
-		var last: Dictionary = state.history.back()
-		_text(side,"最近："+str(last.title)+"\n"+str(last.get("receipt","")),21,MUTED)
-	_text(side,"第3天末：安置截止\n第4天末：遗迹/水线截止\n第4—5天：公开说明\n第6天末：离村",22,MUTED)
+	_render_progress_side()
 	end_button.visible = not state.finished
 	end_button.disabled = busy()
-	completed_button.disabled = busy()
 	end_button.text = "离村交接与结算" if state.day == 6 else "结束当天 · 剩%d AP" % state.ap
 	subtitle.text = "渔村 / 第%02d天　·　移动与交谈预览免费" % state.day
 	heading.text = "遗迹调查" if state.location == "ruins" else (State.NAMES[state.selected] if not state.selected.is_empty() else "今天从哪里开始？")
@@ -272,12 +263,13 @@ func _refresh() -> void:
 		%DialogueBox.show_text("%s\n证据、人物与公共认知的结果已经保存。可以继续前往集市。" % state.outcome_text())
 		_button(actions,"前往 / 继续集市","market",_enter_market)
 		_button(actions,"查看离村结果","report",_show_report)
-		_button(actions,"回看调查手记","journal",_toolbar.bind("journal"))
+		_button(actions,"查看调查进度","journal",_toolbar.bind("journal"))
 		_button(actions,"重新开始这六天…","restart",_restart_ask)
 	else:
 		_show_portrait(State.NAMES.get(state.selected,"") if state.location == "fishing_village" else "")
 		%DialogueBox.show_text(_idle_text())
 		_build_actions()
+		_empty_actions_hint()
 	choice_scroll.scroll_vertical = 0
 	_save_caption()
 
@@ -324,7 +316,6 @@ func _material_entry(parent: Node, kind: String, who: String, label: String) -> 
 func _build_actions() -> void:
 	if state.location == "ruins":
 		for id in ["survey","clear","search"]: _add_action(id)
-		_button(actions,"地图 · 免费返回渔村","map",_toolbar.bind("map"))
 		return
 	if not state.selected.is_empty():
 		for id in State.ACTIONS:
@@ -338,7 +329,6 @@ func _build_actions() -> void:
 		var public_available := _any_public_available()
 		_button(actions,"村口公开说明 · 第4—5天" + ("" if public_available else "\n" + str(public_reasons[0])),"public",_public_options,not public_available)
 		_button(actions,"材料与抄写摊","evidence",_toolbar.bind("evidence"))
-		_button(actions,"打开地图 · 前往遗迹","map",_toolbar.bind("map"))
 
 func _on_character_selected(index: int, _person: String, _summary: String, _texture: Texture2D) -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible or state.location != "fishing_village": return
@@ -358,6 +348,31 @@ func _on_line_presented(index: int, speaker: String) -> void:
 	continue_hint.text = "点击文字框 / 回车继续　%d / %d ›" % [index+1,state.presentation.lines.size()]
 	_save()
 	_save_caption()
+	_show_village_picture(state.presentation.lines[index])
+
+func _show_village_picture(line: Dictionary) -> void:
+	var id := str(line.get("illustration",""))
+	if not VILLAGE_PICTURES.has(id) or state.flags.has("seen_picture_"+id): return
+	active_village_picture = id
+	_popup(VILLAGE_PICTURES[id].title)
+	var picture := TextureRect.new()
+	picture.name = "StoryPicture"
+	picture.texture = load(VILLAGE_PICTURES[id].path)
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size.y = 530
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_body.add_child(picture)
+	_text(overlay_body,str(line.get("text","")),24)
+	_clear(overlay_actions)
+	var close := _button(overlay_actions,"继续阅读 · 回车 / Esc","close",overlay.hide)
+	close.focus_mode = Control.FOCUS_NONE
+
+func _village_picture_visibility_changed() -> void:
+	if overlay.visible or active_village_picture.is_empty(): return
+	state.flags["seen_picture_"+active_village_picture] = true
+	active_village_picture = ""
+	_save()
 
 func _on_dialogue_finished() -> void:
 	if not busy(): return
@@ -418,6 +433,7 @@ func _ask_end() -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible: return
 	_popup("离村交接" if state.day == 6 else "结束第%d天？" % state.day)
 	_text(overlay_body,state.end_preview(),24)
+	_text(overlay_body,"时间提醒\n"+"\n".join(_time_notices()),23,GOLD)
 	if state.day == 6:
 		_text(overlay_body,"结束后将复查协助并确认材料去向；此处不能免费补做记录或安排。",23,MUTED)
 		_button(overlay_actions,"查看材料，先处理交接","materials",_open_materials)
@@ -435,11 +451,6 @@ func _end_day() -> void:
 		if state.belief >= 60: farewell.append("水线之外，多了一圈湿亮的贝壳。大海尚未回归，但渔村已经发生变化。")
 		_play(Story.lines(farewell),"departure")
 	else: _play(Story.day_start(state),"day")
-
-func _completed() -> void:
-	_popup("已完成行动 · 免费回顾")
-	for entry in state.history: _text(overlay_body,"第%d天 · %s\n剩余%d AP · 当时认知%d" % [entry.day,entry.title,entry.ap,entry.belief],23)
-	if state.history.is_empty(): _text(overlay_body,"尚未执行付费行动。")
 
 func _show_report() -> void:
 	_popup("离村结果")
@@ -463,22 +474,8 @@ func _toolbar(id: String) -> void:
 				_material_entry(overlay_body,"scribe","","抄写摊制作记录 · 1 AP + 1粮食")
 				_text(overlay_body,"可选：把原物留在村内（不增加信任或认知）",23,MUTED)
 				for who in ["salt","elder"]: _material_entry(overlay_body,"store",who,"交给"+State.NAMES[who]+"保管 · 1 AP")
-		"journal":
-			_popup("调查手记")
-			_text(overlay_body,"渔村目标进度",27,GOLD)
-			_text(overlay_body,state.progress_text(),23)
-			_text(overlay_body,"已确认事实",27,GOLD)
-			_text(overlay_body,"丈夫留下了关于异常水域的记录。" if state.flags.has("heirloom") else "尚未取得丈夫手记。",23)
-			_text(overlay_body,"遗迹木件确为船体构件，但不能单凭它排除河船。" if state.flags.has("identify") else "尚未确认遗迹碎片的用途。",23)
-			_text(overlay_body,"重复水位涨落与无雨记录相互对应。" if state.flags.has("waterline") else "尚未核对水线记录。",23)
-			_text(overlay_body,"尚未解释：这些异常是否都来自海洋？为何相关记忆被压制？",23,MUTED)
-			_text(overlay_body,"期限与风险",27,GOLD)
-			_text(overlay_body,state.end_preview(),23)
-			_text(overlay_body,"可推进事项",27,GOLD)
-			for action_id in State.ACTIONS:
-				if State.ACTIONS[action_id].group != "material" and state.blocked(action_id).is_empty(): _text(overlay_body,"• "+State.ACTIONS[action_id].title+" · %d AP" % State.ACTIONS[action_id].ap,23)
-			if not state.spread.is_empty(): _text(overlay_body,"盐嫂传播安排："+("条件有效，离场复查" if state.cooperative("salt") else "暂时暂停，离场时仍无效则退回材料"),23)
-			_button(overlay_actions,"查看行动经历","history",_completed)
+		"journal": _show_progress()
+		"people": _show_people_page()
 		"map":
 			var places: Array = []
 			for place_id in Art.BACKGROUNDS: places.append({"id":place_id,"reachable":true})
@@ -564,6 +561,11 @@ func _restart() -> void:
 	_play(Story.opening(),"opening")
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if not active_village_picture.is_empty() and overlay.visible:
+		if (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel")) and not event.is_echo():
+			overlay.hide()
+			get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_accept") and not event.is_echo() and busy() and not overlay.visible and not map_modal.visible:
 		%DialogueBox.advance()
 		get_viewport().set_input_as_handled()
@@ -587,3 +589,121 @@ func _enter_market() -> void:
 func _enter_market_from_map() -> void:
 	overlay.hide()
 	_enter_market()
+
+# Shared navigation keeps all chapters consistent without altering their rules.
+func _chapter_guidance() -> Dictionary:
+	var p: Dictionary = state.chapter_progress()
+	if state.finished: return {"title":"渔村调查已结束","next":"查看离村结果，或前往集市继续调查。"}
+	if state.day>4 and not p.verified: return {"title":"遗迹与水线调查已截止","next":"缺少的关键证据已无法补取，可整理已有发现、照顾村民，再带着部分调查离村。"}
+	if state.day==6 and not p.propagated: return {"title":"公开说明已经结束","next":"仍可检查盐嫂的邻里传播是否可安排；未留下有效传播则带着验证结果离村。"}
+	if not p.lead_found: return {"title":"寻找关于海洋的线索","next":"可以帮助盐嫂、听她说话，或从地图进入遗迹调查。"}
+	if not p.verified: return {"title":"线索还需要相互印证","next":"调查遗迹，请哑伯辨认船体构件，再与手记或水线记录核对。"}
+	if not p.propagated: return {"title":"证据已经核实","next":"可在第4—5天公开说明，或争取盐嫂安排邻里传播。"}
+	return {"title":"基本目标已经达成","next":"可补充调查、照顾村民，或检查传播与人物风险。"}
+
+func _time_notices() -> Array:
+	var schedules: Dictionary = {
+		"fishing_village":[[3,"第3天末：家人安置截止"],[4,"第4天末：遗迹与水线调查截止"],[5,"第4—5天：村口公开说明"],[6,"第6天末：离村交接"]],
+		"market":[[3,"第3天末搜查；公开回应需留足行动点"],[4,"第4天末：商队出发与离市交接"]],
+		"old_academy":[[3,"第3天末：常规旧档调查截止"],[4,"第4天：按已知位置抢救；当天末旧稿清理"],[5,"第5天：公开质询与离城交接"]],
+		"feather_forest":[[4,"第4天末：高塔封锁，须提前完成进入和取证"],[4,"想第5天公开，须先联系居民"],[5,"第5天：传播与离林交接"]],
+		"royal_city":[[5,"第5天末：递送网络面临搜查"],[6,"第6天最终选择：海回归、接管需留1 AP"]]
+	}
+	var result: Array = []
+	var place: String = "fishing_village" if state.location=="ruins" else state.location
+	for entry in schedules.get(place,[]):
+		if int(entry[0])>=state.day: result.append(entry[1])
+	return result
+
+func _risk_notices() -> Array:
+	var result: Array = []
+	var names: Dictionary = state.get_script().get_script_constant_map().get("NAMES",{})
+	for who in state.people:
+		var status: String = state.status(who)
+		if "预警" in status or "到期" in status or "追查" in status:
+			result.append(str(names.get(who,who))+"："+status)
+	var data: Dictionary = state.to_data()
+	if int(data.get("risk_due",0))>0: result.push_front("递送追查：第%d天末到期" % data.risk_due)
+	if int(data.get("source_due",0))>0: result.push_front("证人保护：第%d天末到期" % data.source_due)
+	return result
+
+func _render_progress_side() -> void:
+	_clear(side)
+	side.add_theme_constant_override("separation",10)
+	var guidance: Dictionary = _chapter_guidance()
+	_text(side,"当前进展",20,MUTED)
+	_text(side,guidance.title,25,GOLD)
+	_text(side,"可以继续",20,MUTED)
+	_text(side,str(guidance.next).split("。")[0]+"。",22)
+	var notices: Array = _risk_notices()
+	notices.append_array(_time_notices())
+	if not notices.is_empty() and not state.finished:
+		_text(side,"近期提醒",20,MUTED)
+		for notice in notices.slice(0,2): _text(side,"• "+str(notice),20,GOLD)
+
+func _empty_actions_hint() -> void:
+	for child in actions.get_children():
+		if child is Button and child.visible: return
+	_text(actions,"这里暂时没有可执行的行动。\n可切换人物、从地图探索，或查看「进度」了解下一步。",24,MUTED)
+
+func _show_progress() -> void:
+	_popup("调查进度")
+	var guidance: Dictionary = _chapter_guidance()
+	_text(overlay_body,guidance.title,28,GOLD)
+	_text(overlay_body,guidance.next,24)
+	if state.has_method("progress_text"): _text(overlay_body,state.progress_text(),23)
+	if state.has_method("result_text"): _text(overlay_body,state.result_text(),23)
+	_text(overlay_body,"期限与风险",26,GOLD)
+	_text(overlay_body,"\n".join(_time_notices()),23)
+	_text(overlay_body,state.end_preview(),23)
+	_text(overlay_body,"可推进事项",26,GOLD)
+	_text(overlay_body,"行动点不足的事项，可在未过期限的下一天再做；已经关闭的机会不会重新出现。",22,MUTED)
+	var definitions: Dictionary = state.get_script().get_script_constant_map().get("ACTIONS",{})
+	for id in definitions:
+		var definition: Dictionary = definitions[id]
+		if definition.get("group","")=="material": continue
+		var reasons: Array = state.blocked(id)
+		if reasons.is_empty(): _text(overlay_body,"• "+str(definition.title),23)
+	var tomorrow = state.get_script().new()
+	if not state.finished and tomorrow.restore(state.to_data()):
+		tomorrow.ap = 3
+		var waiting: Array = []
+		for id in definitions:
+			if definitions[id].get("group","")=="material": continue
+			if not state.blocked(id).is_empty() and tomorrow.blocked(id).is_empty(): waiting.append(str(definitions[id].title))
+		if not waiting.is_empty():
+			_text(overlay_body,"仅缺行动点的事项",26,GOLD)
+			_text(overlay_body,"、".join(waiting)+"。请先核对以上期限，结束当天可能使机会关闭。",23)
+	if not state.finished and has_method("_open_research"):
+		_button(overlay_actions,"进入公共调查 · 免费","research",Callable(self,"_open_research"))
+	# Existing reports retain facts and consequences without an action-history menu.
+	if state.finished and state.has_method("report"): _text(overlay_body,state.report(),23)
+
+func _show_people_page() -> void:
+	_popup("人物与关系")
+	var names: Dictionary = state.get_script().get_script_constant_map().get("NAMES",{})
+	_text(overlay_body,"本地人物",27,GOLD)
+	_text(overlay_body,"回到场景后，点击左侧人物卡即可交谈。",22,MUTED)
+	for who in state.people:
+		var person: Dictionary = state.people[who]
+		_text(overlay_body,"%s · 信任%d / 警戒%d\n%s" % [names.get(who,who),person.get("t",0),person.get("a",0),state.status(who)],24)
+	var data: Dictionary = state.to_data()
+	var previous: Dictionary = data.get("origin",{})
+	var all_names := {"salt":"盐嫂","elder":"哑伯","child":"螺螺","qian":"钱伯","xiang":"阿香","dao":"刀郎","mo":"墨先生","er":"二笔","gao":"高帽子","el":"艾尔","lo":"洛恩","ika":"伊卡恩"}
+	var seen: Dictionary = {}
+	if not previous.is_empty(): _text(overlay_body,"此前结识的人物",27,GOLD)
+	while not previous.is_empty():
+		var contacts: Dictionary = previous.get("people",previous.get("npc",{}))
+		for who in contacts:
+			if seen.has(who): continue
+			seen[who] = true
+			var person: Dictionary = contacts[who]
+			var status := "离开当地时：信任%d / 警戒%d" % [person.get("t",0),person.get("a",0)]
+			if person.get("reported",false): status+=" · 已告密"
+			if person.get("closed",false): status+=" · 协助中断"
+			var current = data.get("prior_contacts",{}).get(who,"")
+			var contact_status: String = str(current.get("status","")) if current is Dictionary else str(current)
+			if not contact_status.is_empty(): status+="\n目前："+str({"pending":"等待保护","protected":"已安排保护","suspended":"协助暂停","assisted":"接应已完成"}.get(contact_status,contact_status))
+			if who=="er" and data.get("flags",{}).has("er_relieved"): status+="\n目前：接应已完成"
+			_text(overlay_body,str(all_names.get(who,who))+"\n"+status,23)
+		previous=previous.get("origin",{})

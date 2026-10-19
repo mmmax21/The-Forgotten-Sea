@@ -9,7 +9,7 @@ const ACTIONS := {
  "mo_sign":{"title":"请墨先生自愿说明自己的校对责任","group":"mo","ap":1,"cooperate":"mo","requires":["trace"]},
  "er_help":{"title":"和二笔查旧书的交接位置","group":"er","ap":1},
  "er_records":{"title":"请二笔找出这批书的换书记录","group":"er","ap":1,"cooperate":"er","doc":"execution","requires":["versions"],"last":3},
- "er_protect":{"title":"保护二笔和无关抄写员的身份","group":"er","ap":1,"requires":["er_help"]},
+ "er_protect":{"title":"安排二笔与师姐避开追查","group":"er","ap":1,"requires":["er_help"]},
  "rescue_extra":{"title":"请二笔抢救指向羽之森的札记","group":"er","ap":2,"cooperate":"er","requires":["trace"],"first":4,"last":4},
  "gao_help":{"title":"向高帽子说明要查哪批书","group":"gao","ap":1},
  "command":{"title":"查看这批改书通知对应的正式命令","group":"gao","ap":1,"cooperate":"gao","requires":["trace"],"doc":"command"},
@@ -88,7 +88,7 @@ func cost(id: String) -> int:
  if id=="mo_help" and flags.has("pre_read") and not consumed.has("pre_read"): return 0
  return ACTIONS[id].ap
 func status(who: String) -> String:
- if people[who].closed: return "私人记录已销毁，暂停协助" if who=="mo" else "交接身份暴露，暂停调阅" if who=="er" else "转为书面审查，暂停调阅"
+ if people[who].closed: return "私人记录已销毁，暂停协助" if who=="mo" else "被停职盘问，师姐接受核查；原有联系受查" if who=="er" else "转为书面审查，暂停调阅"
  if warnings.has(who):
   if warnings[who]>5: return "离城后预警：全局第%d回合末到期" % (entry_turn+int(warnings[who])-1)
   return "预警：第%d天末暂停协助，可先保护来源" % warnings[who]
@@ -107,6 +107,7 @@ func blocked(id: String) -> Array:
   if not has(required): reasons.append("需要「%s」" % DOCS.get(required,ACTIONS.get(required,{}).get("title",required)))
  if a.has("doc") and docs.has(a.doc): reasons.append("这份材料已经取得，不重复收费")
  if a.has("cooperate") and not cooperative(a.cooperate): reasons.append("需要信任≥60、警戒<60且渠道开放")
+ if id=="er_protect" and people.er.closed: reasons.append("已被停职调查，离城后需安排接应，不能再按提前保护处理")
  if id=="cross_region" and not carried_evidence(): reasons.append("需要实际携带渔村手记、构件或对应记录，寄存物不能远程取回")
  if id.begins_with("file_") and (has("file_full") or has("file_limited")): reasons.append("已经提交本章正式异议")
  if id=="supplement":
@@ -124,8 +125,9 @@ func consequence(id: String) -> String:
   "file_limited": return "取得限于这一修订批次的官方回执，高帽子警戒+5。完整调查仍随身保留，未向公众传播，不加认知。"
   "file_full": return "登记完整责任异议与附件，高帽子警戒+20。回执证明收到过材料，不表示官方承认结论，也不增加公众认知。"
   "mo_sign": return "由墨先生自愿说明自己参与校对的过程，警戒+15。公开质证时留下具名证言，便于后续追责；不是额外海洋物证。"
-  "rescue_extra": return "保全额外研究札记，含一条指向羽之森旧观测塔的目录线索。这份不在原调阅单里，会留下额外开箱记录；二笔警戒+30，可能触发下一天末的追查。保护身份另需1 AP；不替代主线证据。"
-  "mo_protect","er_protect","gao_protect": return "此人警戒−20，可解除尚未到期的预警；已暂停的渠道不会自动恢复，已送达成果不撤销。"
+  "rescue_extra": return "保全额外研究札记，含一条指向羽之森旧观测塔的目录线索。这份不在原调阅单里，会留下额外开箱记录；二笔警戒+30，可能触发下一天末的追查。若触发预警，最晚第五天末前花1 AP安排暂避；否则二笔会被停职盘问、师姐接受核查，经她维系的联系受限。入林后可分步花2 AP接应，有可用集市渠道则1 AP。札记保留，不替代主线证据。"
+  "er_protect": return "保留交接凭据、澄清师姐未参与额外开箱，安排二笔暂避和替代联络。警戒−20，解除未到期预警；不是抹去开箱事实。"
+  "mo_protect","gao_protect": return "此人警戒−20，可解除尚未到期的预警；已暂停的渠道不会自动恢复，已送达成果不撤销。"
   "cross_region","museum": return "核验与旧史相互独立的实证，后续讲读或公开质证各多10认知。已经听过的读者需补充说明才获得差额。"
   "supplement":
    var difference := 0

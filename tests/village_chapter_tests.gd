@@ -1,5 +1,6 @@
 extends SceneTree
 const State := preload("res://scripts/story/village_state.gd")
+const Narrative := preload("res://scripts/story/village_story.gd")
 const Save := preload("res://scripts/story/village_save.gd")
 var checks := 0
 var failures := 0
@@ -137,6 +138,17 @@ func run() -> void:
 	check(loaded.ok and loaded.get("backup",false) and loaded.state.belief==70,"Corrupt primary restores backup")
 	check(not safe.restore({"day":1}),"Malformed data rejected")
 	check(Save.save_to("/does-not-exist/village.json",safe)!=OK,"Save failure is reported")
+	var feedback=State.new()
+	feedback.day=2;feedback.belief=60
+	check(not str(Narrative.day_start(feedback)).contains('"shells"'),"No shells before public event")
+	feedback.public_event={"day":1,"feedback_read":false,"version":"public_material","sources":["H","F"]}
+	check(str(Narrative.day_start(feedback)).contains('"shells"'),"Shell image at qualifying next-day feedback")
+	feedback.belief=59
+	check(not str(Narrative.day_start(feedback)).contains('"shells"'),"No shells below 60 belief")
+	feedback.belief=60;feedback.day=1
+	check(not str(Narrative.day_start(feedback)).contains('"shells"'),"No shells on same day")
+	feedback.day=2;feedback.public_event.feedback_read=true
+	check(not str(Narrative.day_start(feedback)).contains('"shells"'),"Consumed feedback cannot repeat shells")
 	await ui_checks()
 	print("VILLAGE: %d checks, %d failures" % [checks,failures])
 	quit(1 if failures else 0)
@@ -206,16 +218,14 @@ func ui_checks() -> void:
 	check(not button(scene.actions,"public").disabled and not button(scene.actions,"public").text.contains("不足"),"One-AP public version keeps public entry available")
 	scene.state.restore(before_options)
 	scene._refresh()
-	check(scene.completed_button.visible and scene.completed_button.get_parent()==scene.get_node("Design"),"History is a fixed global control")
+	check(button(scene.get_node("Design"),"completed")==null,"History control removed")
 	check(button(scene.actions,"village")==null,"No redundant village return button")
-	check(button(scene.actions,"heirloom").disabled,"Unavailable NPC action disabled")
-	check(button(scene.actions,"show").disabled,"No evidence disables private show")
+	check(not button(scene.actions,"heirloom").visible,"Unavailable NPC action hidden")
+	check(not button(scene.actions,"show").visible,"No evidence hides private show")
 	check(button(scene.actions,"store")==null,"Storage moved out of NPC action list")
-	await click(button(scene.actions,"heirloom"))
-	check(not scene.overlay.visible and scene.state.ap==3,"Disabled action cannot open or spend")
-	await click(scene.completed_button)
-	check(scene.overlay.visible,"Global history opens (disabled=%s, hovered=%s)" % [scene.completed_button.disabled,root.gui_get_hovered_control()])
-	scene.overlay.hide()
+	scene._toolbar("journal")
+	check(scene.overlay.visible,"Progress opens")
+	await click(button(scene.overlay_actions,"close"))
 	await click(button(scene.actions,"feed"))
 	check(scene.overlay.visible and scene.state.ap==3,"Action click previews before cost")
 	check(scene.end_button.get_index() < scene.overlay.get_index(),"Modal layers above end-day button")
@@ -265,10 +275,25 @@ func ui_checks() -> void:
 			scene._travel("ruins" if State.ACTIONS[id].group=="ruins" else "fishing_village")
 			scene._preview_action(id,args)
 			await click(button(scene.overlay_actions,"execute"))
+			if id in ["heirloom","identify","waterline"]:
+				check(scene.active_village_picture==id and scene.overlay.visible,"Correct village illustration: "+id)
+				check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Village texture loaded: "+id)
+				var ap_before: int=scene.state.ap
+				if id=="heirloom":
+					var picture_path: String=scene.save_path
+					scene.queue_free();await settle_frames()
+					scene=load("res://scenes/trial1.tscn").instantiate();scene.save_path=picture_path
+					root.add_child(scene);await settle_frames()
+					check(scene.active_village_picture==id and scene.overlay.visible,"Pending picture resumes on load")
+				await click(button(scene.overlay_actions,"close"))
+				check(scene.state.ap==ap_before and scene.state.presentation.index==0,"Picture close preserves AP and line")
+				scene._refresh()
+				check(not scene.overlay.visible,"Viewed picture stays closed on refresh")
 			await finish_dialogue()
 		await click(scene.end_button)
 		await click(button(scene.overlay_actions,"confirm_day"))
 		await finish_dialogue()
+	check(scene.state.flags.has("seen_picture_shells"),"Safe route shows conditional shells feedback")
 	check(scene.state.finished and scene.state.belief==70 and scene.state.spent==17,"Complete playable safe route through UI")
 	await click(button(scene.actions,"report"))
 	await capture("report")

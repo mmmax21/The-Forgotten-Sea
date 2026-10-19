@@ -4,12 +4,20 @@ const Market := preload("res://scripts/story/market_chapter_state.gd")
 const MarketStory := preload("res://scripts/story/market_chapter_story.gd")
 const MarketSave := preload("res://scripts/story/market_chapter_save.gd")
 var village_snapshot: Dictionary = {}
+const STORY_PICTURES := {
+	"gate": {"title":"被改写的货单", "path":"res://assets/market/集市_改写货单.png"},
+	"cargo": {"title":"古物与两份凭据", "path":"res://assets/market/集市_古物与凭据.png"},
+	"pages": {"title":"被删去的文字", "path":"res://assets/market/集市_删改前残页.png"},
+	"readers": {"title":"纸页到了读者手里", "path":"res://assets/market/集市_读者收到材料.png"},
+}
+var active_story_picture := ""
 
 func _ready() -> void:
 	if save_path=="user://trial1_village_v1.json": save_path = "user://trial1_market_v1.json"
 	state = Market.new()
 	_build_theme()
 	_build_ui()
+	overlay.visibility_changed.connect(_story_picture_visibility_changed)
 	for child in %Design.get_children():
 		if child is Label and child.text=="渔村六日 · 调查与抉择": child.text = "集市四日 · 消息与代价"
 	end_button = _button(%Design,"结束当天","end_day",_ask_end)
@@ -70,23 +78,14 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	%LocationBackground.texture = Art.BACKGROUNDS.market
-	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"调查"},{"id":"evidence","text":"材料"},{"id":"map","text":"地图"},{"id":"settings","text":"设置"}],"day":state.day,"total":4,"ap":state.ap,"ap_max":3})
+	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"进度"},{"id":"evidence","text":"材料"},{"id":"people","text":"人物"},{"id":"settings","text":"设置"}],"day":state.day,"total":4,"ap":state.ap,"ap_max":3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 4" % state.day
 	for button in %TopBar.button_row().get_children(): button.disabled = busy()
 	_refresh_people()
-	_clear(side)
-	_text(side,"集市第%d天 · 全局第%d回合" % [state.day,state.entry_turn+state.day-1],25,GOLD)
-	var guidance: Dictionary = MarketStory.stage(state)
-	_text(side,guidance.title+"\n"+guidance.question,23,GOLD)
-	_text(side,"目标：查明针对性限制，并完成实际传播。\n调查：%s · 已送达%d次" % ["已验证" if state.verified("censorship") else "未验证",state.deliveries.size()],23)
-	_text(side,"第3天末：搜查\n第2—3天：公开投放\n第4天末：商队出发并离市",22,MUTED)
-	if not state.selected.is_empty(): _text(side,Market.NAMES[state.selected]+"："+state.status(state.selected),23)
-	if state.exposed: _text(side,"印刷点："+("搜查后暴露，离市合作暂停" if state.late_print_risk() else "已关闭" if state.print_closed else "已转移" if state.moved else "已暴露，搜查前可转移"),22,GOLD)
-	if not state.public_waiting.is_empty(): _text(side,"公开质疑待回应：还需2 AP",22,GOLD)
-	if not state.history.is_empty(): _text(side,"最近："+state.history.back().title+"\n"+state.history.back().receipt,20,MUTED)
+	var guidance: Dictionary = _chapter_guidance()
+	_render_progress_side()
 	end_button.visible = not state.finished
 	end_button.disabled = busy()
-	completed_button.disabled = busy()
 	end_button.text = "离市交接与结算" if state.day==4 else "结束当天 · 剩%d AP" % state.ap
 	subtitle.text = "集市四日 · 阅读与切换免费"
 	heading.text = "集市调查" if state.selected.is_empty() else Market.NAMES[state.selected]
@@ -106,8 +105,41 @@ func _refresh() -> void:
 		_show_portrait(Market.NAMES.get(state.selected,""))
 		%DialogueBox.show_text(guidance.next)
 		_build_actions()
+		_empty_actions_hint()
 	choice_scroll.scroll_vertical = 0
 	_save_caption()
+
+func _show_story_picture(line: Dictionary) -> void:
+	var id := str(line.get("illustration",""))
+	if not STORY_PICTURES.has(id) or state.flags.has("seen_picture_"+id): return
+	active_story_picture = id
+	_popup(STORY_PICTURES[id].title)
+	var picture := TextureRect.new()
+	picture.name = "StoryPicture"
+	picture.texture = load(STORY_PICTURES[id].path)
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size.y = 530
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_body.add_child(picture)
+	_text(overlay_body,str(line.get("text","")),24)
+	_clear(overlay_actions)
+	var close := _button(overlay_actions,"继续阅读 · 回车 / Esc","close",overlay.hide)
+	close.focus_mode = Control.FOCUS_NONE
+
+func _story_picture_visibility_changed() -> void:
+	if overlay.visible or active_story_picture.is_empty(): return
+	state.flags["seen_picture_"+active_story_picture] = true
+	active_story_picture = ""
+	_save()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not active_story_picture.is_empty() and overlay.visible:
+		if (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel")) and not event.is_echo():
+			overlay.hide()
+			get_viewport().set_input_as_handled()
+		return
+	super._unhandled_key_input(event)
 
 func _build_actions() -> void:
 	var group: String = "research" if state.selected.is_empty() else state.selected
@@ -169,6 +201,7 @@ func _on_line_presented(index: int, speaker: String) -> void:
 	continue_hint.text = "点击文字框 / 回车继续　%d / %d ›" % [index+1,state.presentation.lines.size()]
 	_save()
 	_save_caption()
+	_show_story_picture(state.presentation.lines[index])
 
 func _on_dialogue_finished() -> void:
 	if not busy(): return
@@ -180,6 +213,7 @@ func _ask_end() -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible: return
 	_popup("离市交接" if state.day==4 else "结束当天？")
 	_text(overlay_body,state.end_preview(),24)
+	_text(overlay_body,"时间提醒\n"+"\n".join(_time_notices()),23,GOLD)
 	_button(overlay_actions,"确认离市" if state.day==4 else "确认结束当天","confirm_day",_end_day)
 
 func _end_day() -> void:
@@ -204,15 +238,8 @@ func _show_report() -> void:
 func _toolbar(id: String) -> void:
 	if busy() or overlay.visible or map_modal.visible: return
 	match id:
-		"journal":
-			_popup("集市调查 · 故事与当前进展")
-			_text(overlay_body,MarketStory.overview(state),24)
-			_text(overlay_body,"验证路径一：旧文本＋查禁清单→对照。\n验证路径二：古物货单＋扣押记录→核对。\n查明任一条针对性限制，再完成一次实际传播即可成功。\n自行抄写与印刷不算传播；商队抵达在离市后。\n集市公众海洋认知由实际传播增加：单线走访/定向/公开为5/10/20，双线为10/15/25，核验渔村证据后为15/25/35。调查本身不自动传播；补充说明花1 AP，仅补原读者的差额。",24)
-			_text(overlay_body,"当前传播依据："+state.evidence_text(),24,GOLD)
-			_text(overlay_body,"已留下的成果\n"+state.achievements_text(),23,GOLD)
-			_text(overlay_body,"后续交接\n"+state.handoff_text(),23)
-			_text(overlay_body,state.end_preview(),23)
-			if not state.finished: _button(overlay_actions,"进入公共调查","research",_open_research)
+		"journal": _show_progress()
+		"people": _show_people_page()
 		"evidence":
 			_popup("材料与递送")
 			for evidence_id in ["text","ban","cargo","seizure","text_verify","goods_verify","sea_verify"]:
@@ -303,3 +330,6 @@ func _enter_academy() -> void:
 func _enter_academy_from_map() -> void:
 	overlay.hide()
 	_enter_academy()
+
+func _chapter_guidance() -> Dictionary:
+	return MarketStory.stage(state)

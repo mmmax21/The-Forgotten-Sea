@@ -4,12 +4,20 @@ const Forest := preload("res://scripts/story/forest_chapter_state.gd")
 const ForestStory := preload("res://scripts/story/forest_chapter_story.gd")
 const ForestSave := preload("res://scripts/story/forest_chapter_save.gd")
 var academy_snapshot: Dictionary = {}
+const STORY_PICTURES := {
+	"training": {"title":"普通人也曾飞行", "path":"res://assets/feather_forest/羽之森_旧训练场.png"},
+	"flight": {"title":"第一次短暂腾空", "path":"res://assets/feather_forest/羽之森_首次腾空.png"},
+	"ban": {"title":"从不许飞到不能飞", "path":"res://assets/feather_forest/羽之森_禁飞规定与讲义.png"},
+	"tower": {"title":"高塔远眺", "path":"res://assets/feather_forest/羽之森_高塔远眺.png"},
+}
+var active_story_picture := ""
 
 func _ready() -> void:
-	if save_path=="user://trial1_village_v1.json": save_path = "user://trial1_forest_v1.json"
+	if save_path=="user://trial1_village_v1.json": save_path = "user://trial1_forest_v2.json"
 	state = Forest.new()
 	_build_theme()
 	_build_ui()
+	overlay.visibility_changed.connect(_story_picture_visibility_changed)
 	for child in %Design.get_children():
 		if child is Label and child.text=="渔村六日 · 调查与抉择": child.text = "羽之森五日 · 羽翼与边界"
 	end_button = _button(%Design,"结束当天","end_day",_ask_end)
@@ -70,22 +78,14 @@ func _refresh_people() -> void:
 
 func _refresh() -> void:
 	%LocationBackground.texture = Art.BACKGROUNDS.feather_forest
-	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"调查"},{"id":"evidence","text":"材料"},{"id":"map","text":"地图"},{"id":"settings","text":"设置"}],"day":state.day,"total":5,"ap":state.ap,"ap_max":3})
+	%TopBar.apply_engine({"stats":[{"label":"公众海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"进度"},{"id":"evidence","text":"材料"},{"id":"people","text":"人物"},{"id":"settings","text":"设置"}],"day":state.day,"total":5,"ap":state.ap,"ap_max":3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 5" % state.day
 	for button in %TopBar.button_row().get_children(): button.disabled = busy()
 	_refresh_people()
-	_clear(side)
-	_text(side,"羽之森第%d天 · 全局第%d回合" % [state.day,state.entry_turn+state.day-1],25,GOLD)
-	var guidance: Dictionary = ForestStory.stage(state)
-	_text(side,guidance.title,23,GOLD)
-	_text(side,state.flight_text(),22)
-	_text(side,"第4天前：首次尝试\n隔日：2 AP复核\n第5天：安翼礼与离林",22,MUTED)
-	if not state.selected.is_empty(): _text(side,Forest.NAMES[state.selected]+"："+state.status(state.selected),23)
-	for who in state.warnings: _text(side,Forest.NAMES[who]+"："+state.status(who),21,GOLD)
-	if not state.history.is_empty(): _text(side,"最近："+state.history.back().title+"\n"+state.history.back().receipt,20,MUTED)
+	var guidance: Dictionary = _chapter_guidance()
+	_render_progress_side()
 	end_button.visible = not state.finished
 	end_button.disabled = busy()
-	completed_button.disabled = busy()
 	end_button.text = "离林交接与结算" if state.day==5 else "结束当天 · 剩%d AP" % state.ap
 	subtitle.text = "羽之森五日 · 阅读与切换免费"
 	heading.text = "羽之森调查" if state.selected.is_empty() else Forest.NAMES[state.selected]
@@ -97,7 +97,7 @@ func _refresh() -> void:
 		%DialogueBox.show_from(state.presentation.lines,state.presentation.index)
 	elif state.finished:
 		_show_portrait("")
-		%DialogueBox.show_text("普通羽人的飞行现象已跨日复核，羽之森基本目标完成。" if state.success() else "你离开了羽之森。未完成的调查与传播会分别记入结果。")
+		%DialogueBox.show_text("高塔证据已核实并保全，羽之森基本目标完成。" if state.success() else "你离开了羽之森。未完成的调查与传播会分别记入结果。")
 		_button(actions,"前往 / 继续王城","royal",_enter_royal)
 		_button(actions,"查看离林结果","report",_show_report)
 		_button(actions,"重新开始羽之森…","restart",_restart_ask)
@@ -105,13 +105,47 @@ func _refresh() -> void:
 		_show_portrait(Forest.NAMES.get(state.selected,""))
 		%DialogueBox.show_text(guidance.next)
 		_build_actions()
+		_empty_actions_hint()
 	choice_scroll.scroll_vertical = 0
 	_save_caption()
+
+func _show_story_picture(line: Dictionary) -> void:
+	var id := str(line.get("illustration",""))
+	if not STORY_PICTURES.has(id) or state.flags.has("seen_picture_"+id): return
+	active_story_picture = id
+	_popup(STORY_PICTURES[id].title)
+	var picture := TextureRect.new()
+	picture.name = "StoryPicture"
+	picture.texture = load(STORY_PICTURES[id].path)
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size.y = 530
+	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_body.add_child(picture)
+	_text(overlay_body,str(line.get("text","")),24)
+	_clear(overlay_actions)
+	var close := _button(overlay_actions,"继续阅读 · 回车 / Esc","close",overlay.hide)
+	close.focus_mode = Control.FOCUS_NONE
+
+func _story_picture_visibility_changed() -> void:
+	if overlay.visible or active_story_picture.is_empty(): return
+	state.flags["seen_picture_"+active_story_picture] = true
+	active_story_picture = ""
+	_save()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not active_story_picture.is_empty() and overlay.visible:
+		if (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel")) and not event.is_echo():
+			overlay.hide()
+			get_viewport().set_input_as_handled()
+		return
+	super._unhandled_key_input(event)
 
 func _build_actions() -> void:
 	var group: String = "research" if state.selected.is_empty() else state.selected
 	for id in Forest.ACTIONS:
 		if Forest.ACTIONS[id].group!=group: continue
+		if id in ["er_prepare","er_receive"] and not state.er_investigated(): continue
 		if state.completed(id): continue
 		var reasons: Array = state.blocked(id)
 		var label: String = Forest.ACTIONS[id].title+" · %d AP" % state.cost(id)
@@ -140,11 +174,11 @@ func _forest_preview(id: String, reviewed := false) -> void:
 		if aided.allowed: _button(overlay_actions,"使用学城帮助 · %d AP（节省1 AP）" % state.cost(id,true),"execute_support",_forest_execute.bind(id,true))
 
 func _forest_compare(id: String, retry := false) -> void:
-	_popup("核对飞行历史 · 阅读与作答免费")
-	_text(overlay_body,"名册中有普通搬运者与信使，训练场的大量起落位也与这些任务相符。这能说明什么？",24)
-	if retry: _text(overlay_body,"旧记录和设施支持过去的飞行经历，今天的能力仍需要有准备、有见证的尝试。重新作答不扣AP。",24,GOLD)
-	_button(overlay_actions,"普通羽人曾经参与飞行，今天的能力仍需观察","compare_correct",_forest_preview.bind(id,true))
-	_button(overlay_actions,"只要看到名册，所有羽人现在就能飞","compare_retry",_forest_compare.bind(id,true))
+	_popup("核对翅骨与文书 · 阅读与作答免费")
+	_text(overlay_body,"古老骨架有完整翼骨，如今羽人只留下骨痕。修建记录写着阻止飞往外界、删除相关历史。这些材料能说明什么？",24)
+	if retry: _text(overlay_body,"它们支持过去能够飞行、后来受到人为限制；不能证明贵族有特殊血统，也不能保证所有人立刻恢复。重试免费。",24,GOLD)
+	_button(overlay_actions,"羽族过去能飞，人为限制和身体变化仍需继续追查","compare_correct",_forest_preview.bind(id,true))
+	_button(overlay_actions,"只有贵族祖先能飞，取得骨头就能立刻恢复飞行","compare_retry",_forest_compare.bind(id,true))
 
 func _forest_execute(id: String, use_support := false) -> void:
 	if not state.execute(id,use_support):
@@ -166,6 +200,7 @@ func _on_line_presented(index: int, speaker: String) -> void:
 	continue_hint.text = "点击文字框 / 回车继续　%d / %d ›" % [index+1,state.presentation.lines.size()]
 	_save()
 	_save_caption()
+	_show_story_picture(state.presentation.lines[index])
 
 func _on_dialogue_finished() -> void:
 	if not busy(): return
@@ -177,16 +212,14 @@ func _ask_end() -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible: return
 	_popup("离林交接" if state.day==5 else "结束当天？")
 	_text(overlay_body,state.end_preview(),24)
+	_text(overlay_body,"时间提醒\n"+"\n".join(_time_notices()),23,GOLD)
 	_button(overlay_actions,"确认离林" if state.day==5 else "确认结束当天","confirm_day",_end_day)
 
 func _end_day() -> void:
 	if not state.end_day(): return
 	overlay.hide()
 	if state.finished:
-		var text: Array = state.events.duplicate()
-		text.append(state.result_text())
-		text.append("飞行观察、海洋传播与人物处境已保存。可以继续进入王城，在定界大典前作出最终选择。")
-		_play(Story.lines(text),"departure")
+		_play(ForestStory.departure(state),"departure")
 	else: _play(ForestStory.day_start(state),"day")
 
 func _show_report() -> void:
@@ -196,12 +229,8 @@ func _show_report() -> void:
 func _toolbar(id: String) -> void:
 	if busy() or overlay.visible or map_modal.visible: return
 	match id:
-		"journal":
-			_popup("羽之森 · 飞行与海洋")
-			_text(overlay_body,"核实名册与训练场→找到自愿参与者→联系见证者、准备低台→首次尝试2 AP→隔日复核2 AP。\n完成复核即可基本通关；高塔和公开展示均为可选成果。\n海洋说明按本地依据、外地实证、高塔观察分档，不以飞起来直接证明有海。",24)
-			_text(overlay_body,ForestStory.stage(state).next,24,GOLD)
-			_text(overlay_body,state.result_text()+"\n\n"+state.end_preview(),23)
-			if not state.finished: _button(overlay_actions,"进入公共调查","research",_open_research)
+		"journal": _show_progress()
+		"people": _show_people_page()
 		"evidence":
 			_popup("羽之森材料与观察")
 			for doc in Forest.DOCS: _text(overlay_body,Forest.DOCS[doc]+"："+("已取得" if state.docs.has(doc) else "未取得"),23)
@@ -214,7 +243,7 @@ func _toolbar(id: String) -> void:
 			map_modal.open()
 		"settings":
 			_popup("羽之森设置")
-			_text(overlay_body,"五天，每天3 AP。阅读与区域内切换免费。尝试必须跨日复核，第五天安翼礼后离林。已发生的观察与传播不会被撤回。",24)
+			_text(overlay_body,"五天，每天3 AP。阅读与区域内切换免费。第四天末封锁高塔，第五天安翼礼后离林。已取得的证据与传播不会被撤回。新版从同一学城成果另存开始，旧版存档保留。",24)
 			_button(overlay_actions,"保存进度","save",_manual_save)
 			_button(overlay_actions,"读取最近进度","load",_load_ask)
 			_button(overlay_actions,"重新开始羽之森…","restart",_restart_ask)
@@ -242,7 +271,7 @@ func _save() -> void:
 	save_error = "保存失败，当前行动已执行，可在设置中重试："+error_string(error) if error!=OK else ""
 
 func _save_caption() -> void:
-	save_label.text = save_error if not save_error.is_empty() else "羽之森进度自动保存到当前对白 · 尝试必须跨日复核 · 第5天末离林"
+	save_label.text = save_error if not save_error.is_empty() else "羽之森进度自动保存到当前对白 · 第4天末高塔封锁 · 第5天末离林"
 
 func _load_ask() -> void:
 	_popup("读取羽之森进度？")
@@ -288,3 +317,6 @@ func _enter_royal() -> void:
 func _enter_royal_from_map() -> void:
 	overlay.hide()
 	_enter_royal()
+
+func _chapter_guidance() -> Dictionary:
+	return ForestStory.stage(state)

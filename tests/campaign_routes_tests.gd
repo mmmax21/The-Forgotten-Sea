@@ -12,24 +12,24 @@ const HIGH=[
  [["feed","listen","repair"],["family","survey"],["clear","search","identify"],["heirloom","waterline"],["public_material"],[["record",{"item":"H"}],["neighbor",{"item":"H_r"}]]],
  [["qian_help","cargo","seizure","goods_verify"],["sea_verify","dao_help","protect"],["small","xiang_help","contacts","private"],[]],
  [["mo_help","mo_versions","verify"],["er_help","er_records","rules"],["trace","protect_copy","cross_region"],["distribute","resend"],[]],
- [["roster","platform","verify_history"],["el_help","witnesses","prepare"],["first_trial","tower_locate"],["tower_enter","tower_observe"],["replicate","sea_share"]]
+ [["platform","roster","lead_compare","tower_locate"],["tower_enter","tower_search"],["verify_history","preserve","sea_basis"],["cross_region","sea_share"],[]]
 ]
 const LOW=[
  [["feed","listen","repair"],["family","survey"],["clear","search","identify"],["heirloom"],[["neighbor",{"item":"H"}]],[]],
  [["qian_help","cargo","seizure"],["goods_verify","self_copy"],["manual"],[]],
  [["mo_help","mo_versions","verify"],["er_help","er_records","rules"],["trace","gao_help","command"],["file_full"],[]],
- [["roster","platform","verify_history"],["lo_help","witnesses","prepare"],["first_trial"],["replicate"],[]]
+ [["platform","roster","lead_compare","tower_locate"],["tower_enter","tower_search"],["verify_history","preserve"],[],[]]
 ]
 const PUBLIC=[
  [["feed","listen","repair"],["family","survey"],["clear","search","identify"],["heirloom",["record",{"item":"H"}]],["public_salt"],[]],
  [["dao_help","text"],["ban","text_verify"],["rush"],["answer"]],
  [["mo_help","mo_versions","verify"],["er_help","er_records","rules"],["trace","permit","mo_sign"],[],["challenge"]],
- [["roster","platform","verify_history"],["el_help","witnesses","prepare"],["first_trial","ban"],["replicate","trace_ban"],["public_demo"]]
+ [["platform","roster","lead_compare","el_help"],["tower_locate","tower_enter"],["tower_search","verify_history","preserve"],["sea_basis","witnesses","corroborate"],["public_demo"]]
 ]
 const SEA=[["archive","network"],["sea_evidence","publish"],["war","relay_village"],["device","relay_forest"],["chain","bypass"],["disconnect","final_sea"]]
 const FREE=[["archive","war","device"],["chain","network"],["bypass"],["disconnect"],[],["final_liberation"]]
 const FORMAL=[["archive","war","device"],["chain","original"],["case","stay"],["network"],["disconnect"],["final_liberation"]]
-const KING=[["archive","war","device"],["chain","memory"],["plan"],["network","relocate"],["handover"],["takeover","final_new_king"]]
+const KING=[["archive","war","device"],["chain","memory"],["review_plan","plan"],["network","relocate"],["handover"],["takeover","final_new_king"]]
 const DEAL=[["archive","war","device"],["chain"],[],["deal"],[],["final_forgetting"]]
 var checks=0
 var failures=0

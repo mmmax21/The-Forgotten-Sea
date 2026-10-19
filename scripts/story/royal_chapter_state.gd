@@ -1,5 +1,7 @@
 extends RefCounted
 ## The terminal chapter keeps regional beliefs distinct; only delivered information counts.
+const ForestStory := preload("res://scripts/story/forest_chapter_story.gd")
+const Er := preload("res://scripts/story/er_consequences.gd")
 const RULESET := "royal_six_days_v1"
 const NAMES := {"priest":"疯祭司","inspector":"审查官","king":"国王"}
 const REGIONS := {"village":"渔村","market":"集市","academy":"旧学城","forest":"羽之森","royal":"王城"}
@@ -86,7 +88,7 @@ func initialize(seed: Dictionary) -> void:
  regions.market=clampi(int(academy.get("market_belief_after",regions.market)),0,100)
  heritage["market_network"]=market.get("print_available",false) or market.get("contacts_available",false)
  heritage["receipt"]=academy.get("channels",{}).get("official_receipt",false)
- heritage["collective_proof"]=forest.get("social_results",{}).get("ordinary_flight_replicated",false) or academy.get("channels",{}).get("independent_archive",false)
+ heritage["collective_proof"]=forest_foundation(forest) or academy.get("channels",{}).get("independent_archive",false)
  heritage["signature"]=forest.get("evidence",{}).has("signature")
  heritage["physical"]=false
  for section in [forest,academy,village]:
@@ -110,9 +112,22 @@ func initialize(seed: Dictionary) -> void:
  if seed.get("pending_penalty",false):
   ap=2
   events.append("前区已确定的查验占用首日1 AP，仅结算一次。")
+ if forest.get("findings",{}).get("er_relieved",false): prior_contacts["er"]={"due":0,"status":"protected"}
  derive_foundations()
  settle_contacts()
  events.append("各地认知已分别承接。寄存材料不计为随身实证，已发生的传播不会撤回。")
+
+func forest_foundation(forest: Dictionary) -> bool:
+ if forest.get("ruleset","")=="forest_investigation_v2":
+  var f: Dictionary=forest.get("findings",{})
+  var e: Dictionary=forest.get("evidence",{})
+  return f.get("verify_history",false) and f.get("preserve",false) and e.has("wing_bones") and e.has("wall_record") and not forest.get("deliveries",{}).is_empty()
+ return forest.get("social_results",{}).get("ordinary_flight_replicated",false)
+func forest_sea_readers(forest: Dictionary) -> bool:
+ if forest.get("ruleset","")!="forest_investigation_v2": return not forest.get("deliveries",{}).is_empty()
+ for d in forest.get("deliveries",{}).values():
+  if int(d.get("gain",0))>0: return true
+ return false
 
 func derive_foundations() -> void:
  var forest: Dictionary=origin
@@ -129,9 +144,9 @@ func derive_foundations() -> void:
    var person: Dictionary=village.npc[holder]
    if not person.get("reported",false) and int(person.get("a",100))<60 and int(person.get("t",0))>=60 and not village.get("warnings",{}).has(holder): accessible=true
  heritage["village_proof"]=vf.get("verified",false) and accessible
- heritage["flight_proof"]=forest.get("social_results",{}).get("ordinary_flight_replicated",false)
+ heritage["flight_proof"]=forest_foundation(forest)
  heritage["academy_chain"]=academy.get("findings",{}).get("trace",false) and academy.get("evidence",{}).has("versions") and academy.get("evidence",{}).has("execution") and academy.get("evidence",{}).has("rules")
- var readers: Dictionary={"village":not village.get("public_event",{}).is_empty() or village.get("neighbor_valid",false),"market":not market.get("deliveries",[]).is_empty(),"academy":not academy.get("deliveries",{}).is_empty(),"forest":not forest.get("deliveries",{}).is_empty()}
+ var readers: Dictionary={"village":not village.get("public_event",{}).is_empty() or village.get("neighbor_valid",false),"market":not market.get("deliveries",[]).is_empty(),"academy":not academy.get("deliveries",{}).is_empty(),"forest":forest_sea_readers(forest)}
  for delivery in academy.get("inbound",[]):
   if delivery.get("status","")=="arrived" or delivery.get("status","")=="dispatched" and int(delivery.get("arrival_turn",99999))<=entry_turn: readers.academy=true
  var mf: Dictionary=market.get("findings",{})
@@ -151,11 +166,13 @@ func market_ready() -> bool:
 func reader_ready(region: String) -> bool:
  return heritage.get("readers",{}).get(region,false)
 func link_ready(region: String) -> bool:
+ if region=="academy" and Er.investigated(origin.get("origin",{}),entry_turn) and Er.dependent_link(origin.get("origin",{})) and not origin.get("findings",{}).get("er_relieved",false):
+  return market_ready() or has("reconnect_academy")
  return heritage.get("links",{}).get(region,false) or market_ready() or has("reconnect_"+region)
 func prior_reader_count() -> int:
  return heritage.get("readers",{}).values().filter(func(v): return v==true).size()
 func foundation_text() -> String:
- var text: String="海回归准备：\n渔村独立实证：%s\n羽之森跨日复核：%s\n前区实际传播：%d / 2\n正式追责：%s\n集市跨区组织：%s" % ["已具备" if heritage.get("village_proof",false) else "缺少有效核验或可核查材料","已完成" if heritage.get("flight_proof",false) else "未完成",prior_reader_count(),"学城责任链已保留" if heritage.get("academy_chain",false) else "缺少学城责任链","可用" if market_ready() else "需恢复联络" if heritage.get("market_foundation",false) else "未建立"]
+ var text: String="海回归准备：\n渔村独立实证：%s\n羽之森证据核实与传播：%s\n前区实际传播：%d / 2\n正式追责：%s\n集市跨区组织：%s" % ["已具备" if heritage.get("village_proof",false) else "缺少有效核验或可核查材料","已完成" if heritage.get("flight_proof",false) else "未完成",prior_reader_count(),"学城责任链已保留" if heritage.get("academy_chain",false) else "缺少学城责任链","可用" if market_ready() else "需恢复联络" if heritage.get("market_foundation",false) else "未建立"]
  for region in ["village","market","academy","forest"]: text+="\n%s读者：%s" % [REGIONS[region],"未形成，不能回传" if not reader_ready(region) else "可补传" if link_ready(region) else "需寻找替代联络人"]
  return text
 
@@ -222,7 +239,7 @@ func blocked(id: String) -> Array:
  if id=="final_sea":
   if not enforcement_supported(): reasons.append("需用学城责任链落实停令，或集市组织完成分散拒绝")
   if not heritage.get("village_proof",false): reasons.append("缺少渔村独立实证：需要交叉核验与可核查材料")
-  if not heritage.get("flight_proof",false): reasons.append("缺少羽之森普通羽人跨日复核")
+  if not heritage.get("flight_proof",false): reasons.append("缺少羽之森已核实保全的翅骨、修建记录与有效传播")
   if prior_reader_count()<2: reasons.append("需要至少两个前区已经发生有效海洋传播，王城补传不能替代")
   if not has("chain"): reasons.append("尚未查明封闭政策的责任与原理")
   if controls.artifact: reasons.append("尚未解除王室法器压制")
@@ -393,7 +410,13 @@ func report() -> String:
  if source_due>0: text+="\n祭司具名风险尚未处理，将在全局第%d回合末限制未来协助。" % (entry_turn+source_due-1)
  if source_closed: text+="\n祭司受到具名追查，已交出的证言仍保存。"
  if has("network"): text+="\n已有分散副本留存，结局不会抹除曾经发生的传播。"
- for who in prior_contacts: text+="\n前区联系人%s：%s" % [who,{"pending":"待处理风险","protected":"已安排保护","suspended":"暂停未来协助"}.get(prior_contacts[who].status,"")]
+ var family_text:=ForestStory.family_text(origin,prior_contacts)
+ if not family_text.is_empty(): text+="\n\n"+family_text
+ var er_text:=Er.epilogue(origin.get("origin",{}),origin.get("findings",{}),entry_turn)
+ if not er_text.is_empty(): text+="\n\n"+er_text
+ for who in prior_contacts:
+  if who=="er": continue
+  text+="\n前区联系人%s：%s" % [who,{"pending":"待处理风险","protected":"已安排保护","suspended":"暂停未来协助"}.get(prior_contacts[who].status,"")]
  return text
 func make_snapshot() -> Dictionary:
  return {"ending":ending,"regions":regions.duplicate(true),"controls":controls.duplicate(true),"findings":flags.duplicate(true),"evidence":docs.duplicate(true),"deliveries":deliveries.duplicate(true),"prior_contacts":prior_contacts.duplicate(true),"people":people.duplicate(true),"source_risk":{"due":entry_turn+source_due-1 if source_due>0 else 0,"closed":source_closed},"network_closed":network_closed,"exposure":exposure,"origin":origin.duplicate(true),"next_turn":absolute_day()+1}

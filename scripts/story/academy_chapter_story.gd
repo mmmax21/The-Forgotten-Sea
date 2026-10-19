@@ -3,7 +3,9 @@ const Lines := preload("res://scripts/story/village_story.gd")
 static func opening(s) -> Array:
  var text: Array=["你带着集市留下的问题来到旧学城：如果海洋曾经存在，书里为什么找不到它？" if not s.origin.is_empty() else "你来到旧学城，想从旧书里找一找大海的踪迹。", "藏书馆门口，二笔正把旧书装进木箱。一本书滑到地上，露出一张港口图：船停在岸边，旁边排着仓房。新版却把这里写成了‘内河货站’。", "墨先生|这页我校对过。原来写的是海港，怎么变成河边了？", "高帽子|旧版地名已经停用。第五天审议后统一采用新版，不要再把旧稿混进去。", "二笔|可图上的船，也要跟着改成河船吗？", "墨先生拾起书页，看见角落的校对签名，没有再说下去。", "你有五天，每天3 AP。第三天末停止普通调阅，第四天末清理未保全的旧稿，第五天审议新版。先查清这本书改了什么，再决定怎样把发现留下来。", "第一步：找到这本书的新旧版本。可以请墨先生帮忙，也可以自己查公共目录。"]
  text.append_array(s.events)
- return Lines.lines(text)
+ var result := Lines.lines(text)
+ result[1]["illustration"] = "harbor"
+ return result
 static func stage(s) -> Dictionary:
  if s.finished: return {"title":"旧书留下了什么？","next":"查看调查结果与人物处境，再前往羽之森。已经取得的材料和已经发生的传播都会保留。"}
  if s.archive_closed and (not s.has("versions") or not s.has("execution")):
@@ -28,14 +30,17 @@ static func greeting(s,who: String) -> Array:
    elif s.has("verify"): text=["墨先生|他们说只是统一地名。我签了字，也没有再去看那些被划掉的句子。", "墨先生|你已经看见改动了。还得查这批旧书去了哪里，不能只凭我的一句后悔。"]
    else: text=["墨先生|先别急着说是谁故意的。也许是我当年漏看了。把新旧两版放在一起，我们先查清楚。"]
   "er":
-   if s.has("rescue_extra"): text=["二笔|札记和后续联系都安排好了。这回我们保住了书，也没有把无关抄写员的名字交出去。" if s.has("er_protect") else "二笔|那份札记救出来了。开箱的记录还在，别以为拿到书就没事了。"]
+   if s.has("rescue_extra"): text=["二笔|札记保住了，接应和后续联系也安排好了。我会先暂避，证明师姐没有参与开箱的凭据也留下了。" if s.has("er_protect") else "二笔|那份札记救出来了。开箱的记录还在，他们会顺着交接单查到我和师姐。第五天结束前，我们得安排好暂避和后续联系。"]
    elif s.has("execution"): text=["二笔|我原来只想把整箱书搬走。现在看见这些签名，才知道他们会顺着箱子找到谁。", "二笔|我师姐以前替墨先生抄书，现在又被要求签旧稿处理单。我们得把命令留下，把无关的人护住。"]
    else: text=["二笔|我想趁他们清理之前把旧书藏起来。我师姐以前替墨先生抄过这些页，现在却要签字把它们送走。", "二笔|不过整箱不见了，他们先问的就是她。你先给我这本书的位置，我找对应的记录。"]
   "gao":
    if s.has("file_full") or s.has("file_limited"): text=["高帽子|你的材料已经登记，有编号可以追查。以后谁说没人提出过异议，你可以拿出这张回执。", "高帽子|但收到材料，不代表官方已经接受结论。这个区别，我必须说清楚。"]
    elif s.has("trace"): text=["高帽子|这些书不是自己变成这样的。我看见你的证据了。", "高帽子|可你准备公开哪些名字？下命令的人，和照着抄写的人，要分清楚。我可以登记异议，不能替上面保证答复。"]
    else: text=["高帽子|旧书也会有错，不能看到一句就拿出去传。", "高帽子|我见过旧档案被当作抓人名单。一个签名，连只是抄写的人也被带走了。你想纠错，就先把来源和责任分清楚。"]
- return Lines.lines(text)
+ var result := Lines.lines(text)
+ if who=="mo" and s.has("verify"):
+  result[0]["illustration"] = "consult"
+ return result
 static func action(s,id: String) -> Array:
  var text: Array=[]
  match id:
@@ -54,7 +59,7 @@ static func action(s,id: String) -> Array:
   "trace": text=["你把三份证据排在一起：书页说明改了什么，交接记录说明怎样换掉，通知说明为什么各处一起执行。", "可以确认：海洋历史被有计划地改写，旧书又被集中收走。国王为什么要这样做，仍需要到王城追查。", "证据已经齐了。现在决定怎样把它留下：交给读者、在审议会上提出，或正式登记异议。"]
   "mo_sign": text=["墨先生看过整理好的证据，在关于自己校对工作的说明上签了名。", "墨先生|当年我没有继续追问。这次别删掉我的名字。但学生只是替我抄过书，责任不该推给他们。", "这份证言说明他的参与，不会变成另一份独立海洋物证。公开后他将面对更多追问。"]
   "mo_protect": text=["你与墨先生分清校对、抄写和传递的责任，隐去与调查无关的学生姓名，并约定私人记录的保管方式。", "他承担的校对责任仍然保留，学生不必因此成为新的追查对象。"]
-  "er_protect": text=["你和二笔保留能证明换书经过的日期、编号和责任，遮去无关抄写员的姓名，并安排后续联系。", "二笔|我想救的是书和人。只把书抱出来，还不算做完。"]
+  "er_protect": text=["你保留交接凭据，澄清师姐没有参与额外开箱，请可信的人接应二笔暂时离开藏书馆，再把后续联络交给另一位抄写员。", "二笔|我想救的是书和人。只把书抱出来，还不算做完。"]
   "gao_protect": text=["你向高帽子说明材料的公开范围：追查改书命令，不把普通抄写员当作命令制定者。无关人员的姓名不随公开副本传播。"]
   "rescue_extra": text=["二笔从清理队列中救出一份额外札记，夹页记着羽之森旧观测塔的位置，以及从那里看到的远方水面。", "二笔|这份不在原来的调阅单里。他们会追问是谁开的箱，我们得处理交接人的风险。", "札记已经保住。它提供高塔线索，不替代本章主线证据；二笔的追查风险已经记录。"]
   "gao_help": text=["你向高帽子说明材料来自哪里，以及想追查哪一批换书命令。他允许按这个范围提出申请。", "高帽子|把要查的事写清楚。我给你入口，不等于我已经同意你的判断。"]
@@ -76,7 +81,12 @@ static func action(s,id: String) -> Array:
   "resend": text=["你把整理好的研究记录交给保留下来的集市印刷渠道。明天送达后，才会增加集市的海洋认知。"]
  if id in ["distribute","challenge","supplement"]: text.append("学城公众海洋认知现为%d。" % s.belief)
  text.append(stage(s).next)
- return Lines.lines(text)
+ var result := Lines.lines(text)
+ if id=="verify":
+  result[0]["illustration"] = "compare"
+  if s.has("mo_help") and not s.people.mo.closed:
+   result[2]["illustration"] = "consult"
+ return result
 static func departure(s) -> Array:
  var text: Array=s.events.duplicate()
  text.append(s.result_text())
@@ -85,8 +95,8 @@ static func departure(s) -> Array:
  if s.has("file_limited") or s.has("file_full"): text.append("你把正式回执放进随身材料。它不能代替真相，却证明有人曾经把问题完整地提出来。")
  if s.people.mo.closed: text.append("墨先生已经暂停新的协助。你已取得的材料仍然保留。"+("他的署名说明也仍然有效。" if s.has("mo_sign") else ""))
  elif s.has("trace") and s.has("mo_help"): text.append("墨先生没有再把那次校对称为‘改几个地名’。"+("他的名字已经留在责任说明上。" if s.has("mo_sign") else "即使没有公开署名，他仍帮助你保住了可以核对的旧书。"))
- if s.people.er.closed: text.append("二笔受到追查，暂时不能继续调阅。已经抢救或交出的材料没有被收回。")
- elif s.has("er_protect"): text.append("二笔留好了后续联系方式。有关换书的证据保留了，无关抄写员的姓名不必随之公开。")
+ if s.people.er.closed: text.append("二笔被停职盘问，师姐也被要求接受核查。经她维系的联系受查；已经交出的材料和札记保留。到了羽之森，你仍可托人送出凭据、安排接应。")
+ elif s.has("er_protect"): text.append("二笔按约定暂避，师姐未参与额外开箱的凭据已经保留，另一位抄写员接下了后续联系。")
  if s.has("versions"):
   text.append("旧书里还提到：普通羽人曾担任空中信使。如今人们却说，他们一直不能飞。你决定到羽之森继续调查。")
  else: text.append("你没能取得完整旧稿。离城的路通向羽之森，你决定向那里的居民继续打听海洋与过去的生活。")

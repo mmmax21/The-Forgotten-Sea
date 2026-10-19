@@ -160,6 +160,18 @@ func ui_checks():
   if node is Control and node.get_script().resource_path.ends_with("academy_chapter.gd"): scene=node
  check(scene!=null,"Market transitions into real academy scene")
  if scene==null: return
+ scene.get_node("%DialogueBox").advance()
+ check(scene.active_story_picture=="harbor" and scene.overlay.visible,"Harbor image opens at fallen-book line")
+ check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Harbor texture loads")
+ var opening_path: String=scene.save_path
+ scene.queue_free(); await frames()
+ scene=load("res://scenes/academy_chapter.tscn").instantiate()
+ scene.save_path=opening_path; root.add_child(scene); await frames()
+ check(scene.active_story_picture=="harbor" and scene.overlay.visible,"Reload restores unclosed story image")
+ await activate(button(scene.overlay_actions,"close"))
+ check(scene.state.presentation.index==1 and scene.state.ap==3,"Closing illustration neither skips line nor spends AP")
+ scene._refresh()
+ check(not scene.overlay.visible,"Closed image does not reopen on refresh")
  await finish_dialogue()
  check(scene.state.day==1 and scene.state.ap==3 and scene.state.entry_turn==11,"Entry preserves chapter timeline")
  await capture("opening")
@@ -197,7 +209,15 @@ func ui_checks():
     check(scene.state.to_data()==before,"Correct answer awaits paid confirmation")
    await activate(button(scene.overlay_actions,"execute"))
    check(scene.state.flags.has(scene.state.action_key(id)),"UI executes "+id)
+   if id=="verify":
+    check(scene.active_story_picture=="compare" and scene.overlay.visible,"Verification opens comparison image")
+    check(scene.overlay_body.get_node("StoryPicture").texture!=null,"Comparison texture loads")
    await finish_dialogue()
+   if id=="verify":
+    check(scene.state.flags.has("seen_picture_consult"),"Available scholar response shows consultation image")
+    scene._on_character_selected(0,"","",null)
+    check(not scene.overlay.visible,"Repeat scholar greeting does not repeat consultation image")
+    await finish_dialogue()
   await activate(scene.end_button)
   check(scene.overlay.visible,"End-day review")
   await activate(button(scene.overlay_actions,"confirm_day"))

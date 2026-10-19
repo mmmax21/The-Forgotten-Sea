@@ -70,23 +70,14 @@ func _refresh_people() -> void:
 func _refresh() -> void:
 	%LocationBackground.texture = Art.BACKGROUNDS.royal_city
 	%LocationBackground.modulate = Color(0.55,0.58,0.62,1)
-	%TopBar.apply_engine({"stats":[{"label":"王城海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"调查"},{"id":"evidence","text":"材料"},{"id":"map","text":"地图"},{"id":"settings","text":"设置"}],"day":state.day,"total":6,"ap":state.ap,"ap_max":3})
+	%TopBar.apply_engine({"stats":[{"label":"王城海洋认知","value":state.belief}],"buttons":[{"id":"journal","text":"进度"},{"id":"evidence","text":"材料"},{"id":"people","text":"人物"},{"id":"settings","text":"设置"}],"day":state.day,"total":6,"ap":state.ap,"ap_max":3})
 	%TopBar.get_node("DayBadge/Caption").text = "%d / 6" % state.day
 	for button in %TopBar.button_row().get_children(): button.disabled = busy()
 	_refresh_people()
-	_clear(side)
-	_text(side,"王城第%d天 · 全局第%d回合" % [state.day,state.entry_turn+state.day-1],25,GOLD)
-	var guidance: Dictionary = RoyalStory.stage(state)
-	_text(side,guidance.title,23,GOLD)
-	_text(side,state.progress_text(),22)
-	_text(side,"第5天末：查封未保护节点\n第6天：终局（海回归/接管1 AP）\n暴露：%d / 100" % state.exposure,22,MUTED)
-	if not state.selected.is_empty(): _text(side,Royal.NAMES[state.selected]+"："+state.status(state.selected),23)
-	if state.risk_due>0: _text(side,"追查：第%d天末" % state.risk_due,21,GOLD)
-	if state.source_due>0: _text(side,"具名证人：第%d天末受限" % state.source_due,21,GOLD)
-	if not state.history.is_empty(): _text(side,"最近："+state.history.back().title+"\n"+state.history.back().receipt,20,MUTED)
+	var guidance: Dictionary = _chapter_guidance()
+	_render_progress_side()
 	end_button.visible = not state.finished
 	end_button.disabled = busy()
-	completed_button.disabled = busy()
 	end_button.text = "结束大典并结算" if state.day==6 else "结束当天 · 剩%d AP" % state.ap
 	subtitle.text = "王城六日 · 阅读与切换免费"
 	heading.text = "王城调查" if state.selected.is_empty() else Royal.NAMES[state.selected]
@@ -105,6 +96,7 @@ func _refresh() -> void:
 		_show_portrait(Royal.NAMES.get(state.selected,""))
 		%DialogueBox.show_text(guidance.next)
 		_build_actions()
+		_empty_actions_hint()
 	choice_scroll.scroll_vertical = 0
 	_save_caption()
 
@@ -170,6 +162,7 @@ func _ask_end() -> void:
 	if busy() or state.finished or overlay.visible or map_modal.visible: return
 	_popup("结束大典？" if state.day==6 else "结束当天？")
 	_text(overlay_body,state.end_preview(),24)
+	_text(overlay_body,"时间提醒\n"+"\n".join(_time_notices()),23,GOLD)
 	_button(overlay_actions,"确认结束大典" if state.day==6 else "确认结束当天","confirm_day",_end_day)
 
 func _end_day() -> void:
@@ -189,13 +182,8 @@ func _show_report() -> void:
 func _toolbar(id: String) -> void:
 	if busy() or overlay.visible or map_modal.visible: return
 	match id:
-		"journal":
-			_popup("王城 · 六日与最终选择")
-			_text(overlay_body,"查阅禁令、战争、法器记录并串联责任。建立传播网络；通过正式停令或分散拒绝解除执行；经维护入口或祭司交付解除法器独占。",24)
-			_text(overlay_body,RoyalStory.stage(state).next,24,GOLD)
-			_text(overlay_body,state.progress_text()+"\n\n"+state.end_preview(),23)
-			if not state.finished: _button(overlay_actions,"进入公共调查","research",_open_research)
-			if not state.finished and state.day==6: _button(overlay_actions,"查看最终选择","endings",_ending_options)
+		"journal": _show_progress()
+		"people": _show_people_page()
 		"evidence":
 			_popup("王城材料与各地认知")
 			for doc in Royal.DOCS: _text(overlay_body,Royal.DOCS[doc]+"："+("已取得" if state.docs.has(doc) else "未取得"),23)
@@ -265,3 +253,6 @@ func _restart() -> void:
 	state.initialize(seed)
 	overlay.hide()
 	_play(RoyalStory.opening(state),"opening")
+
+func _chapter_guidance() -> Dictionary:
+	return RoyalStory.stage(state)

@@ -29,3 +29,5 @@ res://scripts/ui/royal_chapter.gd
 res://tests/royal_chapter_tests.gd
 res://tests/campaign_routes_tests.gd
 res://tests/academy_chapter_tests.gd
+res://tests/forest_chapter_tests.gd
+res://scripts/ui/mini_map/mini_map.gd

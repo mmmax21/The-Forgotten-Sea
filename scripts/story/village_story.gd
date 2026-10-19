@@ -61,9 +61,13 @@ static func action(s, id: String) -> Array:
 	var result: Array = TEXT.get(id,["行动已经完成。可以继续调查，或结束当天。"]).duplicate()
 	if id in ["heirloom","identify","waterline"]:
 		result.append("线索已经完成交叉验证。接下来决定如何公开或向邻里传播。" if s.chapter_progress().verified else "这只是调查线索，还不能算完成调查。需要手记与船体构件相互印证，或用确认的船体构件核对水线。")
-	return lines(result)
+	var presented := lines(result)
+	if id in ["heirloom","identify","waterline"]:
+		presented[0]["illustration"] = id
+	return presented
 
 static func day_start(s) -> Array:
+	var shell_index := -1
 	var values: Array = ["第%d天。今日可用%d AP。" % [s.day,s.ap]]
 	if s.day == 3: values.append("巡查者入村。已经知道调查的人更加担忧；运粮车将在今天结束时停止载客。")
 	if s.day == 5: values.append("遗迹和河工旧记录已经封闭。已有碎片仍可辨认，今天是公开说明的最后机会。")
@@ -73,8 +77,12 @@ static func day_start(s) -> Array:
 		elif s.public_event.version == "public_elder": values.append("巡查者到了哑伯门前，询问船体辨认的事。桌上的旧图纸已经收起。")
 		elif s.public_event.version == "public_anonymous": values.append("邻里开始议论那位留下手记的人。盐嫂仍在意，熟人是否会猜到她的家庭。")
 		else: values.append("村民再次谈起你展示的物证，也有人重复你尚未回答的疑问。")
-		if s.belief >= 60: values.append("昨日水线之外，多了一圈湿亮的贝壳。村民认出了你提过的纹路。大海还没有出现，但河滩正在变化。")
+		if s.belief >= 60:
+			shell_index = values.size()
+			values.append("昨日水线之外，多了一圈湿亮的贝壳。村民认出了你提过的纹路。大海还没有出现，但河滩正在变化。")
 		elif s.belief >= 30: values.append("有人拿出纸，认真记下了关于海的说法。它开始不只是一句传闻。")
 	for who in s.people:
 		if s.people[who].reported: values.append("%s已经告密。处罚只记一次，其他调查路线仍可继续。" % s.NAMES[who])
-	return lines(values)
+	var presented := lines(values)
+	if shell_index >= 0: presented[shell_index]["illustration"] = "shells"
+	return presented

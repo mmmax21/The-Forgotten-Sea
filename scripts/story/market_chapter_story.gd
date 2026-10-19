@@ -7,7 +7,9 @@ static func opening(s) -> Array:
 	if s.supports("elder_origin"): text.append("哑伯的来源说明随调查结果保存。携带渔村证据时，它可以帮助你核验钱伯的古物。")
 	text.append("已经有读者的传播组织可以在终章继续行动；只印刷或只准备渠道还不够。")
 	text.append_array(s.events)
-	return Lines.lines(text)
+	var result := Lines.lines(text)
+	result[2]["illustration"] = "gate"
+	return result
 static func greeting(s, who: String) -> Array:
 	var text: Array = {"qian":["钱伯|古物不是不准卖，是有些来历不能写。你若替我核清一批货单，我就给你看原始凭据。","钱伯|别把我的名字贴上墙。我做买卖，不替谁殉道。"],"xiang":["阿香|客人说的未必是假的，但三个人也可能是在重复同一个人的话。","阿香|先把来源核清，再决定告诉谁。你要保护的是住在这里的人。"],"dao":["刀郎|我留着删改前的残页。明明写的是远方水域，送审后却只剩下一条河。","刀郎|文字能走得比人远。可纸上的印记，也能把巡查者带回这里。"]}[who].duplicate()
 	if who=="qian" and s.flags.has("cargo"):
@@ -118,7 +120,12 @@ static func action(s, id: String, topic: String) -> Array:
 	if id in ["goods_verify","text_verify"]:
 		text.insert(2,"你已经查明一种限制。下一步不用再向自己证明一遍，而是让别人有机会读到依据，并自己判断。")
 	if State.ACTIONS[id].get("topic",false): text.append("本次内容："+State.TOPICS.censorship+"。")
-	return Lines.lines(text)
+	var result := Lines.lines(text)
+	match id:
+		"goods_verify": result[0]["illustration"] = "cargo"
+		"text_verify": result[0]["illustration"] = "pages"
+		"private", "manual", "answer": result[1]["illustration"] = "readers"
+	return result
 static func day_start(s) -> Array:
 	var text: Array = s.events.duplicate()
 	text.append("集市第%d天，可用%d AP。" % [s.day,s.ap])
