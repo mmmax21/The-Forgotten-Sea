@@ -1,23 +1,12 @@
 [gd_scene format=3]
 
 ; 证据栏。节点职责写在 scripts/ui/popup/evidence_modal.gd 文件头。
-; Icons.png 是 6 列 × 19 行、每格 16×16。
-; 关闭是第 3 行第 5 格。左箭头是第 5 行第 5 格，右箭头是第 5 行第 6 格。
+; 关闭是 assets/icons/close.png。左箭头是 prev.png，右箭头是 next.png。
 
 [ext_resource type="Script" path="res://scripts/ui/popup/evidence_modal.gd" id="1_evidence"]
-[ext_resource type="Texture2D" path="res://assets/Icons.png" id="2_icons"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
-atlas = ExtResource("2_icons")
-region = Rect2(64, 32, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_prev"]
-atlas = ExtResource("2_icons")
-region = Rect2(64, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_next"]
-atlas = ExtResource("2_icons")
-region = Rect2(80, 64, 16, 16)
+[ext_resource type="Texture2D" path="res://assets/icons/close.png" id="2_close"]
+[ext_resource type="Texture2D" path="res://assets/icons/prev.png" id="3_prev"]
+[ext_resource type="Texture2D" path="res://assets/icons/next.png" id="4_next"]
 
 [node name="EvidenceModal" type="Control"]
 layout_mode = 3
@@ -68,9 +57,9 @@ offset_right = -16.0
 offset_bottom = 72.0
 grow_horizontal = 0
 focus_mode = 0
-texture_filter = 1
+texture_filter = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_close")
+icon = ExtResource("2_close")
 expand_icon = true
 flat = true
 
@@ -127,9 +116,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 focus_mode = 0
-texture_filter = 1
+texture_filter = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_prev")
+icon = ExtResource("3_prev")
 expand_icon = true
 flat = true
 
@@ -146,9 +135,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 focus_mode = 0
-texture_filter = 1
+texture_filter = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_next")
+icon = ExtResource("4_next")
 expand_icon = true
 flat = true
 

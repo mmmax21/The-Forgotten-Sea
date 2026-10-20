@@ -11,7 +11,7 @@ extends Control
 ##   不能前往时 Cover 盖住，和 Hit 同大，地名隐藏。
 ##   ruins 遗迹，fishing_village 渔村，market 集市，
 ##   old_academy 旧学城，feather_forest 羽之森，royal_city 王城。
-## - CloseButton：纸面右上，轴的左边。图标是 Icons.png 第 3 行第 5 格。
+## - CloseButton：纸面右上，轴的左边。图标是 assets/icons/close.png。
 ##
 ## configure(data) 收 show_ocean、places，以及可选的 ap、ap_cost、current_place、travel_names。
 ## open() 负责显示。close() 负责隐藏，并发出 closed。右上角关闭钮也走它。

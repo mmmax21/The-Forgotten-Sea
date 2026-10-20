@@ -6,8 +6,8 @@ extends Control
 ## - Book：书本范围。PageAnim 播摊开和翻页。
 ## - DayTitle：当前页标题，写成 Day N。
 ## - PageScroll：当天的事件和操作。超出时只在这块里滚动。
-## - PrevButton / NextButton：上一天、下一天。图标是 Icons.png 第 5 行第 5、第 6 格。
-## - CloseButton：右上角。图标是 Icons.png 第 3 行第 5 格。
+## - PrevButton / NextButton：上一天、下一天。图标是 assets/icons/prev.png、assets/icons/next.png。
+## - CloseButton：右上角。图标是 assets/icons/close.png。
 ##
 ## 数据引擎调用 apply_engine(data)，再 open()。字段见 docs/data_formats.md 的「手记弹窗」。
 ## 按下关闭后 hide()，发出 closed。

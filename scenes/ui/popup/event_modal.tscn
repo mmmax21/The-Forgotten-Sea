@@ -1,14 +1,10 @@
 [gd_scene format=3]
 
 ; 事件弹窗。节点职责写在 scripts/ui/popup/event_modal.gd 文件头。
-; Icons.png 关闭格是第 3 行第 5 格。
+; 关闭图标是 assets/icons/close.png。
 
 [ext_resource type="Script" path="res://scripts/ui/popup/event_modal.gd" id="1_event"]
-[ext_resource type="Texture2D" path="res://assets/Icons.png" id="2_icons"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
-atlas = ExtResource("2_icons")
-region = Rect2(64, 32, 16, 16)
+[ext_resource type="Texture2D" path="res://assets/icons/close.png" id="2_close"]
 
 [node name="EventModal" type="Control"]
 layout_mode = 3
@@ -59,9 +55,9 @@ offset_right = -24.0
 offset_bottom = 76.0
 grow_horizontal = 0
 focus_mode = 0
-texture_filter = 1
+texture_filter = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_close")
+icon = ExtResource("2_close")
 expand_icon = true
 flat = true
 

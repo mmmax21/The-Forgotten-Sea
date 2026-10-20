@@ -3,22 +3,12 @@
 [ext_resource type="Script" path="res://scripts/ui/popup/journal_book.gd" id="1_book"]
 [ext_resource type="SpriteFrames" path="res://assets/ui/journal/book_frames.tres" id="2_frames"]
 [ext_resource type="Shader" path="res://assets/ui/journal/book_black_key.gdshader" id="3_key"]
-[ext_resource type="Texture2D" uid="uid://bw7wy4j77x7rx" path="res://assets/Icons.png" id="4_icons"]
+[ext_resource type="Texture2D" path="res://assets/icons/prev.png" id="4_prev"]
+[ext_resource type="Texture2D" path="res://assets/icons/next.png" id="5_next"]
+[ext_resource type="Texture2D" path="res://assets/icons/close.png" id="6_close"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_book"]
 shader = ExtResource("3_key")
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_prev"]
-atlas = ExtResource("4_icons")
-region = Rect2(64, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_next"]
-atlas = ExtResource("4_icons")
-region = Rect2(80, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
-atlas = ExtResource("4_icons")
-region = Rect2(64, 32, 16, 16)
 
 [node name="JournalBook" type="Control" unique_id=1681775561]
 layout_mode = 3
@@ -140,11 +130,11 @@ alignment = 1
 
 [node name="PrevButton" type="Button" parent="Book/TextFrame/Layout/Footer" unique_id=690710184]
 unique_name_in_owner = true
-texture_filter = 1
+texture_filter = 2
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_prev")
+icon = ExtResource("4_prev")
 flat = true
 expand_icon = true
 
@@ -159,17 +149,17 @@ horizontal_alignment = 1
 
 [node name="NextButton" type="Button" parent="Book/TextFrame/Layout/Footer" unique_id=521592795]
 unique_name_in_owner = true
-texture_filter = 1
+texture_filter = 2
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_next")
+icon = ExtResource("5_next")
 flat = true
 expand_icon = true
 
 [node name="CloseButton" type="Button" parent="Book" unique_id=881993992]
 unique_name_in_owner = true
-texture_filter = 1
+texture_filter = 2
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -180,6 +170,6 @@ offset_right = -112.0
 offset_bottom = 84.0
 grow_horizontal = 0
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_close")
+icon = ExtResource("6_close")
 flat = true
 expand_icon = true

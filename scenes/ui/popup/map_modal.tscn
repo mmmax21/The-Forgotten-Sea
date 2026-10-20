@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bg1cybtj3ltue"]
 
 [ext_resource type="Script" uid="uid://dfqx73dprf21s" path="res://scripts/ui/popup/map_modal.gd" id="1_map"]
-[ext_resource type="Texture2D" uid="uid://bw7wy4j77x7rx" path="res://assets/Icons.png" id="2_icons"]
+[ext_resource type="Texture2D" path="res://assets/icons/close.png" id="2_close"]
 [ext_resource type="Texture2D" uid="uid://b1hwro7yymitd" path="res://assets/ui/map_modal/map_background.png" id="3_bg"]
 [ext_resource type="Texture2D" uid="uid://b3optrknbgdw4" path="res://assets/ui/map_modal/map_without_ocean.png" id="4_dry"]
 [ext_resource type="Texture2D" uid="uid://dnlus0wtv1qah" path="res://assets/ui/map_modal/map_with_ocean.png" id="5_sea"]
@@ -104,10 +104,6 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_close"]
-atlas = ExtResource("2_icons")
-region = Rect2(64, 32, 16, 16)
 
 [node name="MapModal" type="Control" unique_id=1384993399]
 layout_mode = 3
@@ -332,7 +328,7 @@ metadata/_edit_lock_ = true
 
 [node name="CloseButton" type="Button" parent="Panel" unique_id=2114361292]
 unique_name_in_owner = true
-texture_filter = 1
+texture_filter = 2
 layout_mode = 0
 offset_left = 1344.0
 offset_top = 46.0
@@ -340,7 +336,7 @@ offset_right = 1392.0
 offset_bottom = 94.0
 focus_mode = 0
 theme_override_constants/icon_max_width = 48
-icon = SubResource("AtlasTexture_close")
+icon = ExtResource("2_close")
 flat = true
 expand_icon = true
 

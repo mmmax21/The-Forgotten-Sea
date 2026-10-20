@@ -44,9 +44,13 @@
 
 - [`data/story/ya_bo.json`](../data/story/ya_bo.json)
 
-## 图片与纹理资源（17 个）
+## 图片与纹理资源（21 个）
 
-- [`assets/Icons.png`](../assets/Icons.png)
+- [`assets/icons/check.png`](../assets/icons/check.png)
+- [`assets/icons/close.png`](../assets/icons/close.png)
+- [`assets/icons/next.png`](../assets/icons/next.png)
+- [`assets/icons/prev.png`](../assets/icons/prev.png)
+- [`assets/icons/undo.png`](../assets/icons/undo.png)
 - [`assets/backgrounds/ruins-v1.png`](../assets/backgrounds/ruins-v1.png)
 - [`assets/icons_4panel.jpg`](../assets/icons_4panel.jpg)
 - [`assets/items/ancient_song.tres`](../assets/items/ancient_song.tres)

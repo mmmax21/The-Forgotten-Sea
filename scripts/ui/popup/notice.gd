@@ -4,7 +4,7 @@ extends Control
 ## 场景结构（scenes/ui/popup/notice.tscn）：
 ## - Shade：全屏遮罩，挡住底层点击，点遮罩不关闭。
 ## - Panel：640×840，与 notice_background.png 同大，锚在屏幕中心。
-## - CloseButton：右上角，距右、距上各 16。图标是 Icons.png 第 3 行第 5 格。
+## - CloseButton：右上角，距右、距上各 16。图标是 assets/icons/close.png。
 ## - Body：标题、图片、正文。四边内容边距 48，顶边从关闭按钮下沿再空 8px。
 ##
 ## 数据引擎只调用 apply_engine(data)。字段见 docs/data_formats.md 的「通知弹窗」。

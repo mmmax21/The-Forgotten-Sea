@@ -4,7 +4,7 @@ extends Control
 ## 场景结构（scenes/ui/popup/event_modal.tscn）：
 ## - Shade：全屏遮罩，挡住底层点击，点遮罩不关闭。
 ## - Panel：1180×680。标题、固定高度的说明、横排卡牌。
-## - CloseButton：右上角。图标是 Icons.png 第 3 行第 5 格。
+## - CloseButton：右上角。图标是 assets/icons/close.png。
 ## - TextScroll：说明区，高 160。超出只在这里滚动。
 ## - CardRow：2 到 4 张卡，运行时按数据生成。
 ##

@@ -4,8 +4,8 @@ extends Control
 ## 场景结构（scenes/ui/popup/evidence_modal.tscn）：
 ## - Shade：全屏遮罩，挡住底层点击，点遮罩不关闭。
 ## - Panel：宽 560。里面是标题、4×4 格子、翻页条。
-## - CloseButton：右上角。图标是 Icons.png 第 3 行第 5 格。
-## - PrevButton / NextButton：Icons.png 第 5 行第 5、第 6 格。
+## - CloseButton：右上角。图标是 assets/icons/close.png。
+## - PrevButton / NextButton：assets/icons/prev.png、assets/icons/next.png。
 ## - Tooltip：悬停有证据的格子时出现在格子右侧。
 ##
 ## 数据引擎只调用 apply_engine(data)。字段见 docs/data_formats.md 的「证据栏」。
