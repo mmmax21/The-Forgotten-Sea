@@ -6,7 +6,6 @@ const Save := preload("res://scripts/story/village_save.gd")
 const Art := preload("res://scripts/ui/trial1_art.gd")
 const Characters := preload("res://scripts/ui/character_card/default_characters.gd")
 const MapScene := preload("res://scenes/ui/popup/map_modal.tscn")
-const EventScene := preload("res://scenes/ui/popup/event_modal.tscn")
 const GOLD := Color("d5bb83")
 const PAPER := Color("ece2cd")
 const MUTED := Color("b5c4c0")
@@ -20,7 +19,6 @@ var actions: VBoxContainer
 var side: VBoxContainer
 var save_label: Label
 var map_modal
-var event_modal
 var overlay: Control
 var overlay_body: VBoxContainer
 var overlay_actions: VBoxContainer
@@ -50,7 +48,6 @@ func _ready() -> void:
 	%CharacterRail.character_selected.connect(_on_character_selected)
 	%DialogueBox.dialogue_finished.connect(_on_dialogue_finished)
 	%DialogueBox.line_presented.connect(_on_line_presented)
-	%DialogueBox.gui_input.connect(_on_dialogue_click)
 	%MiniMap.action_pressed.connect(_minimap)
 	%MiniMap.get_node("Compass").tooltip_text = "地图"
 	%MiniMap.get_node("Upper").tooltip_text = "证据与材料"
@@ -191,11 +188,6 @@ func _build_ui() -> void:
 	%Design.add_child(map_modal)
 	map_modal.hide()
 	map_modal.place_chosen.connect(_map_place)
-	event_modal = EventScene.instantiate()
-	%Design.add_child(event_modal)
-	event_modal.hide()
-	event_modal.option_chosen.connect(_choose)
-	event_modal.closed.connect(_on_event_closed)
 	overlay = Control.new()
 	%Design.add_child(overlay)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -224,106 +216,7 @@ func busy() -> bool:
 	return not state.presentation.is_empty()
 
 func portrait_index(person: String) -> int:
-<<<<<<< HEAD
-	return int({"螺螺": 2, "哑伯": 3, "盐嫂": 1, "老渔夫": 0}.get(person, -1))
-
-func _people() -> Array:
-	var active := current_actor()
-	var names: Array = ["螺螺", "哑伯", "盐嫂", "集会村民" if state.round_number == 5 else "河边村民"]
-	if state.region() == 1:
-		names = ["钱伯", "阿香", "刀郎", "巡查队" if state.round_number == 9 else "商队领队"]
-	elif state.region() == 2:
-		names = ["墨先生", "二笔", "高帽子", active if state.round_number >= 14 else "档案管理员"]
-	var people: Array = []
-	for person in names:
-		var index := portrait_index(person)
-		people.append({"name": person, "portrait": Characters.portrait(index) if index >= 0 else null, "summary": "点击开始：" + str(state.event().title) if person == active else "当前回合的交谈对象是" + active, "disabled": person != active or stage() != "idle", "visible": true})
-	return people
-
-func _ensure_presentation() -> void:
-	if not state.presentation.is_empty():
-		return
-	# v1 saves migrate without changing AP, evidence, or completed actions.
-	match state.phase:
-		"ready": state.presentation = {"stage": "idle"}
-		"result": state.presentation = {"stage": "result", "lines": dialogue.lines_for(state, state.pending), "index": 0, "portrait": current_actor()}
-		"aftermath": state.presentation = {"stage": "aftermath"}
-		"ending": state.presentation = {"stage": "ending", "lines": dialogue.lines_for(state, "ending"), "index": 0, "portrait": ""}
-
-func _refresh_people() -> void:
-	var people := _people()
-	var names: Array = []
-	for person in people:
-		names.append(person.name)
-	if names != rail_names:
-		rail_names = names
-		%CharacterRail.configure(people)
-		return
-	# A card may still be emitting its pressed signal. Update it in place,
-	# rather than freeing the node through CharacterRail.configure().
-	var cards := %CharacterRail.get_node("Cards").get_children()
-	for i in people.size():
-		var person: Dictionary = people[i]
-		cards[i].configure(person.name, person.portrait, person.summary, person.disabled, true, i)
-
-func _refresh() -> void:
-	_ensure_presentation()
-	if event_modal != null and stage() != "choices" and event_modal.visible:
-		event_modal.hide()
-	%LocationBackground.texture = Art.BACKGROUNDS[Art.REGION_IDS[state.region()]]
-	%TopBar.apply_engine({"stats": [{"label": "信仰 F", "value": state.faith}, {"label": "警戒 A", "value": state.alert}], "buttons": [{"id": "journal", "text": "手记"}, {"id": "evidence", "text": "证据"}, {"id": "map", "text": "地图"}, {"id": "settings", "text": "设置"}], "day": state.round_number, "total": 15, "ap": state.ap, "ap_max": 3})
-	for button in %TopBar.button_row().get_children():
-		button.disabled = busy()
-	_refresh_people()
-	%CharacterRail.visible = state.phase != "ending"
-	_refresh_side()
-	_clear(actions)
-	subtitle.text = "%s　/　第 %02d 回合" % [state.data.regions[state.region()].name, state.round_number]
-	heading.text = state.event().title
-	continue_hint.text = ""
-	choice_scroll.visible = not busy()
-	match stage():
-		"idle":
-			%PortraitPanel.clear_character()
-			%DialogueBox.show_text("点击左侧的「%s」人物卡，开始本回合的交谈。" % current_actor())
-		"opening", "result", "closing", "ending":
-			if state.phase == "ending":
-				heading.text = state.data.endings[state.ending].title
-				%PortraitPanel.clear_character()
-			else:
-				_show_portrait(str(state.presentation.get("portrait", current_actor())))
-			%DialogueBox.show_from(state.presentation.lines, int(state.presentation.index))
-		"choices":
-			_show_portrait(str(state.presentation.get("portrait", current_actor())))
-			%DialogueBox.show_text("点击此处，查看可以采取的行动。")
-		"aftermath":
-			%DialogueBox.show_text(str(state.report).replace("未接触", "尚未建立联系"))
-			if state.ap > 0 and not state.generic_used:
-				_button(actions, "整理调查笔记 · 1 AP" + ("\n本回合没有待整理线索" if state.turn_clues.is_empty() else "\n登记：" + state.evidence_names(state.turn_clues)), "notes", _generic.bind("notes"), not state.can_generic("notes"))
-				_button(actions, "谨慎收尾 · 1 AP · A −1（最低为 0）", "careful", _generic.bind("careful"))
-			var next := "结束旅程 · 查看结局 →" if state.round_number == 15 else ("结束本回合 · 前往%s →" % state.data.regions[state.region() + 1].name if state.round_number in [5, 10] else "结束本回合 →")
-			_button(actions, next, "next", _next)
-		"finished":
-			heading.text = state.data.endings[state.ending].title
-			%PortraitPanel.clear_character()
-			%DialogueBox.show_text("%s\n信仰 F %d　警戒 A %d\n旅程已结束，可以回看调查手记，或重新开始。" % [state.data.endings[state.ending].title, state.faith, state.alert])
-			_button(actions, "回看调查手记", "journal", _toolbar.bind("journal"))
-			_button(actions, "再走一次这段旅程…", "restart", _restart_ask)
-	choice_scroll.scroll_vertical = 0
-	_save_caption()
-
-func _refresh_side() -> void:
-	_clear(side)
-	_text(side, "渔村 → 集市 → 旧学城", 24, GOLD)
-	_text(side, "已登记 %d 类证据 · %d 条渠道" % [state.categories().size(), state.channels.size()], 23)
-	var actor := current_actor()
-	var status: String = state.npc.get(str(state.event().actor), "未接触")
-	_text(side, actor + " · " + ("尚未建立联系" if status == "未接触" else status), 23, MUTED)
-	_text(side, state.warning_text(), 23, Color("e5bc93") if state.alert >= 10 else MUTED)
-	side.get_parent().scroll_vertical = 0
-=======
 	return int({"螺螺":2,"哑伯":3,"盐嫂":1}.get(person,-1))
->>>>>>> origin/dev-max
 
 func _show_portrait(person: String) -> void:
 	if person.is_empty():
@@ -482,98 +375,9 @@ func _village_picture_visibility_changed() -> void:
 	_save()
 
 func _on_dialogue_finished() -> void:
-<<<<<<< HEAD
-	match stage():
-		"opening": state.presentation = {"stage": "choices", "portrait": %PortraitPanel.character}
-		"result":
-			if not state.settle():
-				return
-			if state.phase == "ending":
-				_start_dialogue("ending", dialogue.lines_for(state, "ending"))
-			else:
-				_start_dialogue("closing", dialogue.lines_for(state, "closing"))
-			return
-		"closing": state.presentation = {"stage": "aftermath"}
-		"ending": state.presentation = {"stage": "finished"}
-		_: return
-	_save()
-	_refresh()
-	if stage() == "choices":
-		_open_event_choices()
-
-func _save_caption() -> void:
-	save_label.text = save_error if not save_error.is_empty() else "进度自动保存到当前对白　·　移动不消耗 AP　·　A≥18 遗忘重临"
-
-func _minimap(id: String) -> void:
-	_toolbar({"compass": "map", "rim_upper": "evidence", "rim_lower": "journal"}.get(id, "map"))
-
-func _save() -> void:
-	var error: Error = state.save_to(save_path)
-	save_error = "进度保存失败：%s。请检查保存目录权限。" % error_string(error) if error != OK else ""
-
-func _choose(id: String) -> void:
-	if stage() != "choices" or overlay.visible or map_modal.visible:
-		return
-	if state.begin(id):
-		if event_modal != null and event_modal.visible:
-			event_modal.hide()
-		_start_dialogue("result", dialogue.lines_for(state, id))
-
-
-func _open_event_choices() -> void:
-	if stage() != "choices" or overlay.visible or map_modal.visible or event_modal.visible:
-		return
-	event_modal.apply_engine(_event_payload())
-	event_modal.open()
-
-
-func _event_payload() -> Dictionary:
-	var options: Array = []
-	for id in ["A", "B", "C"]:
-		var value: Dictionary = state.option(id)
-		if value.is_empty():
-			continue
-		var reason: String = state.blocked_reason(id)
-		var detail := "%d AP · F %+d · A %+d" % [int(value.cost), int(value.f), int(value.a)]
-		options.append({
-			"id": id,
-			"title": str(value.title),
-			"detail": reason if not reason.is_empty() else detail,
-			"disabled": not reason.is_empty(),
-		})
-	return {
-		"title": str(state.event().title),
-		"text": str(state.event().get("intro", "")),
-		"options": options,
-	}
-
-
-func _on_event_closed() -> void:
-	if stage() == "choices":
-		%DialogueBox.show_text("点击此处，查看可以采取的行动。")
-
-
-func _on_dialogue_click(event: InputEvent) -> void:
-	var click: InputEventMouseButton = event as InputEventMouseButton
-	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
-		return
-	if stage() != "choices" or event_modal.visible or overlay.visible or map_modal.visible:
-		return
-	_open_event_choices()
-
-func _generic(id: String) -> void:
-	if stage() == "aftermath" and state.generic(id):
-		_save()
-		_refresh()
-
-func _next() -> void:
-	if stage() != "aftermath" or not state.next_round():
-		return
-=======
 	if not busy(): return
 	if state.presentation.kind == "day" and not state.public_event.is_empty() and state.day > state.public_event.day:
 		state.public_event.feedback_read = true
->>>>>>> origin/dev-max
 	state.presentation = {}
 	_save()
 	_refresh()
