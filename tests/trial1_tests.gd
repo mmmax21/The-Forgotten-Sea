@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 extends SceneTree
 const Dialogue := preload("res://scripts/story/trial1_dialogue.gd")
 const State := preload("res://scripts/story/trial1_state.gd")
@@ -350,3 +351,8 @@ func screenshot(label: String) -> void:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("/tmp/trial1-%s-%d.png" % [label, root.size.x])
+=======
+extends "res://tests/village_chapter_tests.gd"
+## The trial1 entry now runs the six-day chapter. Keep the established test command.
+## Previous fifteen-turn expectations are superseded; old rules/data remain isolated.
+>>>>>>> origin/dev-max

@@ -35,6 +35,14 @@ func _ready() -> void:
 	%Upper.tooltip_text = "集会"
 	%Lower.tooltip_text = "隐藏"
 	_layout()
+	var caption := Label.new()
+	caption.text = "地图"
+	caption.add_theme_font_size_override("font_size",26)
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption.position = Vector2(%Compass.position.x, %Compass.position.y + COMPASS_SIZE - 24)
+	caption.size = Vector2(COMPASS_SIZE,40)
+	add_child(caption)
 
 
 ## 只改两个小钮的 id。指南针固定是 "compass"。
